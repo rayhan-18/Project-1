@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Toko Perabot Rayhan</title>
+  <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">Toko<span>Rayhan</span></div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="collections.html">Collections</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-icons">
+          <div class="search-icon" title="Search"><i class="fa-light fa-magnifying-glass"></i></div>
+          <div class="wishlist-icon" onclick="openWishlistModal()" title="Wishlist">
+            <i class="fa-light fa-heart"></i>
+            <span class="wishlist-count">0</span>
+          </div>
+          <div class="cart-icon" onclick="openCartModal()" title="Shopping Cart">
+            <i class="fa-light fa-cart-shopping-fast"></i>
+            <span class="cart-count">0</span>
+          </div>
+          <div class="user-icon" onclick="toggleModal()" title="User Account">
+            <i class="fa-light fa-user"></i>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main -->
+<main id="homepage">
+  <!-- Hero -->
+  <section class="hero-slider">
+    <div class="slides">
+      <div class="slide" style="background-image: url(/images/home.avif);"></div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section class="categories">
+    <div class="container">
+      <h2 class="section-title">Browse by Category</h2>
+      <div class="category-grid">
+        <div class="category-card" onclick="window.location.href='products.html'">
+          <div class="category-img">
+            <img src="/product/panci/panci 3.jpg" alt="Living Room">
+          </div>
+          <div class="category-info">
+            <h3>Living Room</h3>
+            <p>Sofas, coffee tables, and more</p>
+          </div>
+        </div>
+        <div class="category-card" onclick="window.location.href='products.html'">
+          <div class="category-img">
+            <img src="/product/panci/panci 5.jpg" alt="Bedroom">
+          </div>
+          <div class="category-info">
+            <h3>Bedroom</h3>
+            <p>Beds, dressers, and nightstands</p>
+          </div>
+        </div>
+        <div class="category-card" onclick="window.location.href='products.html'">
+          <div class="category-img">
+            <img src="/product/panci/panci 7.jpg" alt="Dining Room">
+          </div>
+          <div class="category-info">
+            <h3>Dining Room</h3>
+            <p>Tables, chairs, and buffets</p>
+          </div>
+        </div>
+        <div class="category-card" onclick="window.location.href='products.html'">
+          <div class="category-img">
+            <img src="/product/panci/panci 6.jpg" alt="Office">
+          </div>
+          <div class="category-info">
+            <h3>Office</h3>
+            <p>Desks, chairs, and bookshelves</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Products Section -->
+  <section class="products">
+    <div class="container">
+      <h2 class="section-title">Featured Products</h2><br>
+      <div class="product-grid">
+
+        <div class="product-card" data-id="2" data-name="panci" data-price="899" data-image="/product/panci/panci 3.jpg">
+          <div class="product-img">
+            <img src="/product/panci/panci 3.jpg" alt="panci">
+            <span class="product-tag">New</span>
+          </div>
+          <div class="product-info">
+            <h3>Oven</h3>
+            <div class="product-price">$899</div>
+            <div class="product-actions">
+              <button class="btn-add-cart">Add to Cart</button>
+              <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-id="1" data-name="panci" data-price="899" data-image="/product/panci/panci 2.png">
+          <div class="product-img">
+            <img src="/product/panci/panci 2.png" alt="panci">
+            <span class="product-tag">New</span>
+          </div>
+          <div class="product-info">
+            <h3>Oven</h3>
+            <div class="product-price">$899</div>
+            <div class="product-actions">
+              <button class="btn-add-cart">Add to Cart</button>
+              <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+            </div>
+          </div>
+        </div>
+
+      <div class="product-card" data-id="2" data-name="panci" data-price="899" data-image="/product/panci/panci 3.jpg">
+          <div class="product-img">
+            <img src="/product/panci/panci 3.jpg" alt="panci">
+            <span class="product-tag">New</span>
+          </div>
+          <div class="product-info">
+            <h3>Oven</h3>
+            <div class="product-price">$899</div>
+            <div class="product-actions">
+              <button class="btn-add-cart">Add to Cart</button>
+              <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="product-card" data-id="2" data-name="panci" data-price="899" data-image="/product/panci/panci 3.jpg">
+          <div class="product-img">
+            <img src="/product/panci/panci 3.jpg" alt="panci">
+            <span class="product-tag">New</span>
+          </div>
+          <div class="product-info">
+            <h3>Oven</h3>
+            <div class="product-price">$899</div>
+            <div class="product-actions">
+              <button class="btn-add-cart">Add to Cart</button>
+              <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="features">
+    <div class="container">
+      <h2 class="section-title">Why Choose Us</h2><br>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🚚</div>
+          <h3>Free Delivery</h3>
+          <p>Free shipping on all orders over $500</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🛠️</div>
+          <h3>Assembly Service</h3>
+          <p>Professional assembly available</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⏱️</div>
+          <h3>30-Day Returns</h3>
+          <p>Easy returns within 30 days</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🏆</div>
+          <h3>Quality Guarantee</h3>
+          <p>5-year warranty on all products</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Login Modal -->
+<div id="loginModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="toggleModal('loginModal')">&times;</span>
+    <h2>Login</h2>
+    <form id="loginForm" method="post">
+      <input type="email" id="loginEmail" placeholder="Email" required>
+      <input type="password" id="loginPassword" placeholder="Password" required>
+      <button type="submit">Login</button>
+    </form>
+    <p>Belum punya akun? <a href="#" id="registerLink">Register</a></p>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div id="registerModal" class="modal hidden">
+  <div class="modal-content">
+    <span class="close" onclick="toggleModal('registerModal')">&times;</span>
+    <h2>Register</h2>
+    <form id="registerForm" method="post">
+      <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+      <input type="email" id="registerEmail" placeholder="Email" required>
+      <input type="password" id="registerPassword" placeholder="Password" required>
+      <button type="submit">Register</button>
+    </form>
+    <p>Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer>
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-column">
+        <h3>Toko Rayhan</h3>
+        <p>Premium furniture for modern living.</p>
+      </div>
+      <div class="footer-column">
+        <h3>All Products</h3>
+        <ul class="footer-links">
+          <li><a href="products.html">Living Room</a></li>
+          <li><a href="products.html">Bedroom</a></li>
+          <li><a href="products.html">Dining Room</a></li>
+          <li><a href="products.html">Office</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Information</h3>
+        <ul class="footer-links">
+          <li><a href="about.html">About Us</a></li>
+          <li><a href="contact.html">Contact Us</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Privacy Policy</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h3>Customer Service</h3>
+        <ul class="footer-links">
+          <li><a href="#">My Account</a></li>
+          <li><a href="#">Track Order</a></li>
+          <li><a href="#">Returns & Exchanges</a></li>
+          <li><a href="#">Shipping Policy</a></li>
+          <li><a href="#">Warranty</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<!-- Scripts -->
+<script>
+function showLogin() {
+  document.getElementById("loginForm").classList.remove("hidden");
+  document.getElementById("registerForm").classList.add("hidden");
+}
+
+// Function to toggle modal
+function toggleModal(modalId = 'loginModal') {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.toggle('hidden');
+}
+
+// Show login form and modal
+function showLogin() {
+  document.getElementById("loginModal").classList.remove("hidden");
+  document.getElementById("registerModal").classList.add("hidden");
+}
+
+// Show register form and modal
+function showRegister() {
+  document.getElementById("registerModal").classList.remove("hidden");
+  document.getElementById("loginModal").classList.add("hidden");
+}
+
+// Event listener for login form submission
+document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  const res = await fetch('http://localhost:3000/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    localStorage.setItem('user', JSON.stringify(data.user));
+    document.getElementById("loginModal").classList.add("hidden");
+  } else {
+    alert(data.message || 'Login gagal');
+  }
+});
+
+// Event listener for register form submission
+document.getElementById('registerForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const name = document.getElementById('registerName').value;
+  const email = document.getElementById('registerEmail').value;
+  const password = document.getElementById('registerPassword').value;
+  const res = await fetch('http://localhost:3000/api/auth/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, email, password })
+  });
+  const data = await res.json();
+  if (res.ok) {
+    localStorage.setItem('user', JSON.stringify(data.user));
+    document.getElementById("registerModal").classList.add("hidden");
+  } else {
+    alert(data.message || 'Registrasi gagal');
+  }
+}); 
+
+// Close modal with ESC key
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    document.getElementById("loginModal").classList.add("hidden");
+    document.getElementById("registerModal").classList.add("hidden");
+  }
+});
+
+// Toggle between login/register
+document.getElementById('registerLink').addEventListener('click', function(e) {
+  e.preventDefault();
+  showRegister();
+});
+
+document.getElementById('loginLink').addEventListener('click', function(e) {
+  e.preventDefault();
+  showLogin();
+});
+</script>
+
+</body>
+</html>

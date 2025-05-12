@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Products | TokoRayhan</title>
+  <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+ <header>
+    <div class="container">
+      <nav>
+        <div class="logo">Toko<span>Rayhan</span></div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="collections.html">Collections</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-icons">
+          <div class="search-icon" title="Search">
+            <i class="fa-light fa-magnifying-glass"></i>
+          </div>
+          <div class="wishlist-icon" title="Wishlist" onclick="openWishlistModal()">
+            <i class="fa-light fa-heart"></i>
+            <span class="wishlist-count">0</span>
+          </div>
+          <div class="cart-icon" onclick="openCartModal()" title="Shopping Cart">
+            <i class="fa-light fa-cart-shopping-fast"></i>
+            <span class="cart-count">0</span>
+          </div>
+
+      <!-- User Dropdown -->
+      <div style="position: relative;">
+        <div id="user-icon" style="cursor: pointer; font-size: 24px;">
+          <i class="fa-light fa-user"></i>
+        </div>            
+        <div id="user-dropdown" style="display: none; position: absolute; right: 0; top: 40px; background: white; border: 1px solid #ccc; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 200px;">
+          <p id="user-name" style="margin: 5px 0;"></p>
+          <p id="user-email" style="margin: 5px 0;"></p>
+          <button onclick="logout()" style="margin-top: 10px; width: 100%; background: #dc3545; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer;">Logout</button>
+        </div>
+      </div>          
+    </div>
+  </nav>
+</div>
+  </header>
+
+  <main>
+    <section>
+      <div class="container">
+        <h1>All Products</h1>
+        <div class="product-grid">
+          <!-- Produk 1 -->
+          <div class="product-card" onclick="goToProductDetail(1)">
+            <div class="product-img">
+              <img src="/product/panci/panci 1.png" alt="panci 1">
+              <span class="product-tag">New</span>
+            </div>
+            <div class="product-info">
+              <h3>Panci Klasik Hitam 2L</h3>
+              <div class="product-price">Rp 89.000</div>
+              <div class="product-actions">
+                <button class="add-to-cart-btn" data-product-id="1" data-product-name="Panci Klasik Hitam 2L" data-price="89000" data-image="/product/panci/panci 1.png">Add to Cart</button>
+                <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+              </div> 
+            </div>
+          </div>
+
+      <div class="product-card" onclick="goToProductDetail(2)">
+        <div class="product-img">
+          <img src="/product/panci/panci 2.png" alt="panci 2">
+        </div>
+        <div class="product-info">
+          <h3>Panci Masak Serbaguna 3L</h3>
+          <div class="product-price">Rp 109.000</div>
+          <div class="product-actions">
+            <button class="add-to-cart-btn" data-product-id="2" data-product-name="Panci Masak Serbaguna 3L" data-price="109000" data-image="/product/panci/panci 2.png">Add to Cart</button>
+            <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" onclick="goToProductDetail(3)">
+        <div class="product-img">
+          <img src="/product/panci/panci 3.jpg" alt="panci 3">
+        </div>
+        <div class="product-info">
+          <h3>Panci Kecil Anti Lengket</h3>
+          <div class="product-price">Rp 65.000</div>
+          <div class="product-actions">
+            <button class="add-to-cart-btn" data-product-id="3" data-product-name="Panci Kecil Anti Lengket" data-price="65000" data-image="/product/panci/panci 3.jpg">Add to Cart</button>
+            <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" onclick="goToProductDetail(4)">
+        <div class="product-img">
+          <img src="/product/panci/panci 4.jpg" alt="panci 4">
+        </div>
+        <div class="product-info">
+          <h3>Panci Kaca Transparan 1.8L</h3>
+          <div class="product-price">Rp 125.000</div>
+          <div class="product-actions">
+            <button class="add-to-cart-btn" data-product-id="4" data-product-name="Panci Kaca Transparan 1.8L" data-price="125000" data-image="/product/panci/panci 4.jpg">Add to Cart</button>
+            <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" onclick="goToProductDetail(5)">
+        <div class="product-img">
+          <img src="/product/panci/panci 5.jpg" alt="panci 5">
+        </div>
+        <div class="product-info">
+          <h3>Panci Stainless Steel 2L</h3>
+          <div class="product-price">Rp 115.000</div>  
+          <div class="product-actions">
+            <button class="add-to-cart-btn" data-product-id="5" data-product-name="Panci Stainless Steel 2L" data-price="115000" data-image="/product/panci/panci 5.jpg">Add to Cart</button>
+            <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" onclick="goToProductDetail(6)">
+        <div class="product-img">
+          <img src="/product/panci/panci 6.jpg" alt="panci 6">
+        </div>
+        <div class="product-info">
+          <h3>Panci Cokelat Anti Lengket</h3>
+          <div class="product-price">Rp 92.000</div>
+          <div class="product-actions">
+            <button class="add-to-cart-btn" data-product-id="6" data-product-name="Panci Cokelat Anti Lengket" data-price="92000" data-image="/product/panci/panci 6.jpg">Add to Cart</button>
+            <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" onclick="goToProductDetail(7)">
+        <div class="product-img">
+          <img src="/product/panci/panci 7.jpg" alt="panci 7">
+        </div>
+        <div class="product-info">
+          <h3>Panci Mangkok Elegan 2L</h3>
+          <div class="product-price">Rp 98.000</div>
+          <div class="product-actions">
+            <button class="add-to-cart-btn" data-product-id="7" data-product-name="Panci Mangkok Elegan 2L" data-price="98000" data-image="/product/panci/panci 7.jpg">Add to Cart</button>
+            <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="product-card" onclick="goToProductDetail(8)">
+        <div class="product-img">
+          <img src="/product/panci/panci 8.jpg" alt="panci 8">
+        </div>
+        <div class="product-info">
+          <h3>Panci Kukus 3L</h3>
+          <div class="product-price">Rp 109.000</div>
+          <div class="product-actions">
+            <button class="add-to-cart-btn" data-product-id="8" data-product-name="Panci Kukus 3L" data-price="109000" data-image="/product/panci/panci 8.jpg">Add to Cart</button>
+            <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+  </main>  
+
+<footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>TokoRayhan</h3>
+          <p>Premium furniture for modern living.</p>
+        </div>
+        <div class="footer-column">
+          <h3>All Produk</h3>
+          <ul class="footer-links">
+            <li><a href="products.html">Living Room</a></li>
+            <li><a href="products.html">Bedroom</a></li>
+            <li><a href="products.html">Dining Room</a></li>
+            <li><a href="products.html">Office</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Information</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Customer Service</h3>
+          <ul class="footer-links">
+            <li><a href="#">My Account</a></li>
+            <li><a href="#">Track Order</a></li>
+            <li><a href="#">Returns & Exchanges</a></li>
+            <li><a href="#">Shipping Policy</a></li>
+            <li><a href="#">Warranty</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Tampilkan dropdown info user saat icon diklik
+    const userIcon = document.getElementById('user-icon');
+    const dropdown = document.getElementById('user-dropdown');
+  
+    userIcon.addEventListener('click', () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+  
+      if (user) {
+        document.getElementById('user-name').innerText = `Name: ${user.name}`;
+        document.getElementById('user-email').innerText = `Email: ${user.email}`;
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+      } else {
+        alert('You are not logged in.');
+      }
+    });
+  
+    function logout() {
+      localStorage.removeItem('user');
+      alert('Logged out successfully');
+      window.location.reload();
+    }
+  
+    document.addEventListener('click', function(event) {
+      if (!event.target.closest('#user-icon') && !event.target.closest('#user-dropdown')) {
+        dropdown.style.display = 'none';
+      }
+    });
+
+    function goToProductDetail(productId) {
+    window.location.href = `/product-detail.html?id=${productId}`;
+  }
+  
+    // Add to cart
+    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+      button.addEventListener('click', async function (event) {
+        event.stopPropagation(); // Hindari trigger onclick parent
+        const productCard = event.target.closest('.product-card');
+  
+        const productId = this.dataset.productId;
+        const productName = this.dataset.productName;
+        const productPrice = parseInt(this.dataset.price);
+        const productImg = this.dataset.image;
+  
+        const user = JSON.parse(localStorage.getItem('user'));
+        if (!user) {
+          alert("Silakan login terlebih dahulu.");
+          return;
+        }
+  
+        const cartData = {
+        user_id: user.id,
+        product_id: productId,
+        product_name: productName,
+        price: productPrice,
+        image_url: productImg,
+        quantity: 1
+      };
+        
+        try {
+          const response = await fetch('http://localhost:3000/api/cart', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(cartData)
+          });
+  
+          const result = await response.json();
+          if (response.ok) {
+            alert("Produk berhasil ditambahkan ke keranjang.");
+          } else {
+            alert("Gagal menambahkan ke keranjang: " + result.message);
+          }
+        } catch (error) {
+          alert("Gagal menambahkan ke keranjang: " + error.message);
+        }
+      });
+    });
+  </script>  
+
+</body>
+</html>
