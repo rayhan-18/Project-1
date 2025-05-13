@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account - Toko Perabot Rayhan</title>
+  <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">Toko<span>Rayhan</span></div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="collections.html">Collections</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-icons">
+          <!-- Hanya tombol logout di sini -->
+          <div class="logout-icon" onclick="logout()" title="Logout">
+            <i class="fa-light fa-right-from-bracket"></i>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1>Welcome to Your Account</h1>
+      <p id="account-info">Please log in to see your account details.</p>
+      
+      <!-- Informasi Pengguna Tambahan -->
+      <div id="additional-info">
+        <p><strong>Phone:</strong> <span id="phone">-</span></p>
+        <p><strong>Address:</strong> <span id="address">-</span></p>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>Toko Rayhan</h3>
+          <p>Premium furniture for modern living.</p>
+        </div>
+        <div class="footer-column">
+          <h3>All Products</h3>
+          <ul class="footer-links">
+            <li><a href="products.html">Living Room</a></li>
+            <li><a href="products.html">Bedroom</a></li>
+            <li><a href="products.html">Dining Room</a></li>
+            <li><a href="products.html">Office</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Information</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Customer Service</h3>
+          <ul class="footer-links">
+            <li><a href="#">My Account</a></li>
+            <li><a href="#">Track Order</a></li>
+            <li><a href="#">Returns & Exchanges</a></li>
+            <li><a href="#">Shipping Policy</a></li>
+            <li><a href="#">Warranty</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function logout() {
+      localStorage.removeItem('user');
+      Swal.fire({
+        icon: "success",
+        title: "Logged Out",
+        text: "Anda berhasil logout.",
+      }).then(() => {
+        window.location.href = 'index.html'; // Kembali ke halaman utama setelah logout
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(localStorage.getItem('user'));
+      
+      if (user) {
+        // Menampilkan data pengguna
+        document.getElementById('account-info').innerHTML = `Welcome, ${user.name}! <br> Your email: ${user.email}`;
+
+        // Menampilkan informasi tambahan jika ada
+        document.getElementById('phone').innerText = user.phone || 'Not provided';
+        document.getElementById('address').innerText = user.address || 'Not provided';
+      } else {
+        document.getElementById('account-info').innerHTML = "Please log in to see your account details.";
+      }
+    });
+  </script>
+</body>
+</html>

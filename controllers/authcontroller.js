@@ -1,37 +1,43 @@
+// controllers/authcontroller.js
 const bcrypt = require('bcrypt');
 const authModel = require('../models/authmodel');
 
 exports.register = async (req, res) => {
-  const { name, email, password } = req.body;
+  const { name, email, password, phone, address } = req.body;
+
+  if (!name || !email || !password || !phone || !address) {
+    return res.status(400).json({ message: 'Semua field harus diisi' });
+  }
+
   try {
-    // Cek apakah user sudah ada
     const existingUser = await authModel.getUserByEmail(email);
     if (existingUser) {
       return res.status(400).json({ message: 'Email sudah digunakan' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Simpan user ke database
-    const user = await authModel.createUser(name, email, hashedPassword);
+    const user = await authModel.createUser(name, email, hashedPassword, phone, address);
 
-    // Jangan kirim password ke response
     res.status(201).json({
       message: 'Registrasi berhasil',
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
+        phone: user.phone,
+        address: user.address,
       },
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
   }
 };
 
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+
   try {
     const user = await authModel.getUserByEmail(email);
     if (!user) {
@@ -43,7 +49,6 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: 'Email atau password salah' });
     }
 
-    // Login berhasil
     res.json({
       message: 'Login berhasil',
       user: {
@@ -53,6 +58,7 @@ exports.login = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    console.error(err);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
   }
 };

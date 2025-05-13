@@ -5,8 +5,8 @@
   box-sizing: border-box;
 }
 
-html {
-  scroll-behavior: smooth;
+html, body {
+  height: 100%; /* Membuat body mengisi seluruh tinggi layar */
 }
 
 body {
@@ -14,6 +14,12 @@ body {
   background-color: #f4f4f4;
   color: #333;
   line-height: 1.6;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex-grow: 1; /* Memastikan main mengambil ruang yang tersisa */
 }
 
 a {
@@ -358,5 +364,95 @@ footer {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* ======== Account Page ======== */
+.account-container {
+  margin-top: 4rem;
+  padding: 2rem 0;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.account-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.account-header h1 {
+  font-size: 2rem;
+  color: #333;
+  font-weight: 700;
+}
+
+.account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  max-width: 600px;
+  margin: auto;
+}
+
+.account-info h2 {
+  font-size: 1.5rem;
+  color: #333;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.account-info .info-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: #f4f4f4;
+  border-radius: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#account-info {
+  font-size: 1.2rem;
+  margin-top: 20px;
+  color: #333;
+}
+
+.account-info .info-item span {
+  color: #333;
+}
+
+.account-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.account-actions .btn-logout {
+  padding: 0.75rem 2rem;
+  background-color: #d9534f;
+  color: #fff;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.account-actions .btn-logout:hover {
+  background-color: #c9302c;
+}
+
+/* ======== Responsive Styles for Account Page ======== */
+@media (max-width: 768px) {
+  .account-info {
+    width: 90%;
+  }
+
+  .account-header h1 {
+    font-size: 1.6rem;
+  }
+
+  .account-info .info-item {
+    flex-direction: column;
+    text-align: center;
   }
 }
