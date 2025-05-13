@@ -189,7 +189,7 @@
       </div>
     </div>
   </section>
-</main>
+</main>   
 
 <!-- Login Modal -->
 <div id="loginModal" class="modal hidden">
@@ -265,87 +265,105 @@
 </footer>
 
 <!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-function showLogin() {
-  document.getElementById("loginForm").classList.remove("hidden");
-  document.getElementById("registerForm").classList.add("hidden");
-}
-
-// Function to toggle modal
-function toggleModal(modalId = 'loginModal') {
-  const modal = document.getElementById(modalId);
-  if (modal) modal.classList.toggle('hidden');
-}
-
-// Show login form and modal
-function showLogin() {
-  document.getElementById("loginModal").classList.remove("hidden");
-  document.getElementById("registerModal").classList.add("hidden");
-}
-
-// Show register form and modal
-function showRegister() {
-  document.getElementById("registerModal").classList.remove("hidden");
-  document.getElementById("loginModal").classList.add("hidden");
-}
-
-// Event listener for login form submission
-document.getElementById('loginForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const email = document.getElementById('loginEmail').value;
-  const password = document.getElementById('loginPassword').value;
-  const res = await fetch('http://localhost:3000/api/auth/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  const data = await res.json();
-  if (res.ok) {
-    localStorage.setItem('user', JSON.stringify(data.user));
-    document.getElementById("loginModal").classList.add("hidden");
-  } else {
-    alert(data.message || 'Login gagal');
+  // Function to toggle modal
+  function toggleModal(modalId = 'loginModal') {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.toggle('hidden');
   }
-});
 
-// Event listener for register form submission
-document.getElementById('registerForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  const name = document.getElementById('registerName').value;
-  const email = document.getElementById('registerEmail').value;
-  const password = document.getElementById('registerPassword').value;
-  const res = await fetch('http://localhost:3000/api/auth/register', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ name, email, password })
-  });
-  const data = await res.json();
-  if (res.ok) {
-    localStorage.setItem('user', JSON.stringify(data.user));
-    document.getElementById("registerModal").classList.add("hidden");
-  } else {
-    alert(data.message || 'Registrasi gagal');
-  }
-}); 
-
-// Close modal with ESC key
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape') {
-    document.getElementById("loginModal").classList.add("hidden");
+  // Show login form and modal
+  function showLogin() {
+    document.getElementById("loginModal").classList.remove("hidden");
     document.getElementById("registerModal").classList.add("hidden");
   }
-});
 
-// Toggle between login/register
-document.getElementById('registerLink').addEventListener('click', function(e) {
-  e.preventDefault();
-  showRegister();
-});
+  // Show register form and modal
+  function showRegister() {
+    document.getElementById("registerModal").classList.remove("hidden");
+    document.getElementById("loginModal").classList.add("hidden");
+  }
 
-document.getElementById('loginLink').addEventListener('click', function(e) {
-  e.preventDefault();
-  showLogin();
-});
+  // Event listener for login form submission
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    const res = await fetch('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+      Swal.fire({
+        title: "Success!",
+        text: "Login Berhasil!",
+        icon: "success"
+      });
+      document.getElementById("loginModal").classList.add("hidden");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: data.message || "Login gagal!",
+      });
+    }
+  });
+
+  // Event listener for register form submission
+  document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+
+    const res = await fetch('http://localhost:3000/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+      Swal.fire({
+        title: "Success!",
+        text: "Registrasi Berhasil!",
+        icon: "success"
+      });
+      document.getElementById("registerModal").classList.add("hidden");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Registrasi",
+        text: data.message || "Terjadi kesalahan.",
+      });
+    }
+  });
+
+  // Close modal with ESC key
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.getElementById("loginModal").classList.add("hidden");
+      document.getElementById("registerModal").classList.add("hidden");
+    }
+  });
+
+  // Toggle between login/register
+  document.getElementById('registerLink').addEventListener('click', function(e) {
+    e.preventDefault();
+    showRegister();
+  });
+
+  document.getElementById('loginLink').addEventListener('click', function(e) {
+    e.preventDefault();
+    showLogin();
+  });
 </script>
 
 </body>
