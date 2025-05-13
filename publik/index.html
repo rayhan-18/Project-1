@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Toko Perabot Rayhan</title>
   <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -31,259 +30,290 @@
             <i class="fa-light fa-cart-shopping-fast"></i>
             <span class="cart-count">0</span>
           </div>
-          <div class="user-icon" onclick="toggleModal()" title="User Account">
+          <div class="user-icon" onclick="toggleModal('loginModal')" title="User Account">
             <i class="fa-light fa-user"></i>
+          </div>
+          <div class="logout-icon hidden" onclick="logout()" title="Logout">
+            <i class="fa-light fa-right-from-bracket"></i>
           </div>
         </div>
       </nav>
     </div>
   </header>
 
-  <!-- Main -->
-<main id="homepage">
-  <!-- Hero -->
-  <section class="hero-slider">
-    <div class="slides">
-      <div class="slide" style="background-image: url(/images/home.avif);"></div>
-    </div>
-  </section>
-
-  <!-- Categories Section -->
-  <section class="categories">
-    <div class="container">
-      <h2 class="section-title">Browse by Category</h2>
-      <div class="category-grid">
-        <div class="category-card" onclick="window.location.href='products.html'">
-          <div class="category-img">
-            <img src="/product/panci/panci 3.jpg" alt="Living Room">
-          </div>
-          <div class="category-info">
-            <h3>Living Room</h3>
-            <p>Sofas, coffee tables, and more</p>
-          </div>
-        </div>
-        <div class="category-card" onclick="window.location.href='products.html'">
-          <div class="category-img">
-            <img src="/product/panci/panci 5.jpg" alt="Bedroom">
-          </div>
-          <div class="category-info">
-            <h3>Bedroom</h3>
-            <p>Beds, dressers, and nightstands</p>
-          </div>
-        </div>
-        <div class="category-card" onclick="window.location.href='products.html'">
-          <div class="category-img">
-            <img src="/product/panci/panci 7.jpg" alt="Dining Room">
-          </div>
-          <div class="category-info">
-            <h3>Dining Room</h3>
-            <p>Tables, chairs, and buffets</p>
-          </div>
-        </div>
-        <div class="category-card" onclick="window.location.href='products.html'">
-          <div class="category-img">
-            <img src="/product/panci/panci 6.jpg" alt="Office">
-          </div>
-          <div class="category-info">
-            <h3>Office</h3>
-            <p>Desks, chairs, and bookshelves</p>
-          </div>
-        </div>
+  <main id="homepage">
+    <!-- Hero -->
+    <section class="hero-slider">
+      <div class="slides">
+        <div class="slide" style="background-image: url(/images/home.avif);"></div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Featured Products Section -->
-  <section class="products">
-    <div class="container">
-      <h2 class="section-title">Featured Products</h2><br>
-      <div class="product-grid">
-
-        <div class="product-card" data-id="2" data-name="panci" data-price="899" data-image="/product/panci/panci 3.jpg">
-          <div class="product-img">
-            <img src="/product/panci/panci 3.jpg" alt="panci">
-            <span class="product-tag">New</span>
+    <!-- Categories Section -->
+    <section class="categories">
+      <div class="container">
+        <h2 class="section-title">Browse by Category</h2>
+        <div class="category-grid">
+          <div class="category-card" onclick="window.location.href='products.html'">
+            <div class="category-img">
+              <img src="/product/panci/panci 3.jpg" alt="Living Room">
+            </div>
+            <div class="category-info">
+              <h3>Living Room</h3>
+              <p>Sofas, coffee tables, and more</p>
+            </div>
           </div>
-          <div class="product-info">
-            <h3>Oven</h3>
-            <div class="product-price">$899</div>
-            <div class="product-actions">
-              <button class="btn-add-cart">Add to Cart</button>
-              <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+          <div class="category-card" onclick="window.location.href='products.html'">
+            <div class="category-img">
+              <img src="/product/panci/panci 5.jpg" alt="Bedroom">
+            </div>
+            <div class="category-info">
+              <h3>Bedroom</h3>
+              <p>Beds, dressers, and nightstands</p>
+            </div>
+          </div>
+          <div class="category-card" onclick="window.location.href='products.html'">
+            <div class="category-img">
+              <img src="/product/panci/panci 7.jpg" alt="Dining Room">
+            </div>
+            <div class="category-info">
+              <h3>Dining Room</h3>
+              <p>Tables, chairs, and buffets</p>
+            </div>
+          </div>
+          <div class="category-card" onclick="window.location.href='products.html'">
+            <div class="category-img">
+              <img src="/product/panci/panci 6.jpg" alt="Office">
+            </div>
+            <div class="category-info">
+              <h3>Office</h3>
+              <p>Desks, chairs, and bookshelves</p>
             </div>
           </div>
         </div>
+      </div>
+    </section>
 
-        <div class="product-card" data-id="1" data-name="panci" data-price="899" data-image="/product/panci/panci 2.png">
-          <div class="product-img">
-            <img src="/product/panci/panci 2.png" alt="panci">
+    <!-- Featured Products Section -->
+    <section class="products">
+      <div class="container">
+        <h2 class="section-title">Featured Products</h2>
+        <div class="product-grid">
+
+          <!-- Product Card 1 -->
+          <div class="product-card" data-id="2" data-name="panci" data-price="899" data-image="/product/panci/panci 3.jpg">
+            <div class="product-img">
+              <img src="/product/panci/panci 3.jpg" alt="Oven">
+              <span class="product-tag">New</span>
+            </div>
+            <div class="product-info">
+              <h3>Oven</h3>
+              <div class="product-price">$899</div>
+              <div class="product-actions">
+                <button class="btn-add-cart">Add to Cart</button>
+                <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+              </div>
+            </div>
           </div>
-          <div class="product-info">
-            <h3>Oven</h3>
-            <div class="product-price">$899</div>
-            <div class="product-actions">
-              <button class="btn-add-cart">Add to Cart</button>
-              <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+
+          <!-- Product Card 2 -->
+          <div class="product-card" data-id="1" data-name="panci" data-price="899" data-image="/product/panci/panci 2.png">
+            <div class="product-img">
+              <img src="/product/panci/panci 2.png" alt="Oven">
+            </div>
+            <div class="product-info">
+              <h3>Oven</h3>
+              <div class="product-price">$899</div>
+              <div class="product-actions">
+                <button class="btn-add-cart">Add to Cart</button>
+                <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 3 -->
+          <div class="product-card" data-id="3" data-name="panci" data-price="899" data-image="/product/panci/panci 2.png">
+            <div class="product-img">
+              <img src="/product/panci/panci 2.png" alt="Oven">
+            </div>
+            <div class="product-info">
+              <h3>Oven</h3>
+              <div class="product-price">$899</div>
+              <div class="product-actions">
+                <button class="btn-add-cart">Add to Cart</button>
+                <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Card 4 -->
+          <div class="product-card" data-id="4" data-name="panci" data-price="899" data-image="/product/panci/panci 2.png">
+            <div class="product-img">
+              <img src="/product/panci/panci 2.png" alt="Oven">
+            </div>
+            <div class="product-info">
+              <h3>Oven</h3>
+              <div class="product-price">$899</div>
+              <div class="product-actions">
+                <button class="btn-add-cart">Add to Cart</button>
+                <button class="btn-wishlist"><i class="far fa-heart"></i></button>
+              </div>
             </div>
           </div>
         </div>
+      </div>
+    </section>
 
-      <div class="product-card" data-id="2" data-name="panci" data-price="899" data-image="/product/panci/panci 3.jpg">
-          <div class="product-img">
-            <img src="/product/panci/panci 3.jpg" alt="panci">
-            <span class="product-tag">New</span>
+    <!-- Features Section -->
+    <section class="features">
+      <div class="container">
+        <h2 class="section-title">Why Choose Us</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🚚</div>
+            <h3>Free Delivery</h3>
+            <p>Free shipping on all orders over $500</p>
           </div>
-          <div class="product-info">
-            <h3>Oven</h3>
-            <div class="product-price">$899</div>
-            <div class="product-actions">
-              <button class="btn-add-cart">Add to Cart</button>
-              <button class="btn-wishlist"><i class="far fa-heart"></i></button>
-            </div>
+          <div class="feature-card">
+            <div class="feature-icon">🛠️</div>
+            <h3>Assembly Service</h3>
+            <p>Professional assembly available</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⏱️</div>
+            <h3>30-Day Returns</h3>
+            <p>Easy returns within 30 days</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🏆</div>
+            <h3>Quality Guarantee</h3>
+            <p>5-year warranty on all products</p>
           </div>
         </div>
-
-        <div class="product-card" data-id="2" data-name="panci" data-price="899" data-image="/product/panci/panci 3.jpg">
-          <div class="product-img">
-            <img src="/product/panci/panci 3.jpg" alt="panci">
-          </div>
-          <div class="product-info">
-            <h3>Oven</h3>
-            <div class="product-price">$899</div>
-            <div class="product-actions">
-              <button class="btn-add-cart">Add to Cart</button>
-              <button class="btn-wishlist"><i class="far fa-heart"></i></button>
-            </div>
-          </div>
-        </div>
-
       </div>
-    </div>
-  </section>
+    </section>
+  </main>
 
-  <!-- Features Section -->
-  <section class="features">
-    <div class="container">
-      <h2 class="section-title">Why Choose Us</h2><br>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon">🚚</div>
-          <h3>Free Delivery</h3>
-          <p>Free shipping on all orders over $500</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🛠️</div>
-          <h3>Assembly Service</h3>
-          <p>Professional assembly available</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">⏱️</div>
-          <h3>30-Day Returns</h3>
-          <p>Easy returns within 30 days</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon">🏆</div>
-          <h3>Quality Guarantee</h3>
-          <p>5-year warranty on all products</p>
-        </div>
-      </div>
-    </div>
-  </section>
-</main>   
-
-<!-- Login Modal -->
-<div id="loginModal" class="modal hidden">
-  <div class="modal-content">
-    <span class="close" onclick="toggleModal('loginModal')">&times;</span>
-    <h2>Login</h2>
-    <form id="loginForm" method="post">
-      <input type="email" id="loginEmail" placeholder="Email" required>
-      <input type="password" id="loginPassword" placeholder="Password" required>
-      <button type="submit">Login</button>
-    </form>
-    <p>Belum punya akun? <a href="#" id="registerLink">Register</a></p>
-  </div>
-</div>
-
-<!-- Register Modal -->
-<div id="registerModal" class="modal hidden">
-  <div class="modal-content">
-    <span class="close" onclick="toggleModal('registerModal')">&times;</span>
-    <h2>Register</h2>
-    <form id="registerForm" method="post">
-      <input type="text" id="registerName" placeholder="Nama Lengkap" required>
-      <input type="email" id="registerEmail" placeholder="Email" required>
-      <input type="password" id="registerPassword" placeholder="Password" required>
-      <button type="submit">Register</button>
-    </form>
-    <p>Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
-  </div>
-</div>
-
-<!-- Footer -->
-<footer>
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-column">
-        <h3>Toko Rayhan</h3>
-        <p>Premium furniture for modern living.</p>
-      </div>
-      <div class="footer-column">
-        <h3>All Products</h3>
-        <ul class="footer-links">
-          <li><a href="products.html">Living Room</a></li>
-          <li><a href="products.html">Bedroom</a></li>
-          <li><a href="products.html">Dining Room</a></li>
-          <li><a href="products.html">Office</a></li>
-        </ul>
-      </div>
-      <div class="footer-column">
-        <h3>Information</h3>
-        <ul class="footer-links">
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="contact.html">Contact Us</a></li>
-          <li><a href="#">Blog</a></li>
-          <li><a href="#">FAQs</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-        </ul>
-      </div>
-      <div class="footer-column">
-        <h3>Customer Service</h3>
-        <ul class="footer-links">
-          <li><a href="#">My Account</a></li>
-          <li><a href="#">Track Order</a></li>
-          <li><a href="#">Returns & Exchanges</a></li>
-          <li><a href="#">Shipping Policy</a></li>
-          <li><a href="#">Warranty</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
+  <!-- Modal for Login -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="toggleModal('loginModal')">&times;</span>
+      <h2>Login</h2>
+      <form id="loginForm" method="post">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit">Login</button>
+      </form>
+      <p>Belum punya akun? <a href="#" id="registerLink">Register</a></p>
     </div>
   </div>
-</footer>
+
+  <!-- Modal for Register -->
+  <div id="registerModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="toggleModal('registerModal')">&times;</span>
+      <h2>Register</h2>
+      <form id="registerForm" method="post">
+        <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+        <input type="email" id="registerEmail" placeholder="Email" required>
+        <input type="password" id="registerPassword" placeholder="Password" required>
+        <button type="submit">Register</button>
+      </form>
+      <p>Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>Toko Rayhan</h3>
+          <p>Premium furniture for modern living.</p>
+        </div>
+        <div class="footer-column">
+          <h3>All Products</h3>
+          <ul class="footer-links">
+            <li><a href="products.html">Living Room</a></li>
+            <li><a href="products.html">Bedroom</a></li>
+            <li><a href="products.html">Dining Room</a></li>
+            <li><a href="products.html">Office</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Information</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Customer Service</h3>
+          <ul class="footer-links">
+            <li><a href="#">My Account</a></li>
+            <li><a href="#">Track Order</a></li>
+            <li><a href="#">Returns & Exchanges</a></li>
+            <li><a href="#">Shipping Policy</a></li>
+            <li><a href="#">Warranty</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
 
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  // Function to toggle modal
+  // Toggle between login and register modal
   function toggleModal(modalId = 'loginModal') {
-    const modal = document.getElementById(modalId);
-    if (modal) modal.classList.toggle('hidden');
+    const user = localStorage.getItem('user');
+    if (user) {
+      // Jika user sudah login, arahkan ke dashboard/account page
+      window.location.href = "account.html";  // ganti dengan file akunmu
+    } else {
+      // Jika belum login, tampilkan modal login
+      const modal = document.getElementById(modalId);
+      modal?.classList.toggle('hidden');
+    }
   }
 
-  // Show login form and modal
+  // Show login modal and hide register modal
   function showLogin() {
     document.getElementById("loginModal").classList.remove("hidden");
     document.getElementById("registerModal").classList.add("hidden");
   }
 
-  // Show register form and modal
+  // Show register modal and hide login modal
   function showRegister() {
     document.getElementById("registerModal").classList.remove("hidden");
     document.getElementById("loginModal").classList.add("hidden");
   }
+
+  // Handle logout action
+  function logout() {
+    localStorage.removeItem('user');
+    Swal.fire({
+      icon: "success",
+      title: "Logged Out",
+      text: "Anda berhasil logout.",
+    }).then(() => {
+      window.location.reload(); // refresh halaman agar UI update
+    });
+  }
+
+  // Initialize logout button visibility on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      document.querySelector('.logout-icon').classList.remove('hidden');
+    }
+  });
 
   // Event listener for login form submission
   document.getElementById('loginForm').addEventListener('submit', async function(e) {
@@ -354,7 +384,7 @@
     }
   });
 
-  // Toggle between login/register
+  // Toggle between login/register modals
   document.getElementById('registerLink').addEventListener('click', function(e) {
     e.preventDefault();
     showRegister();

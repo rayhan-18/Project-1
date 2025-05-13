@@ -98,21 +98,21 @@ nav {
 .hero-slider .slide {
   height: 400px;
   background-size: cover;
-  background-position: center;
-  border-radius: 12px;
-  margin-top: 1rem;
+  background-position: top center;
 }
 
-/* ======== Category Section ======== */
+/* ======== Section Titles ======== */
 .categories .section-title,
 .products .section-title,
 .features .section-title {
   text-align: center;
   font-size: 2rem;
+  margin-top: 6rem;
   margin-bottom: 1.5rem;
   color: #333;
 }
 
+/* ======== Category Section ======== */
 .category-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -143,7 +143,7 @@ nav {
   text-align: center;
 }
 
-/* ======== Products ======== */
+/* ======== Products Section ======== */
 .product-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
@@ -154,22 +154,35 @@ nav {
   background: #fff;
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: transform 0.3s ease;
+  cursor: pointer;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
 }
 
+.product-img {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
 .product-img img {
   width: 100%;
-  height: 200px;
+  height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .product-tag {
   position: absolute;
+  top: 0;
+  left: 0;
   background: #28a745;
   color: #fff;
   padding: 4px 10px;
@@ -230,9 +243,9 @@ nav {
   margin-bottom: 0.5rem;
 }
 
-/* ======== Footer ======== */
+/* ======== Footer Section ======== */
 footer {
-  background: #333; /* Warna gelap sebelumnya */
+  background: #222;
   margin-top: 2rem;
   padding: 2rem 0;
   border-top: 1px solid #ddd;
@@ -250,8 +263,13 @@ footer {
   color: #fff;
 }
 
+.footer-column p {
+  color: #fff;
+}
+
 .footer-links li {
   margin-bottom: 0.5rem;
+  color: #fff;
 }
 
 .footer-links li a:hover {
@@ -296,6 +314,7 @@ footer {
 
 .modal-content h2 {
   margin-bottom: 1rem;
+  text-align: center;
 }
 
 .modal-content input {
