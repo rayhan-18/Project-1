@@ -383,46 +383,85 @@ footer {
   border-radius: 12px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
   position: relative;
   animation: fadeIn 0.3s ease-in-out;
 }
 
 .modal-content h2 {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   text-align: center;
+  font-size: 1.5rem;
+  color: #333;
 }
 
-.modal-content input {
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.modal-content input,
+.modal-content textarea {
   width: 100%;
   padding: 0.75rem;
-  margin-bottom: 1rem;
   border-radius: 6px;
   border: 1px solid #ccc;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.modal-content input:focus,
+.modal-content textarea:focus {
+  border-color: #4a7c59;
+}
+
+.modal-content textarea {
+  resize: vertical;
+  min-height: 80px;
 }
 
 .modal-content button {
-    flex: 1;
-    padding: 10px;
-    background-color: #4a7c59;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: background-color 0.3s ease;
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #4a7c59;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color 0.3s ease;
+  margin-top: 0.5rem;
 }
 
 .modal-content button:hover {
-  background-color: #4a7c59;
+  background-color: #3a6246;
 }
 
 .modal-content .close {
   position: absolute;
   right: 1rem;
   top: 1rem;
-  font-size: 1.2rem;
+  font-size: 1.5rem;
+  color: #555;
   cursor: pointer;
+}
+
+.switch-auth {
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.switch-auth a {
+  color: #4a7c59;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.switch-auth a:hover {
+  text-decoration: underline;
 }
 
 /* ======== Animation ======== */

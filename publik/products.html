@@ -499,17 +499,21 @@
     </section>
   </main>
 
-  <!-- Modal for Login -->
+    <!-- Modal for Login -->
   <div id="loginModal" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="toggleModal('loginModal')">&times;</span>
       <h2>Login</h2>
       <form id="loginForm" method="post">
-        <input type="email" id="loginEmail" placeholder="Email" required>
-        <input type="password" id="loginPassword" placeholder="Password" required>
+        <div class="form-group">
+          <input type="email" id="loginEmail" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="loginPassword" placeholder="Password" required>
+        </div>
         <button type="submit">Login</button>
       </form>
-      <p>Belum punya akun? <a href="#" id="registerLink">Register</a></p>
+      <p class="switch-auth">Belum punya akun? <a href="#" id="registerLink">Register</a></p>
     </div>
   </div>
 
@@ -519,16 +523,27 @@
       <span class="close" onclick="toggleModal('registerModal')">&times;</span>
       <h2>Register</h2>
       <form id="registerForm" method="post">
-        <input type="text" id="registerName" placeholder="Nama Lengkap" required>
-        <input type="email" id="registerEmail" placeholder="Email" required>
-        <input type="password" id="registerPassword" placeholder="Password" required>
-        <input type="text" id="registerPhone" placeholder="Nomor Telepon" required>
-        <textarea id="registerAddress" placeholder="Alamat" required></textarea>
+        <div class="form-group">
+          <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+        </div>
+        <div class="form-group">
+          <input type="email" id="registerEmail" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="registerPassword" placeholder="Password" required>
+        </div>
+        <div class="form-group">
+          <input type="text" id="registerPhone" placeholder="Nomor Telepon" required>
+        </div>
+        <div class="form-group">
+          <textarea id="registerAddress" placeholder="Alamat" required></textarea>
+        </div>
         <button type="submit">Register</button>
       </form>
-      <p>Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
+      <p class="switch-auth">Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
     </div>
   </div>
+
 
 <footer>
   <div class="container">
@@ -635,6 +650,128 @@
         });
       }
     });
+  });
+
+    // Toggle between login and register modal
+  function toggleModal(modalId = 'loginModal') {
+    const user = localStorage.getItem('user');
+    if (user) {
+      // Jika user sudah login, arahkan ke dashboard/account page
+      window.location.href = "account.html";  // ganti dengan file akunmu
+    } else {
+      // Jika belum login, tampilkan modal login
+      const modal = document.getElementById(modalId);
+      modal?.classList.toggle('hidden');
+    }
+  }
+
+  // Show login modal and hide register modal
+  function showLogin() {
+    document.getElementById("loginModal").classList.remove("hidden");
+    document.getElementById("registerModal").classList.add("hidden");
+  }
+
+  // Show register modal and hide login modal
+  function showRegister() {
+    document.getElementById("registerModal").classList.remove("hidden");
+    document.getElementById("loginModal").classList.add("hidden");
+  }
+
+  // Initialize logout button visibility on page load
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = localStorage.getItem('user');
+    if (user) {
+      document.querySelector('.logout-icon').classList.remove('hidden');
+    }
+  });
+
+  // Event listener for login form submission
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    const res = await fetch('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+      Swal.fire({
+        title: "Success!",
+        text: "Login Berhasil!",
+        icon: "success"
+      });
+      document.getElementById("loginModal").classList.add("hidden");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: data.message || "Login gagal!",
+      });
+    }
+  });
+
+  // Event listener for register form submission
+  document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    // Ambil nilai input dari form
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const phone = document.getElementById('registerPhone').value;
+    const address = document.getElementById('registerAddress').value;
+
+    // Kirim data ke server untuk registrasi
+    const res = await fetch('http://localhost:3000/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, phone, address })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      // Simpan data pengguna di localStorage
+      localStorage.setItem('user', JSON.stringify(data.user));
+      
+      Swal.fire({
+        title: "Success!",
+        text: "Registrasi Berhasil!",
+        icon: "success"
+      });
+
+      // Tutup modal setelah registrasi berhasil
+      document.getElementById("registerModal").classList.add("hidden");
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Gagal Registrasi",
+        text: data.message || "Terjadi kesalahan.",
+      });
+    }
+  });
+
+  // Close modal with ESC key
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.getElementById("loginModal").classList.add("hidden");
+      document.getElementById("registerModal").classList.add("hidden");
+    }
+  });
+
+  // Toggle between login/register modals
+  document.getElementById('registerLink').addEventListener('click', function(e) {
+    e.preventDefault();
+    showRegister();
+  });
+
+  document.getElementById('loginLink').addEventListener('click', function(e) {
+    e.preventDefault();
+    showLogin();
   });
 </script>
 

@@ -197,11 +197,15 @@
       <span class="close" onclick="toggleModal('loginModal')">&times;</span>
       <h2>Login</h2>
       <form id="loginForm" method="post">
-        <input type="email" id="loginEmail" placeholder="Email" required>
-        <input type="password" id="loginPassword" placeholder="Password" required>
+        <div class="form-group">
+          <input type="email" id="loginEmail" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="loginPassword" placeholder="Password" required>
+        </div>
         <button type="submit">Login</button>
       </form>
-      <p>Belum punya akun? <a href="#" id="registerLink">Register</a></p>
+      <p class="switch-auth">Belum punya akun? <a href="#" id="registerLink">Register</a></p>
     </div>
   </div>
 
@@ -211,14 +215,24 @@
       <span class="close" onclick="toggleModal('registerModal')">&times;</span>
       <h2>Register</h2>
       <form id="registerForm" method="post">
-        <input type="text" id="registerName" placeholder="Nama Lengkap" required>
-        <input type="email" id="registerEmail" placeholder="Email" required>
-        <input type="password" id="registerPassword" placeholder="Password" required>
-        <input type="text" id="registerPhone" placeholder="Nomor Telepon" required>
-        <textarea id="registerAddress" placeholder="Alamat" required></textarea>
+        <div class="form-group">
+          <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+        </div>
+        <div class="form-group">
+          <input type="email" id="registerEmail" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="registerPassword" placeholder="Password" required>
+        </div>
+        <div class="form-group">
+          <input type="text" id="registerPhone" placeholder="Nomor Telepon" required>
+        </div>
+        <div class="form-group">
+          <textarea id="registerAddress" placeholder="Alamat" required></textarea>
+        </div>
         <button type="submit">Register</button>
       </form>
-      <p>Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
+      <p class="switch-auth">Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
     </div>
   </div>
 
