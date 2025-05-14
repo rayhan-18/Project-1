@@ -284,6 +284,7 @@
               </div>
             </div>
           </div>
+
           <div class="product-card" onclick="goToProductDetail(18)">
             <div class="product-img">
               <img src="/product/kamar tidur/meja-lipat.jpg" alt="meja-lipat">
@@ -325,6 +326,7 @@
               </div>
             </div>
           </div>
+
           <div class="product-card" onclick="goToProductDetail(21)">
             <div class="product-img">
               <img src="/product/dapur/ricecooker.jpg" alt="ricecooker">
@@ -352,6 +354,7 @@
               </div>
             </div>
           </div>
+
           <div class="product-card" onclick="goToProductDetail(23)">
             <div class="product-img">
               <img src="/product/kamarmandi/set-alat-kebersihan.jpg" alt="set-alat-kebersihan">
@@ -491,11 +494,41 @@
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </section>
   </main>
+
+  <!-- Modal for Login -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="toggleModal('loginModal')">&times;</span>
+      <h2>Login</h2>
+      <form id="loginForm" method="post">
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button type="submit">Login</button>
+      </form>
+      <p>Belum punya akun? <a href="#" id="registerLink">Register</a></p>
+    </div>
+  </div>
+
+  <!-- Modal for Register -->
+  <div id="registerModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="toggleModal('registerModal')">&times;</span>
+      <h2>Register</h2>
+      <form id="registerForm" method="post">
+        <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+        <input type="email" id="registerEmail" placeholder="Email" required>
+        <input type="password" id="registerPassword" placeholder="Password" required>
+        <input type="text" id="registerPhone" placeholder="Nomor Telepon" required>
+        <textarea id="registerAddress" placeholder="Alamat" required></textarea>
+        <button type="submit">Register</button>
+      </form>
+      <p>Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
+    </div>
+  </div>
 
 <footer>
   <div class="container">
