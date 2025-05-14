@@ -83,7 +83,7 @@
               <h3>Botol Sabun Cair</h3>
               <div class="product-price">Rp 10.000</div>
               <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="3" data-product-name="botol-sabun" data-price="10000" data-image="/product/kamarmandi/botol-sabun.jpg">Add to Cart</button>
+                <button class="add-to-cart-btn" data-product-id="3" data-product-name="Botol Sabun Cair" data-price="10000" data-image="/product/kamarmandi/botol-sabun.jpg">Add to Cart</button>
                 <button class="btn-wishlist"><i class="far fa-heart"></i></button>
               </div>
             </div>
@@ -109,7 +109,7 @@
             </div>
             <div class="product-info">
               <h3>IDEALIFE Kompor Listrik</h3>
-              <div class="product-price">Rp 1.590.00</div>
+              <div class="product-price">Rp 1.590.000</div>
               <div class="product-actions">
                 <button class="add-to-cart-btn" data-product-id="5" data-product-name="kompor-listrik" data-price="1590000" data-image="/product/dapur/kompor listrik.jpg">Add to Cart</button>
                 <button class="btn-wishlist"><i class="far fa-heart"></i></button>
@@ -125,7 +125,7 @@
               <h3>Jam Digital</h3>
               <div class="product-price">Rp 150.000</div>
               <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="6" data-product-name="jam-digital" data-price="150000" data-image="/product/kamar tidur/jam-digital.jpg">Add to Cart</button>
+                <button class="add-to-cart-btn" data-product-id="6" data-product-name="Jam Digital" data-price="150000" data-image="/product/kamar tidur/jam-digital.jpg">Add to Cart</button>
                 <button class="btn-wishlist"><i class="far fa-heart"></i></button>
               </div>
             </div>
@@ -139,7 +139,7 @@
               <h3>Rak Cermin</h3>
               <div class="product-price">Rp 149.000</div>
               <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="7" data-product-name="cermin data-price="1590000" data-image="/product/kamarmandi/cermin.jpg">Add to Cart</button>
+                <button class="add-to-cart-btn" data-product-id="7" data-product-name="cermin" data-price="149000" data-image="/product/kamarmandi/cermin.jpg">Add to Cart</button>
                 <button class="btn-wishlist"><i class="far fa-heart"></i></button>
               </div>
             </div>
@@ -153,7 +153,7 @@
               <h3>Karpet Plastik</h3>
               <div class="product-price">Rp 20.000</div>
               <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="8" data-product-name="karpet-plastik" data-price="10000" data-image="/product/ruang-tamu/karpet-plastik.jpg">Add to Cart</button>
+                <button class="add-to-cart-btn" data-product-id="8" data-product-name="karpet-plastik" data-price="20000" data-image="/product/ruang-tamu/karpet-plastik.jpg">Add to Cart</button>
                 <button class="btn-wishlist"><i class="far fa-heart"></i></button>
               </div>
             </div>
@@ -181,7 +181,7 @@
               <h3>Kipas Angin Meja</h3>
               <div class="product-price">Rp 100.000</div>
               <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="10" data-product-name="kipas-angin-meja" data-price="10000" data-image="/product/kamar tidur/kipas-angin-meja.jpeg">Add to Cart</button>
+                <button class="add-to-cart-btn" data-product-id="10" data-product-name="kipas-angin-meja" data-price="100000" data-image="/product/kamar tidur/kipas-angin-meja.jpeg">Add to Cart</button>
                 <button class="btn-wishlist"><i class="far fa-heart"></i></button>
               </div>
             </div>
@@ -265,7 +265,7 @@
               <h3>Lampu Philips</h3>
               <div class="product-price">Rp 80.000</div>
               <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="16" data-product-name="lampu" data-price="80000" data-image="/product/kamar tidur/lampu-belajar.jpg">Add to Cart</button>
+                <button class="add-to-cart-btn" data-product-id="16" data-product-name="lampu" data-price="80000" data-image="/product/ruang-tamu/lampu.jpg">Add to Cart</button>
                 <button class="btn-wishlist"><i class="far fa-heart"></i></button>
               </div>
             </div>
@@ -347,7 +347,7 @@
               <h3>Sapu Lidi Kasur</h3>
               <div class="product-price">Rp 15.000</div>
               <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="22" data-product-name="meja-tambahan" data-price="90000" data-image="/product/kamar tidur/sapu-lidi.jpg">Add to Cart</button>
+                <button class="add-to-cart-btn" data-product-id="22" data-product-name="meja-tambahan" data-price="15000" data-image="/product/kamar tidur/sapu-lidi.jpg">Add to Cart</button>
                 <button class="btn-wishlist"><i class="far fa-heart"></i></button>
               </div>
             </div>
@@ -540,53 +540,70 @@
   </div>
 </footer>
 
-  <script>
-    function goToProductDetail(productId) {
-      window.location.href = `/product-detail.html?id=${productId}`;
-    }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function goToProductDetail(productId) {
+    window.location.href = `/product-detail.html?id=${productId}`;
+  }
 
-    // Tambahkan ke keranjang
-    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-      button.addEventListener('click', async function (event) {
-        event.stopPropagation();
+  // Tambahkan ke keranjang
+  document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+    button.addEventListener('click', async function (event) {
+      event.stopPropagation();
 
-        const { productId, productName, price, image } = this.dataset;
-        const user = JSON.parse(localStorage.getItem('user'));
+      const { productId, productName, price, image } = this.dataset;
+      const user = JSON.parse(localStorage.getItem('user'));
 
-        if (!user) {
-          alert("Silakan login terlebih dahulu.");
-          return;
-        }
+      if (!user) {
+        Swal.fire({
+          icon: "warning",
+          title: "Login Diperlukan",
+          text: "Silakan login terlebih dahulu untuk menambahkan ke keranjang.",
+        });
+        return;
+      }
 
-        const cartData = {
-          user_id: user.id,
-          product_id: productId,
-          product_name: productName,
-          price: parseInt(price),
-          image_url: image,
-          quantity: 1
-        };
+      const cartData = {
+        user_id: user.id,
+        product_id: productId,
+        product_name: productName,
+        price: parseInt(price),
+        image_url: image,
+        quantity: 1
+      };
 
-        try {
-          const response = await fetch('http://localhost:3000/api/cart', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(cartData)
+      try {
+        const response = await fetch('http://localhost:3000/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cartData)
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+          Swal.fire({
+            icon: "success",
+            title: "Berhasil!",
+            text: `"${productName}" ditambahkan ke keranjang!`,
           });
-
-          const result = await response.json();
-
-          if (response.ok) {
-            alert("Produk berhasil ditambahkan ke keranjang.");
-          } else {
-            alert("Gagal menambahkan ke keranjang: " + result.message);
-          }
-        } catch (error) {
-          alert("Gagal menambahkan ke keranjang: " + error.message);
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Gagal!",
+            text: "Gagal menambahkan ke keranjang: " + result.message,
+          });
         }
-      });
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Terjadi Kesalahan",
+          text: "Gagal menambahkan ke keranjang: " + error.message,
+        });
+      }
     });
-  </script>
+  });
+</script>
 
 </body>
 </html>
