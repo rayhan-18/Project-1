@@ -87,33 +87,37 @@
   </footer>
 
   <!-- Scripts -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    function logout() {
-      localStorage.removeItem('user');
-      Swal.fire({
-        icon: "success",
-        title: "Logged Out",
-        text: "Anda berhasil logout.",
-      }).then(() => {
-        window.location.href = 'index.html'; // Kembali ke halaman utama setelah logout
-      });
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const user = JSON.parse(localStorage.getItem('user'));
-      
-      if (user) {
-        // Menampilkan data pengguna
-        document.getElementById('account-info').innerHTML = `Welcome, ${user.name}! <br> Your email: ${user.email}`;
-
-        // Menampilkan informasi tambahan jika ada
-        document.getElementById('phone').innerText = user.phone || 'Not provided';
-        document.getElementById('address').innerText = user.address || 'Not provided';
-      } else {
-        document.getElementById('account-info').innerHTML = "Please log in to see your account details.";
-      }
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function logout() {
+    localStorage.removeItem('user');  // Menghapus data pengguna
+    Swal.fire({
+      icon: "success",
+      title: "Logged Out",
+      text: "Anda berhasil logout.",
+    }).then(() => {
+      window.location.href = 'index.html'; // Mengarahkan ke halaman utama setelah logout
     });
-  </script>
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    const accountInfo = document.getElementById('account-info');
+    const phone = document.getElementById('phone');
+    const address = document.getElementById('address');
+
+    if (accountInfo) {
+      if (user) {
+        accountInfo.innerHTML = `Welcome, ${user.name}! <br> Your email: ${user.email}`;
+        if (phone) phone.innerText = user.phone || 'Not provided';
+        if (address) address.innerText = user.address || 'Not provided';
+      } else {
+        accountInfo.innerHTML = "Please log in to see your account details.";
+      }
+    }
+  });
+
+</script>
 </body>
 </html>
