@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detail Produk</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header>
+  <div class="container">
+    <nav>
+      <div class="logo">Toko<span>Rayhan</span></div>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="products.html">Products</a></li>
+        <li><a href="collections.html">Collections</a></li>
+        <li><a href="about.html">About</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+      <div class="nav-icons">
+        <div class="search-icon" title="Search"><i class="fa-light fa-magnifying-glass"></i></div>
+        <div class="wishlist-icon" onclick="openWishlistModal()" title="Wishlist">
+          <i class="fa-light fa-heart"></i>
+          <span class="wishlist-count">0</span>
+        </div>
+        <div class="cart-icon" onclick="openCartModal()" title="Shopping Cart">
+          <i class="fa-light fa-cart-shopping-fast"></i>
+          <span class="cart-count">0</span>
+        </div>
+        <div class="user-icon" onclick="toggleModal('loginModal')" title="User Account">
+          <i class="fa-light fa-user"></i>
+        </div>
+      </div>
+    </nav>
+  </div>
+</header>
+  <button onclick="window.history.back()">← Kembali</button>
+  <div id="productDetail" class="product-detail"></div>
+
+  <!-- Modal for Login -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="toggleModal('loginModal')">&times;</span>
+      <h2>Login</h2>
+      <form id="loginForm" method="post">
+        <div class="form-group">
+          <input type="email" id="loginEmail" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="loginPassword" placeholder="Password" required>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+      <p class="switch-auth">Belum punya akun? <a href="#" id="registerLink">Register</a></p>
+    </div>
+  </div>
+
+  <!-- Modal for Register -->
+  <div id="registerModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="toggleModal('registerModal')">&times;</span>
+      <h2>Register</h2>
+      <form id="registerForm" method="post">
+        <div class="form-group">
+          <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+        </div>
+        <div class="form-group">
+          <input type="email" id="registerEmail" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="registerPassword" placeholder="Password" required>
+        </div>
+        <div class="form-group">
+          <input type="text" id="registerPhone" placeholder="Nomor Telepon" required>
+        </div>
+        <div class="form-group">
+          <textarea id="registerAddress" placeholder="Alamat" required></textarea>
+        </div>
+        <button type="submit">Register</button>
+      </form>
+      <p class="switch-auth">Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>Toko Rayhan</h3>
+          <p>Premium furniture for modern living.</p>
+        </div>
+        <div class="footer-column">
+          <h3>All Products</h3>
+          <ul class="footer-links">
+            <li><a href="products.html">Living Room</a></li>
+            <li><a href="products.html">Bedroom</a></li>
+            <li><a href="products.html">Dining Room</a></li>
+            <li><a href="products.html">Office</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Information</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Customer Service</h3>
+          <ul class="footer-links">
+            <li><a href="#">My Account</a></li>
+            <li><a href="#">Track Order</a></li>
+            <li><a href="#">Returns & Exchanges</a></li>
+            <li><a href="#">Shipping Policy</a></li>
+            <li><a href="#">Warranty</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+<script>
+  const apiBase = 'http://localhost:3000/api';
+
+  // Ambil ID dari URL
+  function getProductIdFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("id");
+  }
+
+  // Render detail produk ke HTML
+  function renderProductDetail(product) {
+    const container = document.getElementById('productDetail');
+    container.innerHTML = `
+      <div class="product-image">
+        <img src="${product.image_url}" alt="${product.name}" />
+      </div>
+      <div class="product-info">
+        <h1>${product.name}</h1>
+        <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
+        <p>${product.description || 'Deskripsi tidak tersedia.'}</p>
+        <div>
+          <button id="btnAddToCart">Tambah ke Keranjang</button>
+          <button id="btnAddToWishlist">Tambah ke Wishlist</button>
+        </div>
+      </div>
+    `;
+
+    // Event listener tombol
+    document.getElementById('btnAddToCart').addEventListener('click', () => addToCart(product));
+    document.getElementById('btnAddToWishlist').addEventListener('click', () => addToWishlist(product));
+  }
+
+function updateNavCounts() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    document.getElementById('cart-count').textContent = cart.length;
+    document.getElementById('wishlist-count').textContent = wishlist.length;
+  }
+
+  function addToCart(product) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return showLogin();
+
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existing = cart.find(item => item.product_id === product.id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      cart.push({
+        product_id: product.id,
+        product_name: product.name,
+        price: product.price,
+        image: product.image_url,
+        quantity: 1
+      });
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateNavCounts();
+    Swal.fire('Berhasil!', `"${product.name}" ditambahkan ke keranjang.`, 'success');
+  }
+
+  function addToWishlist(product) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) return showLogin();
+
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const exists = wishlist.find(item => item.product_id === product.id);
+    if (exists) {
+      Swal.fire('Sudah Ada', `"${product.name}" sudah di wishlist.`, 'info');
+      return;
+    }
+
+    wishlist.push({
+      product_id: product.id,
+      product_name: product.name,
+      price: product.price,
+      image: product.image_url
+    });
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    updateNavCounts();
+    Swal.fire('Berhasil!', `"${product.name}" ditambahkan ke wishlist.`, 'success');
+  }
+
+  function toggleModal() {
+    const user = localStorage.getItem("user");
+    if (user) {
+      window.location.href = "account.html"; // redirect ke halaman akun jika sudah login
+    } else {
+      showLogin();
+    }
+  }
+
+  function showLogin() {
+    document.getElementById("loginModal").style.display = "block";
+    document.getElementById("registerModal").style.display = "none";
+  }
+
+  function showRegister() {
+    document.getElementById("registerModal").style.display = "block";
+    document.getElementById("loginModal").style.display = "none";
+  }
+
+  // Submit login
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+
+    const res = await fetch('http://localhost:3000/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+      Swal.fire('Berhasil!', 'Login berhasil.', 'success');
+      document.getElementById('loginModal').style.display = 'none';
+    } else {
+      Swal.fire('Gagal', data.message || 'Login gagal.', 'error');
+    }
+  });
+
+  // Submit register
+  document.getElementById('registerForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const phone = document.getElementById('registerPhone').value;
+    const address = document.getElementById('registerAddress').value;
+
+    const res = await fetch('http://localhost:3000/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password, phone, address })
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      localStorage.setItem('user', JSON.stringify(data.user));
+      Swal.fire('Berhasil!', 'Registrasi berhasil.', 'success');
+      document.getElementById('registerModal').style.display = 'none';
+    } else {
+      Swal.fire('Gagal', data.message || 'Registrasi gagal.', 'error');
+    }
+  });
+
+  // Update count saat halaman dimuat
+  document.addEventListener('DOMContentLoaded', () => {
+    updateNavCounts();
+  });
+
+  // Ambil data produk
+  async function fetchProductById(id) {
+    try {
+      const res = await fetch(`${apiBase}/products/${id}`);
+      if (!res.ok) throw new Error('Produk tidak ditemukan.');
+      return await res.json();
+    } catch (err) {
+      Swal.fire('Error', err.message, 'error');
+      return null;
+    }
+  }
+
+  // Main
+  document.addEventListener('DOMContentLoaded', async () => {
+    const productId = getProductIdFromURL();
+    if (!productId) {
+      Swal.fire('Error', 'ID produk tidak ditemukan di URL.', 'error');
+      return;
+    }
+    const product = await fetchProductById(productId);
+    if (product) {
+      renderProductDetail(product);
+    }
+  });
+</script>
+
+
+</body>
+</html>
