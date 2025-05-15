@@ -39,7 +39,10 @@
     </nav>
   </div>
 </header>
-  <button onclick="window.history.back()">← Kembali</button>
+
+  <button class="btn-back" onclick="window.history.back()">
+    <i class="fa fa-arrow-left"></i> Kembali
+  </button>
   <div id="productDetail" class="product-detail"></div>
 
   <!-- Modal for Login -->
@@ -148,10 +151,7 @@ function renderProductDetail(product) {
       <h1>${product.name}</h1>
       <p>${product.description || 'Deskripsi tidak tersedia.'}</p>
       <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
-      <div class="product-buttons">
-        <button id="btnAddToCart">Tambah ke Keranjang</button>
-        <button id="btnAddToWishlist">Tambah ke Wishlist</button>
-      </div>
+      <div class="product-buttons"><button id="btnAddToCart">Tambah ke Keranjang</button><button id="btnAddToWishlist">Tambah ke Wishlist</button></div>
     </div>
   `;
 
