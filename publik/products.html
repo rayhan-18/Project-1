@@ -864,10 +864,37 @@ function addToCart(product) {
 function addToWishlist(product) {
   let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
   const exists = wishlist.find(item => item.product_id === product.product_id);
+
   if (!exists) {
     wishlist.push(product);
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
     updateWishlistCount();
+
+    // Kirim juga ke backend
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      const wishlistData = {
+        user_id: user.id,
+        product_id: product.product_id,
+        product_name: product.product_name,
+        price: product.price,
+        image_url: product.image
+      };
+
+      fetch('http://localhost:3000/api/wishlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(wishlistData)
+      })
+      .then(res => res.json())
+      .then(result => {
+        console.log('Wishlist berhasil disimpan ke backend:', result);
+      })
+      .catch(err => {
+        console.error('Gagal menyimpan wishlist ke backend:', err);
+      });
+    }
+
     Swal.fire({
       icon: "success",
       title: "Ditambahkan ke Wishlist!",
