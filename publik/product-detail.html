@@ -146,8 +146,8 @@ function renderProductDetail(product) {
     </div>
     <div class="product-info">
       <h1>${product.name}</h1>
-      <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
       <p>${product.description || 'Deskripsi tidak tersedia.'}</p>
+      <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
       <div class="product-buttons">
         <button id="btnAddToCart">Tambah ke Keranjang</button>
         <button id="btnAddToWishlist">Tambah ke Wishlist</button>
