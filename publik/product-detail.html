@@ -1,210 +1,260 @@
 <!DOCTYPE html>
-
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Product Detail | TokoRayhan</title>
-  <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
-  <link rel="stylesheet" href="/styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detail Produk</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+    .product-detail {
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+    .product-image {
+      flex: 1 1 300px;
+      max-width: 400px;
+    }
+    .product-image img {
+      width: 100%;
+      border-radius: 8px;
+    }
+    .product-info {
+      flex: 1 1 300px;
+    }
+    h1 {
+      margin-top: 0;
+    }
+    .price {
+      font-size: 1.5rem;
+      color: #e74c3c;
+      margin: 1rem 0;
+    }
+    button {
+      cursor: pointer;
+      background-color: #3498db;
+      border: none;
+      padding: 10px 20px;
+      color: white;
+      border-radius: 6px;
+      margin-right: 10px;
+      font-size: 1rem;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+  </style>
 </head>
 <body>
 
-  <header>
-    <div class="container">
-      <nav>
-        <div class="logo">Toko<span>Rayhan</span></div>
-        <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="products.html">Products</a></li>
-          <li><a href="collections.html">Collections</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-        <div class="nav-icons">
-          <div class="search-icon" title="Search">
-            <i class="fa-light fa-magnifying-glass"></i>
-          </div>
-          <div class="wishlist-icon" title="Wishlist" onclick="openWishlistModal()">
-            <i class="fa-light fa-heart"></i>
-            <span class="wishlist-count">0</span>
-          </div>
-          <div class="cart-icon" onclick="openCartModal()" title="Shopping Cart">
-            <i class="fa-light fa-cart-shopping-fast"></i>
-            <span class="cart-count">0</span>
-          </div>
+  <button onclick="window.history.back()">← Kembali</button>
 
-      <!-- User Dropdown -->
-      <div style="position: relative;">
-        <div id="user-icon" style="cursor: pointer; font-size: 24px;">
-          <i class="fa-light fa-user"></i>
-        </div>            
-        <div id="user-dropdown" style="display: none; position: absolute; right: 0; top: 40px; background: white; border: 1px solid #ccc; padding: 15px; border-radius: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 200px;">
-          <p id="user-name" style="margin: 5px 0;"></p>
-          <p id="user-email" style="margin: 5px 0;"></p>
-          <a href="account.html" style="display: block; margin: 10px 0; color: #007bff; text-decoration: none;">Akun Saya</a>
-          <button onclick="logout()" style="margin-top: 10px; width: 100%; background: #dc3545; color: white; border: none; padding: 8px; border-radius: 4px; cursor: pointer;">Logout</button>
-        </div>
-      </div>          
-    </div>
-  </nav>
-</div>
-  </header>
+  <div id="product-detail">
+    <img id="product-image" src="" alt="Gambar Produk" style="max-width: 300px;" />
+    <h2 id="product-name">Nama Produk</h2>
+    <p id="product-price">Harga Produk</p>
+    <p id="product-description">Deskripsi Produk</p>
+  </div>
 
-  <main>
-    <section class="product-detail">
-      <div class="container">
-        <div class="product-detail-info">
-          <img src="" id="product-image" alt="Product Image">
-          <div class="product-description">
-            <h1 id="product-name">Product Name</h1>
-            <p id="product-price">Price</p>
-            <p id="product-description">Description</p>
-            <button id="add-to-cart-btn">Add to Cart</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
+<script>
+  const apiBase = 'http://localhost:3000/api';
 
-  <footer>
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-column">
-          <h3>TokoRayhan</h3>
-          <p>Premium furniture for modern living.</p>
-        </div>
-        <div class="footer-column">
-          <h3>All Products</h3>
-          <ul class="footer-links">
-            <li><a href="products.html">Living Room</a></li>
-            <li><a href="products.html">Bedroom</a></li>
-            <li><a href="products.html">Dining Room</a></li>
-            <li><a href="products.html">Office</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h3>Information</h3>
-          <ul class="footer-links">
-            <li><a href="about.html">About Us</a></li>
-            <li><a href="contact.html">Contact Us</a></li>
-            <li><a href="#">Blog</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h3>Customer Service</h3>
-          <ul class="footer-links">
-            <li><a href="#">My Account</a></li>
-            <li><a href="#">Track Order</a></li>
-            <li><a href="#">Returns & Exchanges</a></li>
-            <li><a href="#">Shipping Policy</a></li>
-            <li><a href="#">Warranty</a></li>
-          </ul>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
+  // Fungsi ambil query param id
+// Ambil ID produk dari URL
+  function getProductIdFromURL() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get("id");
+  }
 
-  <script>
-    const user = JSON.parse(localStorage.getItem('user'));
-    const productId = new URLSearchParams(window.location.search).get('id');
+  async function loadProductDetail() {
+    const productId = getProductIdFromURL();
     if (!productId) {
-      alert('Produk tidak ditemukan. Anda akan diarahkan kembali.');
-      window.location.href = `product-detail.html?id=${product.id}`;
+      document.getElementById("product-detail").innerHTML = "<p>ID produk tidak ditemukan.</p>";
+      return;
     }
 
-    async function getProductDetail() {
-      try {
-        const response = await fetch(`http://localhost:3000/api/products/${productId}`);
-        const product = await response.json();
+    try {
+      const res = await fetch(`http://localhost:3000/api/products/${productId}`);
+      const product = await res.json();
 
-        if (response.ok) {
-          document.getElementById('product-image').src = product.image_url;
-          document.getElementById('product-name').textContent = product.product_name;
-          document.getElementById('product-price').textContent = `Rp ${product.price.toLocaleString()}`;
-          document.getElementById('product-description').textContent = product.description;
-        } else {
-          alert('Gagal mengambil detail produk');
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        alert('Terjadi kesalahan saat mengambil detail produk');
-      }
+      if (!res.ok) throw new Error(product.message || "Gagal mengambil data produk.");
+
+      document.getElementById("product-name").textContent = product.name;
+      document.getElementById("product-price").textContent = `Rp ${product.price.toLocaleString("id-ID")}`;
+      document.getElementById("product-image").src = product.image_url;
+      document.getElementById("product-description").textContent = product.description;
+
+    } catch (err) {
+      document.getElementById("product-detail").innerHTML = `<p>${err.message}</p>`;
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", loadProductDetail);
+
+  // Render detail produk di halaman
+  function renderProductDetail(product) {
+    const container = document.getElementById('productDetail');
+    container.innerHTML = `
+      <div class="product-image">
+        <img src="${product.image_url || 'https://via.placeholder.com/400'}" alt="${product.product_name}" />
+      </div>
+      <div class="product-info">
+        <h1>${product.product_name}</h1>
+        <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
+        <p>${product.description || 'Deskripsi produk tidak tersedia.'}</p>
+        <div>
+          <button id="btnAddToCart">Tambah ke Keranjang</button>
+          <button id="btnAddToWishlist">Tambah ke Wishlist</button>
+        </div>
+      </div>
+    `;
+
+    // Pasang event listener tombol
+    document.getElementById('btnAddToCart').addEventListener('click', () => addToCart(product));
+    document.getElementById('btnAddToWishlist').addEventListener('click', () => addToWishlist(product));
+  }
+
+  // Fungsi tambah ke cart (pakai API dan localStorage)
+  async function addToCart(product) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Login Diperlukan',
+        text: 'Silakan login terlebih dahulu untuk menambahkan ke keranjang.'
+      });
+      return;
     }
 
-    document.getElementById('add-to-cart-btn').addEventListener('click', async () => {
-      if (!user) {
-        alert('Silakan login terlebih dahulu untuk menambahkan ke keranjang.');
-        window.location.href = 'login.html';
-        return;
-      }
+    const cartData = {
+      user_id: user.id,
+      product_id: product.product_id,
+      product_name: product.product_name,
+      price: product.price,
+      image_url: product.image_url,
+      quantity: 1
+    };
 
-      try {
-        const response = await fetch('http://localhost:3000/api/cart', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            userId: user.id,
-            productId: productId,
-            quantity: 1
-          })
+    try {
+      const response = await fetch(`${apiBase}/cart`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(cartData)
+      });
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: `"${product.product_name}" ditambahkan ke keranjang!`
         });
-
-        const result = await response.json();
-        if (response.ok) {
-          alert('Produk berhasil ditambahkan ke keranjang!');
-        } else {
-          alert(result.error || 'Gagal menambahkan produk ke keranjang.');
-        }
-      } catch (err) {
-        console.error('Error:', err);
-        alert('Terjadi kesalahan saat menambahkan produk ke keranjang.');
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal!',
+          text: result.message || 'Gagal menambahkan ke keranjang.'
+        });
       }
-    });
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Terjadi Kesalahan',
+        text: error.message
+      });
+    }
+  }
 
-    // Dropdown user
-    document.getElementById('user-icon').addEventListener('click', (e) => {
-      e.stopPropagation();
-      const dropdown = document.getElementById('user-dropdown');
-      dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-
-      if (user) {
-        document.getElementById('user-name').textContent = user.name;
-        document.getElementById('user-email').textContent = user.email;
-      }
-    });
-
-    document.addEventListener('click', (e) => {
-      const dropdown = document.getElementById('user-dropdown');
-      const icon = document.getElementById('user-icon');
-      if (!dropdown.contains(e.target) && !icon.contains(e.target)) {
-        dropdown.style.display = 'none';
-      }
-    });
-
-    function logout() {
-      localStorage.removeItem('user');
-      window.location.href = 'login.html';
+  // Fungsi tambah ke wishlist (API dan localStorage)
+  async function addToWishlist(product) {
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (!user) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Login Diperlukan',
+        text: 'Silakan login terlebih dahulu untuk menambahkan ke wishlist.'
+      });
+      return;
     }
 
-    window.addEventListener('DOMContentLoaded', () => {
-      const userIcon = document.getElementById('user-icon');
-      const userDropdown = document.getElementById('user-dropdown');
-      if (!user) {
-        userIcon.style.display = 'none';
-        userDropdown.style.display = 'none';
-      }
-    });
+    const wishlistData = {
+      user_id: user.id,
+      product_id: product.product_id,
+      product_name: product.product_name,
+      price: product.price,
+      image_url: product.image_url
+    };
 
-    getProductDetail();
-  </script>  
+    try {
+      const response = await fetch(`${apiBase}/wishlist`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(wishlistData)
+      });
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: `"${product.product_name}" ditambahkan ke wishlist!`
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal!',
+          text: result.message || 'Gagal menambahkan ke wishlist.'
+        });
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Terjadi Kesalahan',
+        text: error.message
+      });
+    }
+  }
+
+  // Fungsi ambil data produk dari backend sesuai id
+  async function fetchProductById(id) {
+    try {
+      const res = await fetch(`${apiBase}/products/${id}`);
+      if (!res.ok) throw new Error('Produk tidak ditemukan');
+      const product = await res.json();
+      return product;
+    } catch (err) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message
+      });
+      return null;
+    }
+  }
+
+  // Main
+  document.addEventListener('DOMContentLoaded', async () => {
+    const productId = getProductIdFromURL();
+    if (!productId) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'ID produk tidak ditemukan di URL.'
+      });
+      return;
+    }
+    const product = await fetchProductById(productId);
+    if (product) {
+      renderProductDetail(product);
+    }
+  });
+</script>
 
 </body>
 </html>
