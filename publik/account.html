@@ -91,6 +91,8 @@
 <script>
   function logout() {
     localStorage.removeItem('user');  // Menghapus data pengguna
+    localStorage.removeItem('cart');  // Kosongkan cart saat logout
+    localStorage.removeItem('wishlist');  // Kosongkan wishlist saat logout
     Swal.fire({
       icon: "success",
       title: "Logged Out",
