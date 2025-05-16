@@ -14,13 +14,13 @@ app.use(express.json());
 const authRoutes = require('./routes/authroutes');
 const cartRoutes = require('./routes/cartroutes');
 const wishlistRoutes = require('./routes/wishlistroutes');
-const productRoutes = require('./routes/productRoutes'); // ⬅️ tambahkan ini
+const productRoutes = require('./routes/productRoutes'); 
 
 // Gunakan rute
-app.use('/api/auth', authRoutes);        // Untuk autentikasi (login, register)
-app.use('/api/cart', cartRoutes);        // Untuk keranjang belanja
-app.use('/api/wishlist', wishlistRoutes); // Untuk wishlist
-app.use('/api/products', productRoutes);  // ⬅️ untuk produk (GET detail, dll)
+app.use('/api/auth', authRoutes);       
+app.use('/api/cart', cartRoutes);      
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/products', productRoutes); 
 
 // Jalankan server
 const port = process.env.PORT || 3000;

@@ -266,9 +266,9 @@ document.getElementById('registerForm').addEventListener('submit', async functio
 
   const data = await res.json();
   if (res.ok) {
-    localStorage.setItem('user', JSON.stringify(data.user));
-    Swal.fire('Berhasil!', 'Registrasi berhasil.', 'success');
+    Swal.fire('Berhasil!', 'Registrasi berhasil. Silakan login.', 'success');
     document.getElementById('registerModal').style.display = 'none';
+    document.getElementById('loginModal').style.display = 'block';
   } else {
     Swal.fire('Gagal', data.message || 'Registrasi gagal.', 'error');
   }

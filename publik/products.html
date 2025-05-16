@@ -735,14 +735,14 @@
 
     const data = await res.json();
     if (res.ok) {
-      // Simpan data pengguna di localStorage
-      localStorage.setItem('user', JSON.stringify(data.user));
-      
       Swal.fire({
         title: "Success!",
-        text: "Registrasi Berhasil!",
+        text: "Registrasi Berhasil! Silakan login.",
         icon: "success"
       });
+
+      // Setelah registrasi, alihkan ke login modal
+      showLogin();
 
       // Tutup modal setelah registrasi berhasil
       document.getElementById("registerModal").classList.add("hidden");
