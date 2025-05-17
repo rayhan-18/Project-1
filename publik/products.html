@@ -590,103 +590,105 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+  // Redirect ke halaman detail produk
   function goToProductDetail(productId) {
     window.location.href = `./product-detail.html?id=${productId}`;
   }
 
-  // Tambahkan ke keranjang
-  document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-    button.addEventListener('click', async function (event) {
-      event.stopPropagation();
-
-      const { productId, productName, price, image } = this.dataset;
-      const user = JSON.parse(localStorage.getItem('user'));
-
-      if (!user) {
-        Swal.fire({
-          icon: "warning",
-          title: "Login Diperlukan",
-          text: "Silakan login terlebih dahulu untuk menambahkan ke keranjang.",
-        });
-        return;
-      }
-
-      const cartData = {
-        user_id: user.id,
-        product_id: productId,
-        product_name: productName,
-        price: parseInt(price),
-        image_url: image,
-        quantity: 1
-      };
-
-      try {
-        const response = await fetch('http://localhost:3000/api/cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(cartData)
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Berhasil!",
-            text: `"${productName}" ditambahkan ke keranjang!`,
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Gagal!",
-            text: "Gagal menambahkan ke keranjang: " + result.message,
-          });
-        }
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Terjadi Kesalahan",
-          text: "Gagal menambahkan ke keranjang: " + error.message,
-        });
-      }
-    });
-  });
-
-    // Toggle between login and register modal
+  // Toggle antara modal login/register
   function toggleModal(modalId = 'loginModal') {
     const user = localStorage.getItem('user');
     if (user) {
-      // Jika user sudah login, arahkan ke dashboard/account page
-      window.location.href = "account.html";  // ganti dengan file akunmu
+      window.location.href = "account.html";
     } else {
-      // Jika belum login, tampilkan modal login
       const modal = document.getElementById(modalId);
       modal?.classList.toggle('hidden');
     }
   }
 
-  // Show login modal and hide register modal
   function showLogin() {
     document.getElementById("loginModal").classList.remove("hidden");
     document.getElementById("registerModal").classList.add("hidden");
   }
 
-  // Show register modal and hide login modal
   function showRegister() {
     document.getElementById("registerModal").classList.remove("hidden");
     document.getElementById("loginModal").classList.add("hidden");
   }
 
-  // Initialize logout button visibility on page load
-  document.addEventListener('DOMContentLoaded', () => {
-    const user = localStorage.getItem('user');
-    if (user) {
-      document.querySelector('.logout-icon').classList.remove('hidden');
-    }
-  });
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    document.querySelector('.cart-count').textContent = cart.length;
+  }
 
-  // Event listener for login form submission
-  document.getElementById('loginForm').addEventListener('submit', async function(e) {
+  function updateWishlistCount() {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    document.querySelector('.wishlist-count').textContent = wishlist.length;
+  }
+
+  function addToCart(product) {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
+    const existing = cart.find(item => item.product_id === product.product_id);
+    if (existing) {
+      existing.quantity += 1;
+    } else {
+      product.quantity = 1;
+      cart.push(product);
+    }
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+
+    // Kirim ke backend
+    const user = JSON.parse(localStorage.getItem('user'));
+    if (user) {
+      fetch('http://localhost:3000/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...product, user_id: user.id, image_url: product.image })
+      }).catch(err => console.error('Gagal kirim ke backend:', err));
+    }
+
+    Swal.fire({
+      icon: "success",
+      title: "Berhasil!",
+      text: `"${product.product_name}" ditambahkan ke keranjang!`,
+    });
+  }
+
+  function addToWishlist(product) {
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    const exists = wishlist.find(item => item.product_id === product.product_id);
+
+    if (!exists) {
+      wishlist.push(product);
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+      updateWishlistCount();
+
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (user) {
+        fetch('http://localhost:3000/api/wishlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ...product, user_id: user.id, image_url: product.image })
+        }).catch(err => console.error('Gagal kirim wishlist ke backend:', err));
+      }
+
+      Swal.fire({
+        icon: "success",
+        title: "Ditambahkan ke Wishlist!",
+        text: `"${product.product_name}" telah ditambahkan.`,
+      });
+    } else {
+      Swal.fire({
+        icon: "info",
+        title: "Sudah Ada",
+        text: `"${product.product_name}" sudah ada di wishlist.`,
+      });
+    }
+  }
+
+  // Event Login
+  document.getElementById('loginForm').addEventListener('submit', async function (e) {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value;
     const password = document.getElementById('loginPassword').value;
@@ -700,33 +702,24 @@
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem('user', JSON.stringify(data.user));
-      Swal.fire({
-        title: "Success!",
-        text: "Login Berhasil!",
-        icon: "success"
-      });
+      Swal.fire({ title: "Success!", text: "Login Berhasil!", icon: "success" });
       document.getElementById("loginModal").classList.add("hidden");
+      updateCartCount();
+      updateWishlistCount();
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: data.message || "Login gagal!",
-      });
+      Swal.fire({ icon: "error", title: "Oops...", text: data.message || "Login gagal!" });
     }
   });
 
-  // Event listener for register form submission
-  document.getElementById('registerForm').addEventListener('submit', async function(e) {
+  // Event Register
+  document.getElementById('registerForm').addEventListener('submit', async function (e) {
     e.preventDefault();
-    
-    // Ambil nilai input dari form
     const name = document.getElementById('registerName').value;
     const email = document.getElementById('registerEmail').value;
     const password = document.getElementById('registerPassword').value;
     const phone = document.getElementById('registerPhone').value;
     const address = document.getElementById('registerAddress').value;
 
-    // Kirim data ke server untuk registrasi
     const res = await fetch('http://localhost:3000/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -735,27 +728,15 @@
 
     const data = await res.json();
     if (res.ok) {
-      Swal.fire({
-        title: "Success!",
-        text: "Registrasi Berhasil! Silakan login.",
-        icon: "success"
-      });
-
-      // Setelah registrasi, alihkan ke login modal
+      Swal.fire({ title: "Success!", text: "Registrasi Berhasil! Silakan login.", icon: "success" });
       showLogin();
-
-      // Tutup modal setelah registrasi berhasil
       document.getElementById("registerModal").classList.add("hidden");
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal Registrasi",
-        text: data.message || "Terjadi kesalahan.",
-      });
+      Swal.fire({ icon: "error", title: "Gagal Registrasi", text: data.message || "Terjadi kesalahan." });
     }
   });
 
-  // Close modal with ESC key
+  // ESC untuk menutup modal
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       document.getElementById("loginModal").classList.add("hidden");
@@ -763,182 +744,45 @@
     }
   });
 
-  // Toggle between login/register modals
-  document.getElementById('registerLink').addEventListener('click', function(e) {
+  // Toggle login/register dari link
+  document.getElementById('registerLink').addEventListener('click', function (e) {
     e.preventDefault();
     showRegister();
   });
 
-  document.getElementById('loginLink').addEventListener('click', function(e) {
+  document.getElementById('loginLink').addEventListener('click', function (e) {
     e.preventDefault();
     showLogin();
   });
 
-  // Tambahkan ke keranjang
+  // Tambah ke Cart
   document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-    button.addEventListener('click', async function (event) {
-      event.stopPropagation();
-
-      const { productId, productName, price, image } = this.dataset;
-      const user = JSON.parse(localStorage.getItem('user'));
-
-      if (!user) {
-        Swal.fire({
-          icon: "warning",
-          title: "Login Diperlukan",
-          text: "Silakan login terlebih dahulu untuk menambahkan ke keranjang.",
-        });
-        return;
-      }
-
-      const cartData = {
-        user_id: user.id,
-        product_id: productId,
-        product_name: productName,
-        price: parseInt(price),
-        image_url: image,
-        quantity: 1
-      };
-
-      try {
-        const response = await fetch('http://localhost:3000/api/cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(cartData)
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Berhasil!",
-            text: `"${productName}" ditambahkan ke keranjang!`,
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Gagal!",
-            text: "Gagal menambahkan ke keranjang: " + result.message,
-          });
-        }
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Terjadi Kesalahan",
-          text: "Gagal menambahkan ke keranjang: " + error.message,
-        });
-      }
-    });
-  });
-
-  function updateCartCount() {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  document.querySelector('.cart-count').textContent = cart.length;
-}
-
-function updateWishlistCount() {
-  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  document.querySelector('.wishlist-count').textContent = wishlist.length;
-}
-
-function addToCart(product) {
-  let cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const existing = cart.find(item => item.product_id === product.product_id);
-  if (existing) {
-    existing.quantity += 1;
-  } else {
-    product.quantity = 1;
-    cart.push(product);
-  }
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartCount();
-
-  Swal.fire({
-    icon: "success",
-    title: "Berhasil!",
-    text: `"${product.product_name}" ditambahkan ke keranjang!`,
-  });
-}
-
-function addToWishlist(product) {
-  let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  const exists = wishlist.find(item => item.product_id === product.product_id);
-
-  if (!exists) {
-    wishlist.push(product);
-    localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    updateWishlistCount();
-
-    // Kirim juga ke backend
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-      const wishlistData = {
-        user_id: user.id,
-        product_id: product.product_id,
-        product_name: product.product_name,
-        price: product.price,
-        image_url: product.image
-      };
-
-      fetch('http://localhost:3000/api/wishlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(wishlistData)
-      })
-      .then(res => res.json())
-      .then(result => {
-        console.log('Wishlist berhasil disimpan ke backend:', result);
-      })
-      .catch(err => {
-        console.error('Gagal menyimpan wishlist ke backend:', err);
-      });
-    }
-
-    Swal.fire({
-      icon: "success",
-      title: "Ditambahkan ke Wishlist!",
-      text: `"${product.product_name}" telah ditambahkan.`,
-    });
-  } else {
-    Swal.fire({
-      icon: "info",
-      title: "Sudah Ada",
-      text: `"${product.product_name}" sudah ada di wishlist.`,
-    });
-  }
-}
-
-// Listener tombol cart
-document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-  button.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-      Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
-      return;
-    }
-
-    const product = {
-      product_id: parseInt(this.dataset.productId),
-      product_name: this.dataset.productName,
-      price: parseInt(this.dataset.price),
-      image: this.dataset.image
-    };
-    addToCart(product);
-  });
-});
-
-// Listener tombol wishlist
-  document.querySelectorAll('.add-to-wishlist-btn').forEach(button => {
-    button.addEventListener('click', function(e) {
+    button.addEventListener('click', function (e) {
       e.stopPropagation();
       const user = JSON.parse(localStorage.getItem('user'));
       if (!user) {
         Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
         return;
       }
+      const product = {
+        product_id: parseInt(this.dataset.productId),
+        product_name: this.dataset.productName,
+        price: parseInt(this.dataset.price),
+        image: this.dataset.image
+      };
+      addToCart(product);
+    });
+  });
 
+  // Tambah ke Wishlist
+  document.querySelectorAll('.add-to-wishlist-btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const user = JSON.parse(localStorage.getItem('user'));
+      if (!user) {
+        Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
+        return;
+      }
       const product = {
         product_id: parseInt(this.dataset.productId),
         product_name: this.dataset.productName,
@@ -949,11 +793,16 @@ document.querySelectorAll('.add-to-cart-btn').forEach(button => {
     });
   });
 
-  // Inisialisasi count saat halaman dibuka
+  // Inisialisasi saat halaman dimuat
   document.addEventListener('DOMContentLoaded', () => {
     updateCartCount();
     updateWishlistCount();
+    const user = localStorage.getItem('user');
+    if (user) {
+      document.querySelector('.logout-icon')?.classList.remove('hidden');
+    }
   });
 </script>
+
 </body>
 </html>
