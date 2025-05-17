@@ -31,7 +31,7 @@
           <i class="fa-light fa-cart-shopping-fast"></i>
           <span id="cart-count">0</span>
         </div>
-        <div class="user-icon" onclick="showLogin()" title="User Account">
+        <div class="user-icon" onclick="toggleModal('loginModal')" title="User Account">
           <i class="fa-light fa-user"></i>
         </div>
       </div>
@@ -187,6 +187,29 @@
     localStorage.setItem('cart', JSON.stringify(cart));
     updateNavCounts();
     Swal.fire('Berhasil!', `"${product.name}" ditambahkan ke keranjang.`, 'success');
+
+    // Kirim ke backend
+    const cartData = {
+      user_id: user.id,
+      product_id: product.id,
+      product_name: product.name,
+      price: product.price,
+      image_url: product.image_url,
+      quantity: 1
+    };
+
+    fetch('http://localhost:3000/api/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(cartData)
+    })
+    .then(res => res.json())
+    .then(result => {
+      console.log('Cart disimpan ke backend:', result);
+    })
+    .catch(err => {
+      console.error('Gagal menyimpan cart ke backend:', err);
+    });
   }
 
   function addToWishlist(product) {
@@ -209,6 +232,28 @@
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
     updateNavCounts();
     Swal.fire('Berhasil!', `"${product.name}" ditambahkan ke wishlist.`, 'success');
+
+    // Kirim ke backend
+    const wishlistData = {
+      user_id: user.id,
+      product_id: product.id,
+      product_name: product.name,
+      price: product.price,
+      image_url: product.image_url
+    };
+
+    fetch('http://localhost:3000/api/wishlist', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(wishlistData)
+    })
+    .then(res => res.json())
+    .then(result => {
+      console.log('Wishlist disimpan ke backend:', result);
+    })
+    .catch(err => {
+      console.error('Gagal menyimpan wishlist ke backend:', err);
+    });
   }
 
   function toggleModal(modalId) {
@@ -321,6 +366,19 @@
     e.preventDefault();
     showLogin();
   });
+
+      // Toggle between login and register modal
+  function toggleModal(modalId = 'loginModal') {
+    const user = localStorage.getItem('user');
+    if (user) {
+      // Jika user sudah login, arahkan ke dashboard/account page
+      window.location.href = "account.html";  // ganti dengan file akunmu
+    } else {
+      // Jika belum login, tampilkan modal login
+      const modal = document.getElementById(modalId);
+      modal?.classList.toggle('hidden');
+    }
+  }
 </script>
 
 </body>
