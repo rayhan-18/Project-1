@@ -57,7 +57,7 @@
             </div>
             <div class="category-info">
               <h3>Bathroom</h3>
-              <p>Sofas, coffee tables, and more</p>
+              <p>Rak Cermin, Rak Sabun, Shower, and more</p>
             </div>
           </div>
           <div class="category-card" onclick="window.location.href='products.html'">
@@ -66,7 +66,7 @@
             </div>
             <div class="category-info">
               <h3>Kitchen</h3>
-              <p>Beds, dressers, and nightstands</p>
+              <p>Pisau, Teko Listrik, Microwave, and more</p>
             </div>
           </div>
           <div class="category-card" onclick="window.location.href='products.html'">
@@ -75,7 +75,7 @@
             </div>
             <div class="category-info">
               <h3>Sitting Room</h3>
-              <p>Tables, chairs, and buffets</p>
+              <p>Rumah Lampu, Karpet Plastik, Lampu, and more</p>
             </div>
           </div>
           <div class="category-card" onclick="window.location.href='products.html'">
@@ -84,7 +84,7 @@
             </div>
             <div class="category-info">
               <h3>Bedroom</h3>
-              <p>Desks, chairs, and bookshelves</p>
+              <p>Meja Lipat, Lampu Belajar, Standing Mirror, and more</p>
             </div>
           </div>
         </div>
@@ -311,7 +311,6 @@
   // Initialize logout button visibility on page load
   document.addEventListener('DOMContentLoaded', () => {
     const user = JSON.parse(localStorage.getItem('user'));
-
     const accountInfo = document.getElementById('account-info');
     const phone = document.getElementById('phone');
     const address = document.getElementById('address');
@@ -479,14 +478,14 @@
   });
 
   function updateCartCount() {
-  const cart = JSON.parse(localStorage.getItem('cart')) || [];
-  document.querySelector('.cart-count').textContent = cart.length;
-}
+    const cart = JSON.parse(localStorage.getItem('cart')) || [];
+    document.querySelector('.cart-count').textContent = cart.length;
+  }
 
-function updateWishlistCount() {
-  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  document.querySelector('.wishlist-count').textContent = wishlist.length;
-}
+  function updateWishlistCount() {
+    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    document.querySelector('.wishlist-count').textContent = wishlist.length;
+  } 
 
 function addToCart(product) {
   let cart = JSON.parse(localStorage.getItem('cart')) || [];
