@@ -7,6 +7,7 @@
   <title>Toko Perabot Rayhan</title>
   <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -31,7 +32,7 @@
             <i class="fa-light fa-cart-shopping-fast"></i>
             <span class="cart-count">0</span>
           </div>
-          <div class="user-icon" onclick="toggleModal()" title="User Account">
+          <div class="user-icon" onclick="toggleModal('loginModal')" title="User Account">
             <i class="fa-light fa-user"></i>
           </div>
         </div>
@@ -544,265 +545,63 @@
     </div>
   </div>
 
-
-<footer>
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-column">
-        <h3>Toko Rayhan</h3>
-        <p>Premium furniture for modern living.</p>
-      </div>
-      <div class="footer-column">
-        <h3>All Products</h3>
-        <ul class="footer-links">
-          <li><a href="products.html">Living Room</a></li>
-          <li><a href="products.html">Bedroom</a></li>
-          <li><a href="products.html">Dining Room</a></li>
-          <li><a href="products.html">Office</a></li>
-        </ul>
-      </div>
-      <div class="footer-column">
-        <h3>Information</h3>
-        <ul class="footer-links">
-          <li><a href="about.html">About Us</a></li>
-          <li><a href="contact.html">Contact Us</a></li>
-          <li><a href="#">Blog</a></li>
-          <li><a href="#">FAQs</a></li>
-          <li><a href="#">Privacy Policy</a></li>
-        </ul>
-      </div>
-      <div class="footer-column">
-        <h3>Customer Service</h3>
-        <ul class="footer-links">
-          <li><a href="#">My Account</a></li>
-          <li><a href="#">Track Order</a></li>
-          <li><a href="#">Returns & Exchanges</a></li>
-          <li><a href="#">Shipping Policy</a></li>
-          <li><a href="#">Warranty</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
-    </div>
+    <!-- Cart Popup -->
+  <div id="cartPopup" class="popup hidden">
+    <h3>Keranjang Saya</h3>
+    <div id="cartItems"></div>
   </div>
-</footer>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script>
-  // Redirect ke halaman detail produk
-  function goToProductDetail(productId) {
-    window.location.href = `./product-detail.html?id=${productId}`;
-  }
+  <!-- Wishlist Popup -->
+  <div id="wishlistPopup" class="popup hidden">
+    <h3>Wishlist Saya</h3>
+    <div id="wishlistItems"></div>
+  </div>
 
-  // Toggle antara modal login/register
-  function toggleModal(modalId = 'loginModal') {
-    const user = localStorage.getItem('user');
-    if (user) {
-      window.location.href = "account.html";
-    } else {
-      const modal = document.getElementById(modalId);
-      modal?.classList.toggle('hidden');
-    }
-  }
+    <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h3>Toko Rayhan</h3>
+          <p>Premium furniture for modern living.</p>
+        </div>
+        <div class="footer-column">
+          <h3>All Products</h3>
+          <ul class="footer-links">
+            <li><a href="products.html">Living Room</a></li>
+            <li><a href="products.html">Bedroom</a></li>
+            <li><a href="products.html">Dining Room</a></li>
+            <li><a href="products.html">Office</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Information</h3>
+          <ul class="footer-links">
+            <li><a href="about.html">About Us</a></li>
+            <li><a href="contact.html">Contact Us</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h3>Customer Service</h3>
+          <ul class="footer-links">
+            <li><a href="#">My Account</a></li>
+            <li><a href="#">Track Order</a></li>
+            <li><a href="#">Returns & Exchanges</a></li>
+            <li><a href="#">Shipping Policy</a></li>
+            <li><a href="#">Warranty</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
 
-  function showLogin() {
-    document.getElementById("loginModal").classList.remove("hidden");
-    document.getElementById("registerModal").classList.add("hidden");
-  }
-
-  function showRegister() {
-    document.getElementById("registerModal").classList.remove("hidden");
-    document.getElementById("loginModal").classList.add("hidden");
-  }
-
-  function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    document.querySelector('.cart-count').textContent = cart.length;
-  }
-
-  function updateWishlistCount() {
-    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-    document.querySelector('.wishlist-count').textContent = wishlist.length;
-  }
-
-  function addToCart(product) {
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existing = cart.find(item => item.product_id === product.product_id);
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      product.quantity = 1;
-      cart.push(product);
-    }
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateCartCount();
-
-    // Kirim ke backend
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-      fetch('http://localhost:3000/api/cart', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...product, user_id: user.id, image_url: product.image })
-      }).catch(err => console.error('Gagal kirim ke backend:', err));
-    }
-
-    Swal.fire({
-      icon: "success",
-      title: "Berhasil!",
-      text: `"${product.product_name}" ditambahkan ke keranjang!`,
-    });
-  }
-
-  function addToWishlist(product) {
-    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-    const exists = wishlist.find(item => item.product_id === product.product_id);
-
-    if (!exists) {
-      wishlist.push(product);
-      localStorage.setItem('wishlist', JSON.stringify(wishlist));
-      updateWishlistCount();
-
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (user) {
-        fetch('http://localhost:3000/api/wishlist', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...product, user_id: user.id, image_url: product.image })
-        }).catch(err => console.error('Gagal kirim wishlist ke backend:', err));
-      }
-
-      Swal.fire({
-        icon: "success",
-        title: "Ditambahkan ke Wishlist!",
-        text: `"${product.product_name}" telah ditambahkan.`,
-      });
-    } else {
-      Swal.fire({
-        icon: "info",
-        title: "Sudah Ada",
-        text: `"${product.product_name}" sudah ada di wishlist.`,
-      });
-    }
-  }
-
-  // Event Login
-  document.getElementById('loginForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-
-    const res = await fetch('http://localhost:3000/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem('user', JSON.stringify(data.user));
-      Swal.fire({ title: "Success!", text: "Login Berhasil!", icon: "success" });
-      document.getElementById("loginModal").classList.add("hidden");
-      updateCartCount();
-      updateWishlistCount();
-    } else {
-      Swal.fire({ icon: "error", title: "Oops...", text: data.message || "Login gagal!" });
-    }
-  });
-
-  // Event Register
-  document.getElementById('registerForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
-    const name = document.getElementById('registerName').value;
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const phone = document.getElementById('registerPhone').value;
-    const address = document.getElementById('registerAddress').value;
-
-    const res = await fetch('http://localhost:3000/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, phone, address })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      Swal.fire({ title: "Success!", text: "Registrasi Berhasil! Silakan login.", icon: "success" });
-      showLogin();
-      document.getElementById("registerModal").classList.add("hidden");
-    } else {
-      Swal.fire({ icon: "error", title: "Gagal Registrasi", text: data.message || "Terjadi kesalahan." });
-    }
-  });
-
-  // ESC untuk menutup modal
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      document.getElementById("loginModal").classList.add("hidden");
-      document.getElementById("registerModal").classList.add("hidden");
-    }
-  });
-
-  // Toggle login/register dari link
-  document.getElementById('registerLink').addEventListener('click', function (e) {
-    e.preventDefault();
-    showRegister();
-  });
-
-  document.getElementById('loginLink').addEventListener('click', function (e) {
-    e.preventDefault();
-    showLogin();
-  });
-
-  // Tambah ke Cart
-  document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-    button.addEventListener('click', function (e) {
-      e.stopPropagation();
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (!user) {
-        Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
-        return;
-      }
-      const product = {
-        product_id: parseInt(this.dataset.productId),
-        product_name: this.dataset.productName,
-        price: parseInt(this.dataset.price),
-        image: this.dataset.image
-      };
-      addToCart(product);
-    });
-  });
-
-  // Tambah ke Wishlist
-  document.querySelectorAll('.add-to-wishlist-btn').forEach(button => {
-    button.addEventListener('click', function (e) {
-      e.stopPropagation();
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (!user) {
-        Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
-        return;
-      }
-      const product = {
-        product_id: parseInt(this.dataset.productId),
-        product_name: this.dataset.productName,
-        price: parseInt(this.dataset.price),
-        image: this.dataset.image
-      };
-      addToWishlist(product);
-    });
-  });
-
-  // Inisialisasi saat halaman dimuat
-  document.addEventListener('DOMContentLoaded', () => {
-    updateCartCount();
-    updateWishlistCount();
-    const user = localStorage.getItem('user');
-    if (user) {
-      document.querySelector('.logout-icon')?.classList.remove('hidden');
-    }
-  });
-</script>
+<script src="/script.js"></script>
 
 </body>
 </html>
