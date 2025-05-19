@@ -236,6 +236,18 @@
     </div>
   </div>
 
+    <!-- Cart Popup -->
+  <div id="cartPopup" class="popup hidden">
+    <h3>Keranjang Saya</h3>
+    <div id="cartItems"></div>
+  </div>
+
+  <!-- Wishlist Popup -->
+  <div id="wishlistPopup" class="popup hidden">
+    <h3>Wishlist Saya</h3>
+    <div id="wishlistItems"></div>
+  </div>
+
   <!-- Footer -->
   <footer>
     <div class="container">
@@ -283,55 +295,195 @@
 <!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-  // Toggle between login and register modal
-  function toggleModal(modalId = 'loginModal') {
-    const user = localStorage.getItem('user');
-    if (user) {
-      // Jika user sudah login, arahkan ke dashboard/account page
-      window.location.href = "account.html";  // ganti dengan file akunmu
-    } else {
-      // Jika belum login, tampilkan modal login
-      const modal = document.getElementById(modalId);
-      modal?.classList.toggle('hidden');
-    }
+  // ===================== Modal Handling =====================
+function toggleModal(modalId = 'loginModal') {
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    window.location.href = "account.html";
+  } else {
+    const modal = document.getElementById(modalId);
+    if (modal) modal.classList.toggle('hidden');
+  }
+}
+
+function showLogin() {
+  document.getElementById("loginModal")?.classList.remove("hidden");
+  document.getElementById("registerModal")?.classList.add("hidden");
+}
+
+function showRegister() {
+  document.getElementById("registerModal")?.classList.remove("hidden");
+  document.getElementById("loginModal")?.classList.add("hidden");
+}
+
+// ===================== Count Update =====================
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const cartCountElement = document.querySelector('.cart-count');
+  if (cartCountElement) cartCountElement.textContent = cart.length;
+}
+
+function updateWishlistCount() {
+  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+  const wishlistCountElement = document.querySelector('.wishlist-count');
+  if (wishlistCountElement) wishlistCountElement.textContent = wishlist.length;
+}
+
+// ===================== User Data Fetching =====================
+async function fetchAndStoreUserData(userId) {
+  try {
+    const [cartRes, wishlistRes] = await Promise.all([
+      fetch(`http://localhost:3000/api/cart/${userId}`),
+      fetch(`http://localhost:3000/api/wishlist/${userId}`)
+    ]);
+
+    if (!cartRes.ok || !wishlistRes.ok) throw new Error('Gagal fetch cart/wishlist');
+
+    const cart = await cartRes.json();
+    const wishlist = await wishlistRes.json();
+
+    localStorage.setItem('cart', JSON.stringify(cart));
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+
+    updateCartCount();
+    updateWishlistCount();
+  } catch (err) {
+    console.error('Fetch user data error:', err);
+  }
+}
+
+// ===================== Add to Cart & Wishlist =====================
+function addToCart(product) {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
+
+  const user = JSON.parse(userStr);
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const exists = cart.find(p => p.product_id === product.product_id);
+
+  if (exists) {
+    return Swal.fire({ icon: "info", title: "Sudah Ada", text: `\"${product.product_name}\" sudah di keranjang.` });
   }
 
-  // Show login modal and hide register modal
-  function showLogin() {
-    document.getElementById("loginModal").classList.remove("hidden");
-    document.getElementById("registerModal").classList.add("hidden");
+  product.quantity = 1;
+  if (product.image) {
+    product.image_url = product.image;
+    delete product.image;
+  }
+  cart.push(product);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+
+  fetch('http://localhost:3000/api/cart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...product, user_id: user.id })
+  }).catch(console.error);
+
+  Swal.fire({ icon: "success", title: "Ditambahkan ke Keranjang!", text: `\"${product.product_name}\" telah ditambahkan.` });
   }
 
-  // Show register modal and hide login modal
-  function showRegister() {
-    document.getElementById("registerModal").classList.remove("hidden");
-    document.getElementById("loginModal").classList.add("hidden");
+function addToWishlist(product) {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
+
+  const user = JSON.parse(userStr);
+  let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+  const exists = wishlist.find(p => p.product_id === product.product_id);
+
+  if (exists) {
+    return Swal.fire({ icon: "info", title: "Sudah Ada", text: `\"${product.product_name}\" sudah di wishlist.` });
   }
 
-  // Initialize logout button visibility on page load
-  document.addEventListener('DOMContentLoaded', () => {
-    const user = JSON.parse(localStorage.getItem('user'));
-    const accountInfo = document.getElementById('account-info');
-    const phone = document.getElementById('phone');
-    const address = document.getElementById('address');
+  if (product.image) {
+    product.image_url = product.image;
+    delete product.image;
+  }
+  wishlist.push(product);
+  localStorage.setItem('wishlist', JSON.stringify(wishlist));
+  updateWishlistCount();
 
-    if (accountInfo) {
-      if (user) {
-        accountInfo.innerHTML = `Welcome, ${user.name}! <br> Your email: ${user.email}`;
-        if (phone) phone.innerText = user.phone || 'Not provided';
-        if (address) address.innerText = user.address || 'Not provided';
-      } else {
-        accountInfo.innerHTML = "Please log in to see your account details.";
-      }
-    }
-  });
+  fetch('http://localhost:3000/api/wishlist', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ...product, user_id: user.id })
+  }).catch(console.error);
 
-  // Event listener for login form submission
-  document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
+  Swal.fire({ icon: "success", title: "Ditambahkan ke Wishlist!", text: `\"${product.product_name}\" telah ditambahkan.` });
+}
 
+// ===================== Pop-up Handling =====================
+async function openCartModal() {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return Swal.fire({ icon: 'warning', title: 'Login Diperlukan', text: 'Silakan login dulu.' });
+
+  try {
+    const user = JSON.parse(userStr);
+    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    if (!res.ok) throw new Error('Gagal fetch cart');
+
+    const cart = await res.json();
+    const container = document.getElementById('cartItems');
+    container.innerHTML = cart.length === 0 ? '<p class="text-gray-500">Keranjang kosong.</p>' : '';
+
+    cart.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'popup-item';
+      el.innerHTML = `
+        <img src="${item.image_url}" alt="${item.product_name}" />
+        <span>${item.product_name}</span>
+        <small>Rp ${Number(item.price).toLocaleString()}</small>
+      `;
+      container.appendChild(el);
+    });
+
+    document.getElementById('wishlistPopup')?.classList.add('hidden');
+    document.getElementById('cartPopup')?.classList.toggle('hidden');
+  } catch (error) {
+    console.error(error);
+    Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal membuka keranjang.' });
+  }
+}
+
+async function openWishlistModal() {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return Swal.fire({ icon: 'warning', title: 'Login Diperlukan', text: 'Silakan login dulu.' });
+
+  try {
+    const user = JSON.parse(userStr);
+    const res = await fetch(`http://localhost:3000/api/wishlist/${user.id}`);
+    if (!res.ok) throw new Error('Gagal fetch wishlist');
+
+    const wishlist = await res.json();
+    const container = document.getElementById('wishlistItems');
+    container.innerHTML = wishlist.length === 0 ? '<p class="text-gray-500">Wishlist kosong.</p>' : '';
+
+    wishlist.forEach(item => {
+      const el = document.createElement('div');
+      el.className = 'popup-item';
+      el.innerHTML = `
+        <img src="${item.image_url}" alt="${item.product_name}" />
+        <span>${item.product_name}</span>
+        <small>Rp ${Number(item.price).toLocaleString()}</small>
+      `;
+      container.appendChild(el);
+    });
+
+    document.getElementById('cartPopup')?.classList.add('hidden');
+    document.getElementById('wishlistPopup')?.classList.toggle('hidden');
+  } catch (error) {
+    console.error(error);
+    Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal membuka wishlist.' });
+  }
+}
+
+// ===================== Form Handling =====================
+document.getElementById('loginForm')?.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  try {
     const res = await fetch('http://localhost:3000/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -341,33 +493,27 @@
     const data = await res.json();
     if (res.ok) {
       localStorage.setItem('user', JSON.stringify(data.user));
-      Swal.fire({
-        title: "Success!",
-        text: "Login Berhasil!",
-        icon: "success"
-      });
-      document.getElementById("loginModal").classList.add("hidden");
+      await fetchAndStoreUserData(data.user.id);
+      Swal.fire({ title: "Success!", text: "Login Berhasil!", icon: "success" });
+      document.getElementById("loginModal")?.classList.add("hidden");
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: data.message || "Login gagal!",
-      });
+      Swal.fire({ icon: "error", title: "Oops...", text: data.message || "Login gagal!" });
     }
-  });
+  } catch (err) {
+    console.error(err);
+    Swal.fire({ icon: "error", title: "Error", text: "Gagal melakukan login." });
+  }
+});
 
-  // Event listener for register form submission
-  document.getElementById('registerForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    
-    // Ambil nilai input dari form
-    const name = document.getElementById('registerName').value;
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const phone = document.getElementById('registerPhone').value;
-    const address = document.getElementById('registerAddress').value;
+document.getElementById('registerForm')?.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  const name = document.getElementById('registerName').value.trim();
+  const email = document.getElementById('registerEmail').value.trim();
+  const password = document.getElementById('registerPassword').value;
+  const phone = document.getElementById('registerPhone').value.trim();
+  const address = document.getElementById('registerAddress').value.trim();
 
-    // Kirim data ke server untuk registrasi
+  try {
     const res = await fetch('http://localhost:3000/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -376,214 +522,47 @@
 
     const data = await res.json();
     if (res.ok) {
-      Swal.fire({
-        title: "Success!",
-        text: "Registrasi Berhasil! Silakan login.",
-        icon: "success"
-      });
-
-      // Setelah registrasi, alihkan ke login modal
+      Swal.fire({ title: "Success!", text: "Registrasi Berhasil! Silakan login.", icon: "success" });
       showLogin();
-
-      // Tutup modal setelah registrasi berhasil
-      document.getElementById("registerModal").classList.add("hidden");
+      document.getElementById("registerModal")?.classList.add("hidden");
     } else {
-      Swal.fire({
-        icon: "error",
-        title: "Gagal Registrasi",
-        text: data.message || "Terjadi kesalahan.",
-      });
+      Swal.fire({ icon: "error", title: "Gagal Registrasi", text: data.message || "Terjadi kesalahan." });
     }
-  });
-
-  // Close modal with ESC key
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      document.getElementById("loginModal").classList.add("hidden");
-      document.getElementById("registerModal").classList.add("hidden");
-    }
-  });
-
-  // Toggle between login/register modals
-  document.getElementById('registerLink').addEventListener('click', function(e) {
-    e.preventDefault();
-    showRegister();
-  });
-
-  document.getElementById('loginLink').addEventListener('click', function(e) {
-    e.preventDefault();
-    showLogin();
-  });
-
-  function goToProductDetail(productId) {
-    window.location.href = `./product-detail.html?id=${productId}`;
+  } catch (err) {
+    console.error(err);
+    Swal.fire({ icon: "error", title: "Error", text: "Gagal melakukan registrasi." });
   }
-
-  // Tambahkan ke keranjang
-  document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-    button.addEventListener('click', async function (event) {
-      event.stopPropagation();
-
-      const { productId, productName, price, image } = this.dataset;
-      const user = JSON.parse(localStorage.getItem('user'));
-
-      if (!user) {
-        Swal.fire({
-          icon: "warning",
-          title: "Login Diperlukan",
-          text: "Silakan login terlebih dahulu untuk menambahkan ke keranjang.",
-        });
-        return;
-      }
-
-      const cartData = {
-        user_id: user.id,
-        product_id: productId,
-        product_name: productName,
-        price: parseInt(price),
-        image_url: image,
-        quantity: 1
-      };
-
-      try {
-        const response = await fetch('http://localhost:3000/api/cart', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(cartData)
-        });
-
-        const result = await response.json();
-
-        if (response.ok) {
-          Swal.fire({
-            icon: "success",
-            title: "Berhasil!",
-            text: `"${productName}" ditambahkan ke keranjang!`,
-          });
-        } else {
-          Swal.fire({
-            icon: "error",
-            title: "Gagal!",
-            text: "Gagal menambahkan ke keranjang: " + result.message,
-          });
-        }
-      } catch (error) {
-        Swal.fire({
-          icon: "error",
-          title: "Terjadi Kesalahan",
-          text: "Gagal menambahkan ke keranjang: " + error.message,
-        });
-      }
-    });
-  });
-
-  function updateCartCount() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    document.querySelector('.cart-count').textContent = cart.length;
-  }
-
-  function updateWishlistCount() {
-    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-    document.querySelector('.wishlist-count').textContent = wishlist.length;
-  } 
-
-function addToCart(product) {
-  let cart = JSON.parse(localStorage.getItem('cart')) || [];
-  const existing = cart.find(item => item.product_id === product.product_id);
-  if (existing) {
-    existing.quantity += 1;
-  } else {
-    product.quantity = 1;
-    cart.push(product);
-  }
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartCount();
-
-  Swal.fire({
-    icon: "success",
-    title: "Berhasil!",
-    text: `"${product.product_name}" ditambahkan ke keranjang!`,
-  });
-}
-
-function addToWishlist(product) {
-  let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-  const exists = wishlist.find(item => item.product_id === product.product_id);
-
-  if (!exists) {
-    wishlist.push(product);
-    localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    updateWishlistCount();
-
-    // Kirim juga ke backend
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (user) {
-      const wishlistData = {
-        user_id: user.id,
-        product_id: product.product_id,
-        product_name: product.product_name,
-        price: product.price,
-        image_url: product.image
-      };
-
-      fetch('http://localhost:3000/api/wishlist', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(wishlistData)
-      })
-      .then(res => res.json())
-      .then(result => {
-        console.log('Wishlist berhasil disimpan ke backend:', result);
-      })
-      .catch(err => {
-        console.error('Gagal menyimpan wishlist ke backend:', err);
-      });
-    }
-
-    Swal.fire({
-      icon: "success",
-      title: "Ditambahkan ke Wishlist!",
-      text: `"${product.product_name}" telah ditambahkan.`,
-    });
-  } else {
-    Swal.fire({
-      icon: "info",
-      title: "Sudah Ada",
-      text: `"${product.product_name}" sudah ada di wishlist.`,
-    });
-  }
-}
-
-// Listener tombol cart
-document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-  button.addEventListener('click', function(e) {
-    e.stopPropagation();
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) {
-      Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
-      return;
-    }
-
-    const product = {
-      product_id: parseInt(this.dataset.productId),
-      product_name: this.dataset.productName,
-      price: parseInt(this.dataset.price),
-      image: this.dataset.image
-    };
-    addToCart(product);
-  });
 });
 
-// Listener tombol wishlist
-  document.querySelectorAll('.add-to-wishlist-btn').forEach(button => {
-    button.addEventListener('click', function(e) {
-      e.stopPropagation();
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (!user) {
-        Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
-        return;
-      }
+// ===================== DOM Ready =====================
+document.addEventListener('DOMContentLoaded', () => {
+  const userStr = localStorage.getItem('user');
+  if (userStr) {
+    try {
+      const user = JSON.parse(userStr);
+      fetchAndStoreUserData(user.id);
+    } catch {}
+  }
 
+  updateCartCount();
+  updateWishlistCount();
+
+  document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const product = {
+        product_id: parseInt(this.dataset.productId),
+        product_name: this.dataset.productName,
+        price: parseInt(this.dataset.price),
+        image: this.dataset.image
+      };
+      addToCart(product);
+    });
+  });
+
+  document.querySelectorAll('.add-to-wishlist-btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+      e.stopPropagation();
       const product = {
         product_id: parseInt(this.dataset.productId),
         product_name: this.dataset.productName,
@@ -593,13 +572,31 @@ document.querySelectorAll('.add-to-cart-btn').forEach(button => {
       addToWishlist(product);
     });
   });
+});
 
-  // Inisialisasi count saat halaman dibuka
-  document.addEventListener('DOMContentLoaded', () => {
-    updateCartCount();
-    updateWishlistCount();
-  });
+// ===================== Misc Event =====================
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape') {
+    document.getElementById("loginModal")?.classList.add("hidden");
+    document.getElementById("registerModal")?.classList.add("hidden");
+  }
+});
 
+document.getElementById('registerLink')?.addEventListener('click', function (e) {
+  e.preventDefault();
+  showRegister();
+});
+
+document.getElementById('loginLink')?.addEventListener('click', function (e) {
+  e.preventDefault();
+  showLogin();
+});
+
+// ===================== Navigation =====================
+function goToProductDetail(productId) {
+  window.location.href = `./product-detail.html?id=${productId}`;
+}
 </script>
+
 </body>
 </html>

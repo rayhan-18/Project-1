@@ -751,3 +751,36 @@ footer {
     font-size: 1.3rem;
   }
 }
+
+.popup {
+  position: absolute;
+  top: 70px;
+  right: 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  width: 300px;
+  padding: 15px;
+  z-index: 1000;
+}
+.popup.hidden {
+  display: none;
+}
+.popup-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.popup-item img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  margin-right: 10px;
+}
+.popup-item span {
+  flex-grow: 1;
+}
+
+.hidden {
+  display: none;
+}

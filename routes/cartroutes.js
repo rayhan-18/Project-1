@@ -1,8 +1,11 @@
 const express = require('express');
 const router = express.Router();
-// Periksa apakah ini benar-benar sesuai dengan path ke cartController.js
-const cartController = require('../controllers/cartcontroller');  
+const cartController = require('../controllers/cartcontroller');
 
-router.post('/', cartController);  // Pastikan memanggil cartController di sini
+// Route POST tambah ke cart
+router.post('/', cartController.addToCart);
+
+// Route GET ambil cart berdasarkan user_id
+router.get('/:user_id', cartController.getCartByUserId);
 
 module.exports = router;

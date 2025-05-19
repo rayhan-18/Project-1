@@ -1,6 +1,7 @@
-const db = require('../config/db'); // sesuaikan path ke koneksi db kamu
+const db = require('../config/db');
 
-exports.addToWishlist = async (req, res) => {   
+// POST - Tambahkan ke wishlist
+exports.addToWishlist = async (req, res) => {
   const { user_id, product_id, product_name, price, image_url } = req.body;
 
   try {
@@ -22,5 +23,18 @@ exports.addToWishlist = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Gagal menambahkan ke wishlist.' });
+  }
+};
+
+// GET - Ambil semua wishlist berdasarkan user_id
+exports.getWishlistByUserId = async (req, res) => {
+  const { user_id } = req.params;
+
+  try {
+    const [rows] = await db.query('SELECT * FROM wishlist WHERE user_id = ?', [user_id]);
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Gagal ambil wishlist:', error);
+    res.status(500).json({ message: 'Gagal mengambil data wishlist.' });
   }
 };
