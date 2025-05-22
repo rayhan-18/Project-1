@@ -2,54 +2,70 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Detail Produk</title>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Detail Produk - Toko Rayhan</title>
+  <link rel="stylesheet" href="/style.css" />
   <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
-<header>
-  <div class="container">
-    <nav>
-      <div class="logo">Toko<span>Rayhan</span></div>
-      <ul class="nav-links">
-        <li><a href="index.html">Home</a></li>
-        <li><a href="products.html">Products</a></li>
-        <li><a href="collections.html">Collections</a></li>
-        <li><a href="about.html">About</a></li>
-        <li><a href="contact.html">Contact</a></li>
-      </ul>
-      <div class="nav-icons">
-        <div class="search-icon" title="Search"><i class="fa-light fa-magnifying-glass"></i></div>
-        <div class="wishlist-icon" onclick="openWishlistModal()" title="Wishlist">
-          <i class="fa-light fa-heart"></i>
-          <span id="wishlist-count">0</span>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">Toko<span>Rayhan</span></div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="collections.html">Collections</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+        <div class="nav-icons">
+          <div class="search-icon" title="Search"><i class="fa fa-magnifying-glass"></i></div>
+          <div class="wishlist-icon" onclick="openWishlistModal()" title="Wishlist">
+            <i class="fa-light fa-heart"></i>
+            <span class="wishlist-count">0</span>
+          </div>
+          <div class="cart-icon" onclick="openCartModal()" title="Shopping Cart">
+            <i class="fa-light fa-cart-shopping-fast"></i>
+            <span class="cart-count">0</span>
+          </div>
+          <div class="user-icon" onclick="toggleModal('loginModal')" title="User Account">
+            <i class="fa-light fa-user"></i>
+          </div>
         </div>
-        <div class="cart-icon" onclick="openCartModal()" title="Shopping Cart">
-          <i class="fa-light fa-cart-shopping-fast"></i>
-          <span id="cart-count">0</span>
-        </div>
-        <div class="user-icon" onclick="toggleModal('loginModal')" title="User Account">
-          <i class="fa-light fa-user"></i>
-        </div>
+      </nav>
+    </div>
+  </header>
+
+<!-- Konten Detail Produk -->
+<main>
+  <div class="product-detail-container">
+    <img id="product-image" src="" alt="Gambar Produk" />
+    <div class="product-info">
+      <h1 id="product-name">Memuat...</h1>
+      <p id="product-price"></p>
+      <p id="product-description"></p>
+
+      <!-- Tombol Tambah ke Keranjang dan Wishlist -->
+      <div class="product-actions">
+        <button id="addToCartBtn" class="add-to-cart-btn">Tambah ke Keranjang</button>
+        <button id="addToWishlistBtn" class="add-to-wishlist-btn">Tambah ke Wishlist</button>
       </div>
-    </nav>
+    </div>
+    <button class="back-button" onclick="window.history.back()">← Kembali</button>
   </div>
-</header>
+</main>
 
-  <button class="btn-back" onclick="window.history.back()">
-    <i class="fa fa-arrow-left"></i> Kembali
-  </button>
-  <div id="productDetail" class="product-detail"></div>
-
-  <!-- Modal for Login -->
+  <!-- Modal Login -->
   <div id="loginModal" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="toggleModal('loginModal')">&times;</span>
       <h2>Login</h2>
-      <form id="loginForm">
+      <form id="loginForm" method="post">
         <div class="form-group">
           <input type="email" id="loginEmail" placeholder="Email" required>
         </div>
@@ -62,11 +78,12 @@
     </div>
   </div>
 
+  <!-- Modal Register -->
   <div id="registerModal" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="toggleModal('registerModal')">&times;</span>
       <h2>Register</h2>
-      <form id="registerForm">
+      <form id="registerForm" method="post">
         <div class="form-group">
           <input type="text" id="registerName" placeholder="Nama Lengkap" required>
         </div>
@@ -88,6 +105,19 @@
     </div>
   </div>
 
+  <!-- Cart Popup -->
+  <div id="cartPopup" class="popup hidden">
+    <h3>Keranjang Saya</h3>
+    <div id="cartItems"></div>
+  </div>
+
+  <!-- Wishlist Popup -->
+  <div id="wishlistPopup" class="popup hidden">
+    <h3>Wishlist Saya</h3>
+    <div id="wishlistItems"></div>
+  </div>
+
+  <!-- Footer -->
   <footer>
     <div class="container">
       <div class="footer-content">
@@ -131,255 +161,6 @@
     </div>
   </footer>
 
-<script>
-  const apiBase = 'http://localhost:3000/api';
-
-  function getProductIdFromURL() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get("id");
-  }
-
-  function renderProductDetail(product) {
-    const container = document.getElementById('productDetail');
-    container.innerHTML = `
-      <div class="product-image">
-        <img src="${product.image_url}" alt="${product.name}" />
-      </div>
-      <div class="product-info">
-        <h1>${product.name}</h1>
-        <p>${product.description || 'Deskripsi tidak tersedia.'}</p>
-        <p class="price">Rp ${product.price.toLocaleString('id-ID')}</p>
-        <div class="product-buttons">
-          <button id="btnAddToCart">Tambah ke Keranjang</button>
-          <button id="btnAddToWishlist">Tambah ke Wishlist</button>
-        </div>
-      </div>
-    `;
-
-    document.getElementById('btnAddToCart').addEventListener('click', () => addToCart(product));
-    document.getElementById('btnAddToWishlist').addEventListener('click', () => addToWishlist(product));
-  }
-
-  function updateNavCounts() {
-    const cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-    document.getElementById('cart-count').textContent = cart.length;
-    document.getElementById('wishlist-count').textContent = wishlist.length;
-  }
-
-  function addToCart(product) {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) return showLogin();
-
-    let cart = JSON.parse(localStorage.getItem('cart')) || [];
-    const existing = cart.find(item => item.product_id === product.id);
-    if (existing) {
-      existing.quantity += 1;
-    } else {
-      cart.push({
-        product_id: product.id,
-        product_name: product.name,
-        price: product.price,
-        image: product.image_url,
-        quantity: 1
-      });
-    }
-    localStorage.setItem('cart', JSON.stringify(cart));
-    updateNavCounts();
-    Swal.fire('Berhasil!', `"${product.name}" ditambahkan ke keranjang.`, 'success');
-
-    // Kirim ke backend
-    const cartData = {
-      user_id: user.id,
-      product_id: product.id,
-      product_name: product.name,
-      price: product.price,
-      image_url: product.image_url,
-      quantity: 1
-    };
-
-    fetch('http://localhost:3000/api/cart', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(cartData)
-    })
-    .then(res => res.json())
-    .then(result => {
-      console.log('Cart disimpan ke backend:', result);
-    })
-    .catch(err => {
-      console.error('Gagal menyimpan cart ke backend:', err);
-    });
-  }
-
-  function addToWishlist(product) {
-    const user = JSON.parse(localStorage.getItem('user'));
-    if (!user) return showLogin();
-
-    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-    const exists = wishlist.find(item => item.product_id === product.id);
-    if (exists) {
-      Swal.fire('Sudah Ada', `"${product.name}" sudah di wishlist.`, 'info');
-      return;
-    }
-
-    wishlist.push({
-      product_id: product.id,
-      product_name: product.name,
-      price: product.price,
-      image: product.image_url
-    });
-    localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    updateNavCounts();
-    Swal.fire('Berhasil!', `"${product.name}" ditambahkan ke wishlist.`, 'success');
-
-    // Kirim ke backend
-    const wishlistData = {
-      user_id: user.id,
-      product_id: product.id,
-      product_name: product.name,
-      price: product.price,
-      image_url: product.image_url
-    };
-
-    fetch('http://localhost:3000/api/wishlist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(wishlistData)
-    })
-    .then(res => res.json())
-    .then(result => {
-      console.log('Wishlist disimpan ke backend:', result);
-    })
-    .catch(err => {
-      console.error('Gagal menyimpan wishlist ke backend:', err);
-    });
-  }
-
-  function toggleModal(modalId) {
-    const modal = document.getElementById(modalId);
-    if (modal.classList.contains('hidden')) {
-      // Close all modals first
-      closeModals();
-      modal.classList.remove('hidden');
-    } else {
-      modal.classList.add('hidden');
-    }
-  }
-
-  function closeModals() {
-    document.getElementById("loginModal").classList.add("hidden");
-    document.getElementById("registerModal").classList.add("hidden");
-  }
-
-  function showLogin() {
-    closeModals();
-    document.getElementById("loginModal").classList.remove("hidden");
-  }
-
-  function showRegister() {
-    closeModals();
-    document.getElementById("registerModal").classList.remove("hidden");
-  }
-
-  document.getElementById('loginForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-
-    const res = await fetch(`${apiBase}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      localStorage.setItem('user', JSON.stringify(data.user));
-      Swal.fire('Berhasil!', 'Login berhasil.', 'success');
-      closeModals();
-      updateNavCounts();
-    } else {
-      Swal.fire('Gagal', data.message || 'Login gagal.', 'error');
-    }
-  });
-
-  document.getElementById('registerForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const name = document.getElementById('registerName').value;
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const phone = document.getElementById('registerPhone').value;
-    const address = document.getElementById('registerAddress').value;
-
-    const res = await fetch(`${apiBase}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password, phone, address })
-    });
-
-    const data = await res.json();
-    if (res.ok) {
-      Swal.fire('Berhasil!', 'Registrasi berhasil. Silakan login.', 'success');
-      showLogin();
-    } else {
-      Swal.fire('Gagal', data.message || 'Registrasi gagal.', 'error');
-    }
-  });
-
-  document.addEventListener('DOMContentLoaded', async () => {
-    updateNavCounts();
-    const productId = getProductIdFromURL();
-    if (!productId) {
-      Swal.fire('Error', 'ID produk tidak ditemukan di URL.', 'error');
-      return;
-    }
-    const product = await fetchProductById(productId);
-    if (product) renderProductDetail(product);
-  });
-
-  async function fetchProductById(id) {
-    try {
-      const res = await fetch(`${apiBase}/products/${id}`);
-      if (!res.ok) throw new Error('Produk tidak ditemukan.');
-      return await res.json();
-    } catch (err) {
-      Swal.fire('Error', err.message, 'error');
-      return null;
-    }
-  }
-
-  // Tutup modal saat Escape ditekan
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape') {
-      closeModals();
-    }
-  });
-
-  // Switch link di modal login/register
-  document.getElementById('registerLink').addEventListener('click', function(e) {
-    e.preventDefault();
-    showRegister();
-  });
-
-  document.getElementById('loginLink').addEventListener('click', function(e) {
-    e.preventDefault();
-    showLogin();
-  });
-
-      // Toggle between login and register modal
-  function toggleModal(modalId = 'loginModal') {
-    const user = localStorage.getItem('user');
-    if (user) {
-      // Jika user sudah login, arahkan ke dashboard/account page
-      window.location.href = "account.html";  // ganti dengan file akunmu
-    } else {
-      // Jika belum login, tampilkan modal login
-      const modal = document.getElementById(modalId);
-      modal?.classList.toggle('hidden');
-    }
-  }
-</script>
-
+  <script src="/product-detail.js"></script>
 </body>
 </html>

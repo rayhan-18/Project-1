@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const productController = require('../controllers/productcontroller');
+const { getProductById } = require('../controllers/productcontroller');
 
-router.get('/:id', productController.getProductDetail);
+router.get('/:id', getProductById); // ID diambil dari URL
 
 module.exports = router;

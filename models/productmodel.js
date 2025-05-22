@@ -1,7 +1,10 @@
 const db = require('../config/db');
 
-exports.getProductById = async (id) => {
-  const [rows] = await db.execute('SELECT * FROM products WHERE id = ?', [id]);
-  return rows[0]; // return satu produk saja
-};
+async function getProductById(id) {
+  const [rows] = await db.query('SELECT * FROM products WHERE product_id = ?', [id]);
+  return rows[0];
+}
 
+module.exports = {
+  getProductById,
+};
