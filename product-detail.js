@@ -201,131 +201,181 @@ function goToProductDetail(productId) {
 
 document.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search);
-  const productId = urlParams.get('id');
+  const productId = urlParams.get("id");
 
   if (!productId) {
-    Swal.fire({ icon: 'error', title: 'Produk tidak ditemukan', text: 'Silakan kembali ke halaman produk.' });
-    window.location.href = 'products.html';
-    return;
+    await Swal.fire({
+      icon: "error",
+      title: "Produk tidak ditemukan",
+      text: "Silakan kembali ke halaman produk.",
+    });
+    return (window.location.href = "products.html");
   }
 
   try {
     const res = await fetch(`http://localhost:3000/api/products/${productId}`);
-    if (!res.ok) throw new Error('Produk tidak ditemukan');
+    if (!res.ok) throw new Error("Produk tidak ditemukan");
 
     const product = await res.json();
 
-    document.getElementById("product-image").src = product.image_url || 'placeholder.jpg';
-    document.getElementById("product-name").textContent = product.product_name;
+    // Tampilkan detail produk
+    document.getElementById("product-image").src = product.image_url || "placeholder.jpg";
+    document.getElementById("product-name").textContent = product.product_name || "Nama Produk";
     document.getElementById("product-price").textContent = `Rp ${Number(product.price).toLocaleString("id-ID")}`;
-    document.getElementById("product-description").textContent = product.description || 'Tidak ada deskripsi.';
+    document.getElementById("product-description").textContent = product.description || "Tidak ada deskripsi.";
 
-    // Add to Cart
-  document.getElementById("addToCartBtn")?.addEventListener("click", async () => {
-    const user = safelyParseUser();
-    if (!user) return;
+    // Tambah ke Keranjang
+    document.getElementById("addToCartBtn")?.addEventListener("click", async () => {
+      const user = safelyParseUser();
+      if (!user) return;
 
-    const productName = product.product_name || product.name || product.title || "Nama Produk";
+      const cartItem = {
+        user_id: user.id,
+        product_id: product.product_id || product.id,
+        product_name: product.product_name || product.name || "Nama Produk",
+        price: Number(product.price),
+        image_url: product.image_url,
+        quantity: 1,
+      };
 
-    const cartItem = {
-      user_id: user.id,
-      product_id: product.product_id || product.id,
-      product_name: productName,
-      price: product.price,
-      image_url: product.image_url,
-      quantity: 1
-    };
+      const existingCart = JSON.parse(localStorage.getItem("cart")) || [];
+      const alreadyInCart = existingCart.some(item => item.product_id === cartItem.product_id);
 
-    console.log("Data dikirim ke /api/cart:", cartItem);
+      if (alreadyInCart) {
+        return Swal.fire({
+          icon: "info",
+          title: "Sudah Ada",
+          text: `"${cartItem.product_name}" sudah ada di keranjang Anda.`,
+        });
+      }
 
-    try {
-      const res = await fetch(`http://localhost:3000/api/cart`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cartItem)
-      });
+      try {
+        const res = await fetch(`http://localhost:3000/api/cart`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(cartItem),
+        });
 
-      if (!res.ok) throw new Error('Gagal tambah ke keranjang');
-      const updatedCart = await res.json();
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      updateCartCount();
-      Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Produk ditambahkan ke keranjang!' });
-    } catch (err) {
-      console.error(err);
-      Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menambahkan ke keranjang.' });
-    }
-  });
+        if (!res.ok) throw new Error("Gagal tambah ke keranjang");
 
-    // Add to Wishlist
-  document.getElementById("addToWishlistBtn")?.addEventListener("click", async () => {
-    const user = safelyParseUser();
-    if (!user) return;
+        const updatedCart = await res.json();
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
+        updateCartCount();
 
-    // Ambil nama produk dengan fallback jika properti berbeda
-    const productName = product.product_name || product.name || product.title || "Nama Produk";
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil",
+          text: "Produk ditambahkan ke keranjang!",
+        });
+      } catch (err) {
+        console.error(err);
+        Swal.fire({ icon: "error", title: "Error", text: "Gagal menambahkan ke keranjang." });
+      }
+    });
 
-    const wishlistItem = {
-      user_id: user.id,
-      product_id: product.product_id || product.id,
-      product_name: productName,
-      price: product.price,
-      image_url: product.image_url
-    };
+    // Tambah ke Wishlist
+    document.getElementById("addToWishlistBtn")?.addEventListener("click", async () => {
+      const user = safelyParseUser();
+      if (!user) return;
 
-    console.log("Data dikirim ke /api/wishlist: ", wishlistItem);
+      let price = product.price;
+      if (typeof price === "string") {
+        price = parseFloat(price.replace(/[^0-9.-]+/g, ""));
+      }
+      if (isNaN(price)) {
+        return Swal.fire({ icon: "error", title: "Error", text: "Harga produk tidak valid." });
+      }
 
-    try {
-      const res = await fetch(`http://localhost:3000/api/wishlist`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(wishlistItem)
-      });
+      const wishlistItem = {
+        user_id: user.id,
+        product_id: product.product_id || product.id,
+        product_name: product.product_name || product.name || "Nama Produk",
+        price,
+        image_url: product.image_url,
+      };
 
-      if (!res.ok) throw new Error('Gagal tambah ke wishlist');
-      const updatedWishlist = await res.json();
-      localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
-      updateWishlistCount();
-      Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Produk ditambahkan ke wishlist!' });
-    } catch (err) {
-      console.error(err);
-      Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menambahkan ke wishlist.' });
-    }
-  });
+      const existingWishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+      const alreadyInWishlist = existingWishlist.some(item => item.product_id === wishlistItem.product_id);
 
-    updateCartCount();
-    updateWishlistCount();
+      if (alreadyInWishlist) {
+        return Swal.fire({
+          icon: "info",
+          title: "Sudah Ada",
+          text: `"${wishlistItem.product_name}" sudah ada di wishlist Anda.`,
+        });
+      }
 
+      try {
+        const res = await fetch(`http://localhost:3000/api/wishlist`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(wishlistItem),
+        });
+
+        if (!res.ok) {
+          const errorData = await res.json().catch(() => null);
+          if (errorData?.message === "Produk sudah ada di wishlist.") {
+            return Swal.fire({
+              icon: "info",
+              title: "Sudah Ada",
+              text: `"${wishlistItem.product_name}" sudah ada di wishlist Anda.`,
+            });
+          }
+          throw new Error(errorData?.message || "Gagal tambah ke wishlist");
+        }
+
+        const updatedWishlist = await res.json();
+        localStorage.setItem("wishlist", JSON.stringify(updatedWishlist));
+        updateWishlistCount();
+
+        Swal.fire({
+          icon: "success",
+          title: "Berhasil",
+          text: "Produk ditambahkan ke wishlist!",
+        });
+      } catch (err) {
+        console.error(err);
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: err.message || "Gagal menambahkan ke wishlist.",
+        });
+      }
+    });
   } catch (error) {
-    Swal.fire({ icon: 'error', title: 'Error', text: error.message });
-    window.location.href = 'products.html';
+    Swal.fire({ icon: "error", title: "Error", text: error.message });
+    window.location.href = "products.html";
   }
-});
 
-// ===================== Utility Functions =====================
-function safelyParseUser() {
-  try {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) {
-      Swal.fire({ icon: 'warning', title: 'Login Diperlukan', text: 'Silakan login terlebih dahulu.' });
+  // ========== FUNGSI UTILITAS ==========
+  function safelyParseUser() {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      if (!user) {
+        Swal.fire({ icon: "warning", title: "Login Diperlukan", text: "Silakan login terlebih dahulu." });
+        return null;
+      }
+      return user;
+    } catch (err) {
+      console.error("User parse error:", err);
+      Swal.fire({ icon: "error", title: "Error", text: "Data login rusak. Silakan login ulang." });
+      localStorage.removeItem("user");
       return null;
     }
-    return user;
-  } catch (err) {
-    console.error('User parse error:', err);
-    Swal.fire({ icon: 'error', title: 'Error', text: 'Data login rusak. Silakan login ulang.' });
-    localStorage.removeItem("user");
-    return null;
   }
-}
 
-function updateCartCount() {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  const cartCount = document.querySelector(".cart-count");
-  if (cartCount) cartCount.textContent = cart.length;
-}
+  function updateCartCount() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const cartCount = document.querySelector(".cart-count");
+    if (cartCount) cartCount.textContent = cart.length;
+  }
 
-function updateWishlistCount() {
-  const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
-  const wishlistCount = document.querySelector(".wishlist-count");
-  if (wishlistCount) wishlistCount.textContent = wishlist.length;
-}
+  function updateWishlistCount() {
+    const wishlist = JSON.parse(localStorage.getItem("wishlist")) || [];
+    const wishlistCount = document.querySelector(".wishlist-count");
+    if (wishlistCount) wishlistCount.textContent = wishlist.length;
+  }
+
+  updateCartCount();
+  updateWishlistCount();
+});
