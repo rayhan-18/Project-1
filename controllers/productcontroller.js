@@ -2,7 +2,7 @@ const db = require('../config/db');
 
 const getProductById = async (req, res) => {
   try {
-    const id = req.params.id; // ✅ Ambil ID dari URL parameter
+    const id = req.params.id;
     const [rows] = await db.query(
       'SELECT id AS product_id, name, price, image_url, category, description FROM products WHERE id = ?',
       [id]

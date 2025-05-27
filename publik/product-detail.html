@@ -43,6 +43,9 @@
 
 <!-- Konten Detail Produk -->
 <main>
+  <!-- Tombol kembali di pojok kiri atas -->
+  <button class="btn-back" onclick="window.history.back()">← Kembali</button>
+
   <div class="product-detail-container">
     <img id="product-image" src="" alt="Gambar Produk" />
     <div class="product-info">
@@ -52,11 +55,14 @@
 
       <!-- Tombol Tambah ke Keranjang dan Wishlist -->
       <div class="product-actions">
-        <button id="addToCartBtn" class="add-to-cart-btn">Tambah ke Keranjang</button>
-        <button id="addToWishlistBtn" class="add-to-wishlist-btn">Tambah ke Wishlist</button>
+        <button id="addToCartBtn" class="add-to-cart-btn">
+          <i class="fa-light fa-cart-shopping-fast"></i> Tambah ke Keranjang
+        </button>
+        <button id="addToWishlistBtn" class="add-to-wishlist-btn">
+          <i class="fa-light fa-heart"></i> Tambah ke Wishlist
+        </button>
       </div>
     </div>
-    <button class="back-button" onclick="window.history.back()">← Kembali</button>
   </div>
 </main>
 

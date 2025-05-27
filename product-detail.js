@@ -217,11 +217,22 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!res.ok) throw new Error("Produk tidak ditemukan");
 
     const product = await res.json();
+    console.log("Product data:", product);
 
-    // Tampilkan detail produk
+    // Ambil nama produk dari beberapa kemungkinan properti
+    const productName = product.product_name || product.name || product.nama || "Nama Produk";
+
+    // Ambil harga dan pastikan formatnya benar
+    let productPrice = product.price;
+    if (typeof productPrice === "string") {
+      productPrice = parseFloat(productPrice.replace(/[^0-9.-]+/g, ""));
+    }
+    if (isNaN(productPrice)) productPrice = 0;
+
+    // Tampilkan detail produk di DOM
     document.getElementById("product-image").src = product.image_url || "placeholder.jpg";
-    document.getElementById("product-name").textContent = product.product_name || "Nama Produk";
-    document.getElementById("product-price").textContent = `Rp ${Number(product.price).toLocaleString("id-ID")}`;
+    document.getElementById("product-name").textContent = productName;
+    document.getElementById("product-price").textContent = `Rp ${productPrice.toLocaleString("id-ID")}`;
     document.getElementById("product-description").textContent = product.description || "Tidak ada deskripsi.";
 
     // Tambah ke Keranjang
@@ -232,8 +243,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       const cartItem = {
         user_id: user.id,
         product_id: product.product_id || product.id,
-        product_name: product.product_name || product.name || "Nama Produk",
-        price: Number(product.price),
+        product_name: productName,
+        price: productPrice,
         image_url: product.image_url,
         quantity: 1,
       };
@@ -278,7 +289,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const user = safelyParseUser();
       if (!user) return;
 
-      let price = product.price;
+      let price = productPrice;
       if (typeof price === "string") {
         price = parseFloat(price.replace(/[^0-9.-]+/g, ""));
       }
@@ -289,7 +300,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const wishlistItem = {
         user_id: user.id,
         product_id: product.product_id || product.id,
-        product_name: product.product_name || product.name || "Nama Produk",
+        product_name: productName,
         price,
         image_url: product.image_url,
       };
@@ -342,12 +353,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
       }
     });
+
   } catch (error) {
     Swal.fire({ icon: "error", title: "Error", text: error.message });
     window.location.href = "products.html";
   }
 
   // ========== FUNGSI UTILITAS ==========
+
   function safelyParseUser() {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
