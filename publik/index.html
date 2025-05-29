@@ -22,7 +22,6 @@
           <li><a href="contact.html">Contact</a></li>
         </ul>
         <div class="nav-icons">
-          <div class="search-icon" title="Search"><i class="fa-light fa-magnifying-glass"></i></div>
           <div class="wishlist-icon" onclick="openWishlistModal()" title="Wishlist">
             <i class="fa-light fa-heart"></i>
             <span class="wishlist-count">0</span>
@@ -106,6 +105,7 @@
             </div>
             <div class="product-info">
               <h3>Blender Kapsul</h3>
+              <div class="product-stock">Stok: 100</div>
               <div class="product-price">Rp 89.000</div>
               <div class="product-actions">
                 <button class="add-to-cart-btn" data-product-id="1" data-product-name="Blender Kapsul" data-price="89000" data-image="/product/dapur/blender.jpg">Add to Cart</button>
@@ -121,7 +121,8 @@
             </div>
             <div class="product-info">
               <h3>Standing Mirror</h3>
-              <div class="product-price">Rp 150.000</div>
+              <div class="product-stock">Stok: 80</div>
+              <div class="product-price">Rp 150.000</div>             
               <div class="product-actions">
                 <button class="add-to-cart-btn" data-product-id="2" data-product-name="Standing Mirror" data-price="150000" data-image="/product/kamar tidur/cermin-kamar.jpg">Add to Cart</button>
                 <button class="add-to-wishlist-btn" data-product-id="2" data-product-name="Standing Mirror" data-price="150000" data-image="/product/kamar tidur/cermin-kamar.jpg"><i class="far fa-heart"></i></button>
@@ -136,6 +137,7 @@
             </div>
             <div class="product-info">
               <h3>Botol Sabun Cair</h3>
+              <div class="product-stock">Stok: 120</div>
               <div class="product-price">Rp 10.000</div>
               <div class="product-actions">
                 <button class="add-to-cart-btn" data-product-id="3" data-product-name="Botol Sabun Cair" data-price="10000" data-image="/product/kamarmandi/botol-sabun.jpg">Add to Cart</button>
@@ -151,7 +153,8 @@
             </div>
             <div class="product-info">
               <h3>Jam Dinding</h3>
-              <div class="product-price">Rp 50.000</div>
+              <div class="product-stock">Stok: 130</div>
+              <div class="product-price">Rp 50.000</div> 
               <div class="product-actions">
                 <button class="add-to-cart-btn" data-product-id="4" data-product-name="Jam Dinding" data-price="50000" data-image="/product/ruang-tamu/jam-dinding.jpg">Add to Cart</button>
                 <button class="add-to-wishlist-btn" data-product-id="4" data-product-name="Jam Dinding" data-price="50000" data-image="/product/ruang-tamu/jam-dinding.jpg"><i class="far fa-heart"></i></button>
@@ -237,17 +240,27 @@
     </div>
   </div>
 
-    <!-- Cart Popup -->
-  <div id="cartPopup" class="popup hidden">
-    <h3>Keranjang Saya</h3>
-    <div id="cartItems"></div>
+    <!-- Wishlist Popup -->
+<div id="wishlistPopup" class="popup hidden">
+  <div class="popup-header">
+    <h2>Your Wishlist</h2>
+    <button class="close-btn" onclick="toggleWishlistPopup()">×</button>
   </div>
+  <div class="popup-content" id="wishlistItems"></div>
+  <hr>
+  <button class="continue-btn" onclick="toggleWishlistPopup()">Continue Shopping</button>
+</div>
 
-  <!-- Wishlist Popup -->
-  <div id="wishlistPopup" class="popup hidden">
-    <h3>Wishlist Saya</h3>
-    <div id="wishlistItems"></div>
+<!-- Cart Popup -->
+<div id="cartPopup" class="popup hidden">
+  <div class="popup-header">
+    <h2>Your Cart</h2>
+    <button class="close-btn" onclick="toggleCartPopup()">×</button>
   </div>
+  <div class="popup-content" id="cartItems"></div>
+  <hr>
+  <button class="continue-btn" onclick="window.location.href='checkout.html'">Proceed to Checkout</button>
+</div>
 
   <!-- Footer -->
   <footer>

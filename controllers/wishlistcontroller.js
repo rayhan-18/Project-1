@@ -74,3 +74,29 @@ exports.getWishlistByUserId = async (req, res) => {
     res.status(500).json({ message: 'Gagal mengambil data wishlist' });
   }
 };
+
+exports.removeFromWishlist = async (req, res) => {
+  try {
+    const { user_id, product_id } = req.params;
+    const userId = parseInt(user_id);
+    const productId = parseInt(product_id);
+
+    if (isNaN(userId) || isNaN(productId)) {
+      return res.status(400).json({ message: 'ID user atau produk tidak valid' });
+    }
+
+    const [result] = await db.execute(
+      'DELETE FROM wishlist WHERE user_id = ? AND product_id = ?',
+      [userId, productId]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Produk tidak ditemukan di wishlist' });
+    }
+
+    res.status(200).json({ message: 'Produk berhasil dihapus dari wishlist' });
+  } catch (error) {
+    console.error('Remove from wishlist error:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan pada server saat menghapus wishlist' });
+  }
+};

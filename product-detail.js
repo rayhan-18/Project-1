@@ -18,7 +18,20 @@ function showRegister() {
   document.getElementById("registerModal")?.classList.remove("hidden");
   document.getElementById("loginModal")?.classList.add("hidden");
 }
-  
+
+// ===================== Count Update =====================
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem('cart')) || [];
+  const cartCountElement = document.querySelector('.cart-count');
+  if (cartCountElement) cartCountElement.textContent = cart.length;
+}
+
+function updateWishlistCount() {
+  const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+  const wishlistCountElement = document.querySelector('.wishlist-count');
+  if (wishlistCountElement) wishlistCountElement.textContent = wishlist.length;
+}
+
 // ===================== User Data Fetching =====================
 async function fetchAndStoreUserData(userId) {
   try {
@@ -43,6 +56,7 @@ async function fetchAndStoreUserData(userId) {
 }
 
 // ===================== Pop-up Handling =====================
+
 async function openCartModal() {
   const userStr = localStorage.getItem('user');
   if (!userStr) return Swal.fire({ icon: 'warning', title: 'Login Diperlukan', text: 'Silakan login dulu.' });
@@ -58,19 +72,21 @@ async function openCartModal() {
 
     cart.forEach(item => {
       const el = document.createElement('div');
-      el.className = 'popup-item flex items-center gap-3 mb-3';
+      el.className = 'popup-item';
       el.innerHTML = `
-        <img src="${item.image_url}" alt="${item.product_name}" class="w-12 h-12 object-cover rounded" />
-        <div>
-          <span class="block font-semibold">${item.product_name}</span>
-          <small class="text-gray-600">Rp ${Number(item.price).toLocaleString()}</small>
+        <img src="${item.image_url}" alt="${item.product_name}" />
+        <div class="popup-item-info">
+          <span class="popup-item-name">${item.product_name}</span>
+          <small>Rp ${Number(item.price).toLocaleString()}</small>
         </div>
       `;
       container.appendChild(el);
     });
 
+    // Tampilkan Cart dan sembunyikan Wishlist
     document.getElementById('wishlistPopup')?.classList.add('hidden');
-    document.getElementById('cartPopup')?.classList.toggle('hidden');
+    document.getElementById('cartPopup')?.classList.remove('hidden');
+
   } catch (error) {
     console.error(error);
     Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal membuka keranjang.' });
@@ -92,22 +108,75 @@ async function openWishlistModal() {
 
     wishlist.forEach(item => {
       const el = document.createElement('div');
-      el.className = 'popup-item flex items-center gap-3 mb-3';
+      el.className = 'popup-item';
+      const safeProduct = encodeURIComponent(JSON.stringify(item));
+
       el.innerHTML = `
-        <img src="${item.image_url}" alt="${item.product_name}" class="w-12 h-12 object-cover rounded" />
-        <div>
-          <span class="block font-semibold">${item.product_name}</span>
-          <small class="text-gray-600">Rp ${Number(item.price).toLocaleString()}</small>
+        <img src="${item.image_url}" alt="${item.product_name}" />
+        <div class="popup-item-info">
+          <span class="popup-item-name">${item.product_name}</span>
+          <div class="popup-item-buttons">
+            <button class="btn btn-green" onclick='addToCartFromWishlistItem(JSON.parse(decodeURIComponent("${safeProduct}")))'>Add to Cart</button>
+            <button class="btn btn-red" onclick="removeFromWishlist(${item.product_id})">Remove</button>
+          </div>
         </div>
       `;
       container.appendChild(el);
     });
 
+    // Tampilkan Wishlist dan sembunyikan Cart
     document.getElementById('cartPopup')?.classList.add('hidden');
-    document.getElementById('wishlistPopup')?.classList.toggle('hidden');
+    document.getElementById('wishlistPopup')?.classList.remove('hidden');
+
   } catch (error) {
     console.error(error);
     Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal membuka wishlist.' });
+  }
+}
+
+function removeFromCart(productId) {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return;
+
+  const user = JSON.parse(userStr);
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  cart = cart.filter(item => item.product_id !== productId);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+
+  fetch(`http://localhost:3000/api/cart/${user.id}/${productId}`, {
+    method: 'DELETE'
+  }).catch(console.error);
+
+  openCartModal(); // Refresh cart popup
+}
+
+async function removeFromWishlist(productId) {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return;
+
+  const user = JSON.parse(userStr);
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/wishlist/${user.id}/${productId}`, {
+      method: 'DELETE'
+    });
+
+    if (!res.ok) {
+      throw new Error('Gagal menghapus wishlist');
+    }
+
+    // Kalau sudah sukses, update localStorage dan UI
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    wishlist = wishlist.filter(item => item.product_id !== productId);
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    updateWishlistCount();
+
+    await openWishlistModal(); // Refresh wishlist popup setelah data server terupdate
+
+  } catch (error) {
+    console.error(error);
+    Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menghapus wishlist.' });
   }
 }
 
@@ -116,10 +185,6 @@ document.getElementById('loginForm')?.addEventListener('submit', async function 
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim();
   const password = document.getElementById('loginPassword').value;
-
-  if (!email || !password) {
-    return Swal.fire({ icon: 'warning', title: 'Input kosong', text: 'Email dan password harus diisi.' });
-  }
 
   try {
     const res = await fetch('http://localhost:3000/api/auth/login', {
@@ -150,10 +215,6 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
   const password = document.getElementById('registerPassword').value;
   const phone = document.getElementById('registerPhone').value.trim();
   const address = document.getElementById('registerAddress').value.trim();
-
-  if (!name || !email || !password || !phone || !address) {
-    return Swal.fire({ icon: 'warning', title: 'Input kosong', text: 'Semua field harus diisi.' });
-  }
 
   try {
     const res = await fetch('http://localhost:3000/api/auth/register', {
@@ -392,3 +453,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateCartCount();
   updateWishlistCount();
 });
+
+function addToCartFromWishlistItem(product) {
+  addToCart(product);
+  removeFromWishlist(product.product_id);
+}

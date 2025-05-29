@@ -24,7 +24,6 @@
           <li><a href="contact.html">Contact</a></li>
         </ul>
         <div class="nav-icons">
-          <div class="search-icon" title="Search"><i class="fa fa-magnifying-glass"></i></div>
           <div class="wishlist-icon" onclick="openWishlistModal()" title="Wishlist">
             <i class="fa-light fa-heart"></i>
             <span class="wishlist-count">0</span>
@@ -111,17 +110,27 @@
     </div>
   </div>
 
-  <!-- Cart Popup -->
-  <div id="cartPopup" class="popup hidden">
-    <h3>Keranjang Saya</h3>
-    <div id="cartItems"></div>
-  </div>
-
   <!-- Wishlist Popup -->
-  <div id="wishlistPopup" class="popup hidden">
-    <h3>Wishlist Saya</h3>
-    <div id="wishlistItems"></div>
+<div id="wishlistPopup" class="popup hidden">
+  <div class="popup-header">
+    <h2>Your Wishlist</h2>
+    <button class="close-btn" onclick="toggleWishlistPopup()">×</button>
   </div>
+  <div class="popup-content" id="wishlistItems"></div>
+  <hr>
+  <button class="continue-btn" onclick="toggleWishlistPopup()">Continue Shopping</button>
+</div>
+
+<!-- Cart Popup -->
+<div id="cartPopup" class="popup hidden">
+  <div class="popup-header">
+    <h2>Your Cart</h2>
+    <button class="close-btn" onclick="toggleCartPopup()">×</button>
+  </div>
+  <div class="popup-content" id="cartItems"></div>
+  <hr>
+  <button class="continue-btn" onclick="window.location.href='checkout.html'">Proceed to Checkout</button>
+</div>
 
   <!-- Footer -->
   <footer>

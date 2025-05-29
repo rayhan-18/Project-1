@@ -116,6 +116,7 @@ function addToWishlist(product) {
 }
 
 // ===================== Pop-up Handling =====================
+
 async function openCartModal() {
   const userStr = localStorage.getItem('user');
   if (!userStr) return Swal.fire({ icon: 'warning', title: 'Login Diperlukan', text: 'Silakan login dulu.' });
@@ -134,14 +135,18 @@ async function openCartModal() {
       el.className = 'popup-item';
       el.innerHTML = `
         <img src="${item.image_url}" alt="${item.product_name}" />
-        <span>${item.product_name}</span>
-        <small>Rp ${Number(item.price).toLocaleString()}</small>
+        <div class="popup-item-info">
+          <span class="popup-item-name">${item.product_name}</span>
+          <small>Rp ${Number(item.price).toLocaleString()}</small>
+        </div>
       `;
       container.appendChild(el);
     });
 
+    // Tampilkan Cart dan sembunyikan Wishlist
     document.getElementById('wishlistPopup')?.classList.add('hidden');
-    document.getElementById('cartPopup')?.classList.toggle('hidden');
+    document.getElementById('cartPopup')?.classList.remove('hidden');
+
   } catch (error) {
     console.error(error);
     Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal membuka keranjang.' });
@@ -164,19 +169,74 @@ async function openWishlistModal() {
     wishlist.forEach(item => {
       const el = document.createElement('div');
       el.className = 'popup-item';
+      const safeProduct = encodeURIComponent(JSON.stringify(item));
+
       el.innerHTML = `
         <img src="${item.image_url}" alt="${item.product_name}" />
-        <span>${item.product_name}</span>
-        <small>Rp ${Number(item.price).toLocaleString()}</small>
+        <div class="popup-item-info">
+          <span class="popup-item-name">${item.product_name}</span>
+          <div class="popup-item-buttons">
+            <button class="btn btn-green" onclick='addToCartFromWishlistItem(JSON.parse(decodeURIComponent("${safeProduct}")))'>Add to Cart</button>
+            <button class="btn btn-red" onclick="removeFromWishlist(${item.product_id})">Remove</button>
+          </div>
+        </div>
       `;
       container.appendChild(el);
     });
 
+    // Tampilkan Wishlist dan sembunyikan Cart
     document.getElementById('cartPopup')?.classList.add('hidden');
-    document.getElementById('wishlistPopup')?.classList.toggle('hidden');
+    document.getElementById('wishlistPopup')?.classList.remove('hidden');
+
   } catch (error) {
     console.error(error);
     Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal membuka wishlist.' });
+  }
+}
+
+function removeFromCart(productId) {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return;
+
+  const user = JSON.parse(userStr);
+  let cart = JSON.parse(localStorage.getItem('cart')) || [];
+  cart = cart.filter(item => item.product_id !== productId);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  updateCartCount();
+
+  fetch(`http://localhost:3000/api/cart/${user.id}/${productId}`, {
+    method: 'DELETE'
+  }).catch(console.error);
+
+  openCartModal(); // Refresh cart popup
+}
+
+async function removeFromWishlist(productId) {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return;
+
+  const user = JSON.parse(userStr);
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/wishlist/${user.id}/${productId}`, {
+      method: 'DELETE'
+    });
+
+    if (!res.ok) {
+      throw new Error('Gagal menghapus wishlist');
+    }
+
+    // Kalau sudah sukses, update localStorage dan UI
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+    wishlist = wishlist.filter(item => item.product_id !== productId);
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    updateWishlistCount();
+
+    await openWishlistModal(); // Refresh wishlist popup setelah data server terupdate
+
+  } catch (error) {
+    console.error(error);
+    Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menghapus wishlist.' });
   }
 }
 
@@ -298,4 +358,9 @@ document.getElementById('loginLink')?.addEventListener('click', function (e) {
 // ===================== Navigation =====================
 function goToProductDetail(productId) {
   window.location.href = `./product-detail.html?id=${productId}`;
+}
+
+function addToCartFromWishlistItem(product) {
+  addToCart(product);
+  removeFromWishlist(product.product_id);
 }
