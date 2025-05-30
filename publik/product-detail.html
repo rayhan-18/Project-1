@@ -49,8 +49,9 @@
     <img id="product-image" src="" alt="Gambar Produk" />
     <div class="product-info">
       <h1 id="product-name">Memuat...</h1>
-      <p id="product-price"></p>
       <p id="product-description"></p>
+      <p id="product-stock" class="stock-info"></p> <!-- Tambahan untuk stok -->
+      <p id="product-price"></p>
 
       <!-- Tombol Tambah ke Keranjang dan Wishlist -->
       <div class="product-actions">
@@ -118,7 +119,7 @@
   </div>
   <div class="popup-content" id="wishlistItems"></div>
   <hr>
-  <button class="continue-btn" onclick="toggleWishlistPopup()">Continue Shopping</button>
+  <button class="continue-btn" onclick="window.location.href='products.html'">Continue Shopping</button>
 </div>
 
 <!-- Cart Popup -->

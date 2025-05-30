@@ -12,7 +12,7 @@ app.use(express.json());
 const authRoutes = require('./routes/authroutes');
 const cartRoutes = require('./routes/cartroutes');
 const wishlistRoutes = require('./routes/wishlistroutes');
-const productRoutes = require('./routes/productRoutes'); // Pastikan path dan nama file benar
+const productRoutes = require('./routes/productroutes'); // Pastikan path dan nama file benar
 
 // Gunakan routes
 app.use('/api/auth', authRoutes);

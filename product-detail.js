@@ -107,26 +107,34 @@ async function openWishlistModal() {
     container.innerHTML = wishlist.length === 0 ? '<p class="text-gray-500">Wishlist kosong.</p>' : '';
 
     wishlist.forEach(item => {
-      const el = document.createElement('div');
-      el.className = 'popup-item';
       const safeProduct = encodeURIComponent(JSON.stringify(item));
+      const safeName = item.product_name.replace(/'/g, "\\'");
 
+      const el = document.createElement('div');
+      el.classList.add('popup-item');
       el.innerHTML = `
         <img src="${item.image_url}" alt="${item.product_name}" />
         <div class="popup-item-info">
           <span class="popup-item-name">${item.product_name}</span>
           <div class="popup-item-buttons">
-            <button class="btn btn-green" onclick='addToCartFromWishlistItem(JSON.parse(decodeURIComponent("${safeProduct}")))'>Add to Cart</button>
-            <button class="btn btn-red" onclick="removeFromWishlist(${item.product_id})">Remove</button>
+            <button class="btn btn-green" 
+              onclick="addToCartFromWishlistItem(JSON.parse(decodeURIComponent('${safeProduct}')))">
+              Add to Cart
+            </button>
+            <button class="btn btn-red" 
+              onclick="removeFromWishlist(${item.product_id}, '${safeName}')">
+              Remove
+            </button>
           </div>
         </div>
       `;
+
       container.appendChild(el);
     });
 
-    // Tampilkan Wishlist dan sembunyikan Cart
     document.getElementById('cartPopup')?.classList.add('hidden');
     document.getElementById('wishlistPopup')?.classList.remove('hidden');
+
 
   } catch (error) {
     console.error(error);
@@ -134,24 +142,79 @@ async function openWishlistModal() {
   }
 }
 
-function removeFromCart(productId) {
+function addToCart(product) {
   const userStr = localStorage.getItem('user');
-  if (!userStr) return;
+  if (!userStr) {
+    return Swal.fire({
+      icon: "warning",
+      title: "Login Diperlukan",
+      text: "Silakan login terlebih dahulu."
+    });
+  }
 
   const user = JSON.parse(userStr);
-  let cart = JSON.parse(localStorage.getItem('cart')) || [];
-  cart = cart.filter(item => item.product_id !== productId);
-  localStorage.setItem('cart', JSON.stringify(cart));
-  updateCartCount();
 
-  fetch(`http://localhost:3000/api/cart/${user.id}/${productId}`, {
-    method: 'DELETE'
-  }).catch(console.error);
+  try {
+    let cart = JSON.parse(localStorage.getItem('cart')) || [];
 
-  openCartModal(); // Refresh cart popup
+    // Cek apakah produk sudah ada di cart
+    const exists = cart.some(p => p.product_id === product.product_id);
+    if (exists) {
+      return Swal.fire({
+        icon: "info",
+        title: "Sudah Ada",
+        text: `"${product.product_name}" sudah ada di keranjang.`
+      });
+    }
+
+    // Buat salinan produk baru, agar tidak mengubah objek asli
+    const productToAdd = {
+      ...product,
+      quantity: 1,
+      image_url: product.image || product.image_url || '', // pastikan properti image_url ada
+    };
+    delete productToAdd.image; // hapus properti image asli agar tidak redundan
+
+    cart.push(productToAdd);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+
+    // Kirim data ke backend tanpa blocking UI
+    fetch('http://localhost:3000/api/cart', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ...productToAdd, user_id: user.id })
+    }).catch(err => {
+      console.error('Error syncing cart to server:', err);
+    });
+
+    Swal.fire({
+      icon: "success",
+      title: "Ditambahkan ke Keranjang!",
+      text: `"${product.product_name}" telah ditambahkan.`
+    });
+
+  } catch (error) {
+    console.error('Error adding to cart:', error);
+    Swal.fire({
+      icon: "error",
+      title: "Error",
+      text: "Terjadi kesalahan saat menambahkan ke keranjang."
+    });
+  }
 }
 
-async function removeFromWishlist(productId) {
+async function removeFromWishlist(productId, productName) {
+  const result = await Swal.fire({
+    title: `Hapus "${productName}" dari wishlist?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Ya, hapus',
+    cancelButtonText: 'Batal'
+  });
+
+  if (!result.isConfirmed) return; // Kalau batal, langsung return
+
   const userStr = localStorage.getItem('user');
   if (!userStr) return;
 
@@ -173,6 +236,14 @@ async function removeFromWishlist(productId) {
     updateWishlistCount();
 
     await openWishlistModal(); // Refresh wishlist popup setelah data server terupdate
+
+    Swal.fire({
+      icon: 'success',
+      title: 'Terhapus!',
+      text: `"${productName}" sudah dihapus dari wishlist.`,
+      timer: 1500,
+      showConfirmButton: false
+    });
 
   } catch (error) {
     console.error(error);
@@ -258,7 +329,7 @@ document.getElementById('loginLink')?.addEventListener('click', function (e) {
 // ===================== Navigation =====================
 function goToProductDetail(productId) {
   window.location.href = `./product-detail.html?id=${productId}`;
-}   
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search);
@@ -278,7 +349,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (!res.ok) throw new Error("Produk tidak ditemukan");
 
     const product = await res.json();
-    console.log("Product data:", product);
+    console.log("Response product object:", product);
+    console.log("Keys available in product:", Object.keys(product));
+    console.log("Stock value raw:", product.stock);
 
     // Ambil nama produk dari beberapa kemungkinan properti
     const productName = product.product_name || product.name || product.nama || "Nama Produk";
@@ -290,14 +363,56 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     if (isNaN(productPrice)) productPrice = 0;
 
+    // Ambil stok dan pastikan tipe number
+    let stock = product.stock;
+    if (typeof stock === "string") {
+      stock = parseInt(stock, 10);
+    }
+    if (isNaN(stock)) stock = null;
+
     // Tampilkan detail produk di DOM
     document.getElementById("product-image").src = product.image_url || "placeholder.jpg";
     document.getElementById("product-name").textContent = productName;
-    document.getElementById("product-price").textContent = `Rp ${productPrice.toLocaleString("id-ID")}`;
     document.getElementById("product-description").textContent = product.description || "Tidak ada deskripsi.";
 
-    // Tambah ke Keranjang
+    const stockElement = document.getElementById("product-stock");
+    if (stockElement) {
+      console.log("Stok produk setelah parse:", stock);  // Debug stok yang sudah diparse
+
+      if (stock === null) {
+        stockElement.textContent = "Informasi stok tidak tersedia";
+        stockElement.classList.remove("low");
+      } else if (stock > 5) {
+        stockElement.textContent = `Stok tersedia: ${stock}`;
+        stockElement.classList.remove("low");
+      } else if (stock > 0) {
+        stockElement.textContent = `🔥 Tersisa ${stock} item`;
+        stockElement.classList.add("low");
+      } else {
+        stockElement.textContent = "❌ Stok habis";
+        stockElement.classList.remove("low");
+      }
+    }
+
+    document.getElementById("product-price").textContent = `Rp ${productPrice.toLocaleString("id-ID")}`;
+
+    // Event Listener Tambah ke Keranjang dengan cek stok dulu
     document.getElementById("addToCartBtn")?.addEventListener("click", async () => {
+      if (stock === 0) {
+        return Swal.fire({
+          icon: "error",
+          title: "Stok Habis",
+          text: "Maaf, produk ini sedang habis stok.",
+        });
+      }
+      if (stock === null) {
+        return Swal.fire({
+          icon: "warning",
+          title: "Stok Tidak Diketahui",
+          text: "Tidak dapat menambahkan produk karena informasi stok tidak tersedia.",
+        });
+      }
+
       const user = safelyParseUser();
       if (!user) return;
 
@@ -345,7 +460,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       }
     });
 
-    // Tambah ke Wishlist
+    // Event Listener Tambah ke Wishlist
     document.getElementById("addToWishlistBtn")?.addEventListener("click", async () => {
       const user = safelyParseUser();
       if (!user) return;
@@ -420,8 +535,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     window.location.href = "products.html";
   }
 
-  // ========== FUNGSI UTILITAS ==========
-
+  // ========== FUNGSI UTILITAS ==========  
   function safelyParseUser() {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
@@ -453,8 +567,3 @@ document.addEventListener("DOMContentLoaded", async () => {
   updateCartCount();
   updateWishlistCount();
 });
-
-function addToCartFromWishlistItem(product) {
-  addToCart(product);
-  removeFromWishlist(product.product_id);
-}

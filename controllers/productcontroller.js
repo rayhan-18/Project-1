@@ -1,18 +1,19 @@
-const db = require('../config/db');
+const { getProductById } = require('../models/productmodel');
 
-const getProductById = async (req, res) => {
+const getProductByIdController = async (req, res) => {
   try {
     const id = req.params.id;
-    const [rows] = await db.query(
-      'SELECT id AS product_id, name, price, image_url, category, description FROM products WHERE id = ?',
-      [id]
-    );
+    const product = await getProductById(id);
 
-    if (rows.length === 0) {
+    console.log('Product result:', product); // ⬅️ Tambahkan ini untuk debug
+
+    if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    res.json(rows[0]);
+    product.stock = Number(product.stock);
+
+    res.json(product);
   } catch (error) {
     console.error('Error fetching product:', error);
     res.status(500).json({ message: 'Internal server error' });
@@ -20,5 +21,5 @@ const getProductById = async (req, res) => {
 };
 
 module.exports = {
-  getProductById,
+  getProductById: getProductByIdController, // ❗pastikan ini tidak tertukar
 };
