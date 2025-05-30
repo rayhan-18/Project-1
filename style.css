@@ -222,7 +222,7 @@ nav {
 .product-stock {
   margin-top: 4px;
   font-size: 0.9rem;
-  color: #2c3e50;
+  color: #4a7c59;
   font-weight: 600;
 }
 
@@ -748,11 +748,10 @@ footer {
 .product-detail-container img#product-image {
   max-width: 450px;
   width: 100%;
-  max-height: 350px; /* batas tinggi maksimum */
-  object-fit: contain; /* supaya proporsional */
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  display: block;
+  max-height: 350px;
+  object-fit: contain;
+  border-radius: 16px;
+  padding: 1rem;
 }
 
 /* Product Info */
@@ -781,11 +780,11 @@ footer {
 
 .stock-info {
   font-weight: bold;
-  color: #2e7d32; /* Hijau */
+  color: #4a7c59;
   margin-bottom: 10px;
 }
 .stock-info.low {
-  color: #d32f2f; /* Merah untuk stok rendah */
+  color: #d32f2f;
 }
 
 .product-info p#product-price {

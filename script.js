@@ -204,7 +204,6 @@ function addToWishlist(product) {
 }
 
 // ===================== Pop-up Handling =====================
-
 async function openCartModal() {
   const userStr = localStorage.getItem('user');
   if (!userStr) return Swal.fire({ icon: 'warning', title: 'Login Diperlukan', text: 'Silakan login dulu.' });
@@ -348,6 +347,16 @@ async function removeFromWishlist(productId, productName) {
   }
 }
 
+function toggleWishlistPopup() {
+  const wishlistPopup = document.getElementById('wishlistPopup');
+  wishlistPopup.classList.toggle('hidden');
+}
+
+function toggleCartPopup() {
+  const cartPopup = document.getElementById('cartPopup');
+  cartPopup.classList.toggle('hidden');
+}
+
 // ===================== Form Handling =====================
 document.getElementById('loginForm')?.addEventListener('submit', async function (e) {
   e.preventDefault();
@@ -471,3 +480,35 @@ function goToProductDetail(productId) {
 function addToCartFromWishlistItem(product) {
   addToCart(product);
 }
+
+document.addEventListener('DOMContentLoaded', async () => {
+  const stockElements = document.querySelectorAll('.product-stock');
+
+  for (const el of stockElements) {
+    const productId = el.dataset.productId;
+    try {
+      const res = await fetch(`http://localhost:3000/api/products/${productId}`);
+      const product = await res.json();
+
+      if (!res.ok) {
+        throw new Error(product.message || 'Gagal ambil stok');
+      }
+
+      const stockSpan = el.querySelector('span');
+
+      if (product.stock === 0) {
+        stockSpan.textContent = 'Habis';
+        stockSpan.style.color = 'red';
+      } else if (product.stock <= 5) {
+        stockSpan.textContent = product.stock;
+        stockSpan.style.color = 'orange';
+      } else {
+        stockSpan.textContent = product.stock;
+        stockSpan.style.color = '#4a7c59;';
+      }
+
+    } catch (err) {
+      console.error(`Gagal memuat stok produk ID ${productId}:`, err);
+    }
+  }
+});
