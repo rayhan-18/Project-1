@@ -204,9 +204,20 @@ function addToWishlist(product) {
 }
 
 // ===================== Pop-up Handling =====================
+function closeAllPopups() {
+  document.getElementById('wishlistPopup')?.classList.remove('show');
+  document.getElementById('cartPopup')?.classList.remove('show');
+}
+
 async function openCartModal() {
   const userStr = localStorage.getItem('user');
-  if (!userStr) return Swal.fire({ icon: 'warning', title: 'Login Diperlukan', text: 'Silakan login dulu.' });
+  if (!userStr) {
+    return Swal.fire({
+      icon: 'warning',
+      title: 'Login Diperlukan',
+      text: 'Silakan login dulu.'
+    });
+  }
 
   try {
     const user = JSON.parse(userStr);
@@ -215,28 +226,53 @@ async function openCartModal() {
 
     const cart = await res.json();
     const container = document.getElementById('cartItems');
-    container.innerHTML = cart.length === 0 ? '<p class="text-gray-500">Keranjang kosong.</p>' : '';
+    container.innerHTML = cart.length === 0
+      ? '<p class="text-gray-500">Keranjang kosong.</p>'
+      : '';
+
+    let subtotal = 0;
 
     cart.forEach(item => {
+      const totalItemPrice = item.price * item.quantity;
+      subtotal += totalItemPrice;
+
       const el = document.createElement('div');
       el.className = 'popup-item';
       el.innerHTML = `
         <img src="${item.image_url}" alt="${item.product_name}" />
         <div class="popup-item-info">
           <span class="popup-item-name">${item.product_name}</span>
-          <small>Rp ${Number(item.price).toLocaleString()}</small>
+          <div><strong>Rp ${Number(item.price).toLocaleString()}</strong></div>
+          <div class="popup-item-buttons">
+            <button class="btn" onclick="updateQuantity(${item.product_id}, -1)">-</button>
+            <span>${item.quantity}</span>
+            <button class="btn" onclick="updateQuantity(${item.product_id}, 1)">+</button>
+            <button class="btn btn-red" onclick="removeFromCart(${item.product_id})">Remove</button>
+          </div>
         </div>
       `;
       container.appendChild(el);
     });
 
-    // Tampilkan Cart dan sembunyikan Wishlist
-    document.getElementById('wishlistPopup')?.classList.add('hidden');
-    document.getElementById('cartPopup')?.classList.remove('hidden');
+    // Hitung total & tax
+    const tax = subtotal * 0.10;
+    const total = subtotal + tax;
+
+    document.getElementById('subtotalAmount').textContent = `Rp ${subtotal.toLocaleString()}`;
+    document.getElementById('shippingAmount').textContent = `Rp 0`;
+    document.getElementById('taxAmount').textContent = `Rp ${tax.toLocaleString()}`;
+    document.getElementById('totalAmount').textContent = `Rp ${total.toLocaleString()}`;
+
+    closeAllPopups();
+    document.getElementById('cartPopup')?.classList.add('show');
 
   } catch (error) {
     console.error(error);
-    Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal membuka keranjang.' });
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Gagal membuka keranjang.'
+    });
   }
 }
 
@@ -258,7 +294,6 @@ async function openWishlistModal() {
       const safeName = item.product_name.replace(/'/g, "\\'");
       const el = document.createElement('div');
       el.classList.add('popup-item');
-
       el.innerHTML = `
         <img src="${item.image_url}" alt="${item.product_name}" />
         <div class="popup-item-info">
@@ -269,13 +304,11 @@ async function openWishlistModal() {
           </div>
         </div>
       `;
-
       container.appendChild(el);
     });
 
-    // Tampilkan Wishlist dan sembunyikan Cart
-    document.getElementById('cartPopup')?.classList.add('hidden');
-    document.getElementById('wishlistPopup')?.classList.remove('hidden');
+    closeAllPopups(); // Tutup popup lain
+    document.getElementById('wishlistPopup')?.classList.add('show');
 
   } catch (error) {
     console.error(error);
@@ -283,7 +316,68 @@ async function openWishlistModal() {
   }
 }
 
-function removeFromCart(productId) {
+// Fungsi untuk update stok produk di UI berdasarkan productId dan quantity yang diambil dari cart
+async function updateProductStockUI(productId) {
+  try {
+    const res = await fetch(`http://localhost:3000/api/products/${productId}`);
+    if (!res.ok) throw new Error('Gagal fetch produk stok');
+    const product = await res.json();
+
+    const stockElement = document.querySelector(`.product-stock[data-product-id="${productId}"] span`);
+    if (!stockElement) return;
+
+    // Tampilkan stok asli tanpa dikurangi quantity di cart
+    if (product.stock <= 0) {
+      stockElement.textContent = 'Habis';
+      stockElement.style.color = 'red';
+    } else if (product.stock <= 5) {
+      stockElement.textContent = product.stock;
+      stockElement.style.color = 'orange';
+    } else {
+      stockElement.textContent = product.stock;
+      stockElement.style.color = '#4a7c59';
+    }
+
+  } catch (error) {
+    console.error('Error updating product stock UI:', error);
+  }
+}
+
+// Modifikasi updateQuantity supaya setelah update cart juga update stok UI-nya
+async function updateQuantity(productId, quantityChange) {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) return;
+
+  const user = JSON.parse(userStr);
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/cart/updateQuantity`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        user_id: user.id,
+        product_id: productId,
+        quantity: quantityChange
+      })
+    });
+
+    if (!res.ok) throw new Error('Gagal update kuantitas');
+
+    // Refresh isi cart dan stok produk
+    await openCartModal();
+    await updateProductStockUI(productId);
+
+  } catch (err) {
+    console.error(err);
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: 'Tidak bisa update kuantitas produk.'
+    });
+  }
+}
+
+async function removeFromCart(productId) {
   const userStr = localStorage.getItem('user');
   if (!userStr) return;
 
@@ -293,11 +387,18 @@ function removeFromCart(productId) {
   localStorage.setItem('cart', JSON.stringify(cart));
   updateCartCount();
 
-  fetch(`http://localhost:3000/api/cart/${user.id}/${productId}`, {
-    method: 'DELETE'
-  }).catch(console.error);
+  try {
+    await fetch(`http://localhost:3000/api/cart/${user.id}/${productId}`, {
+      method: 'DELETE'
+    });
 
-  openCartModal(); // Refresh cart popup
+    await openCartModal(); // Refresh cart popup
+    await updateProductStockUI(productId); // Update stok UI
+
+  } catch (err) {
+    console.error(err);
+    Swal.fire({ icon: 'error', title: 'Error', text: 'Gagal menghapus dari keranjang.' });
+  }
 }
 
 async function removeFromWishlist(productId, productName) {
@@ -309,7 +410,7 @@ async function removeFromWishlist(productId, productName) {
     cancelButtonText: 'Batal'
   });
 
-  if (!result.isConfirmed) return; // Kalau batal, langsung return
+  if (!result.isConfirmed) return;
 
   const userStr = localStorage.getItem('user');
   if (!userStr) return;
@@ -321,17 +422,14 @@ async function removeFromWishlist(productId, productName) {
       method: 'DELETE'
     });
 
-    if (!res.ok) {
-      throw new Error('Gagal menghapus wishlist');
-    }
+    if (!res.ok) throw new Error('Gagal menghapus wishlist');
 
-    // Kalau sudah sukses, update localStorage dan UI
     let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
     wishlist = wishlist.filter(item => item.product_id !== productId);
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
     updateWishlistCount();
 
-    await openWishlistModal(); // Refresh wishlist popup setelah data server terupdate
+    await openWishlistModal(); // Refresh UI
 
     Swal.fire({
       icon: 'success',
@@ -347,14 +445,17 @@ async function removeFromWishlist(productId, productName) {
   }
 }
 
+// ===================== Toggle Manual (gunakan jika perlu) =====================
 function toggleWishlistPopup() {
-  const wishlistPopup = document.getElementById('wishlistPopup');
-  wishlistPopup.classList.toggle('hidden');
+  const popup = document.getElementById('wishlistPopup');
+  popup.classList.toggle('show');
+  document.getElementById('cartPopup')?.classList.remove('show');
 }
 
 function toggleCartPopup() {
-  const cartPopup = document.getElementById('cartPopup');
-  cartPopup.classList.toggle('hidden');
+  const popup = document.getElementById('cartPopup');
+  popup.classList.toggle('show');
+  document.getElementById('wishlistPopup')?.classList.remove('show');
 }
 
 // ===================== Form Handling =====================
