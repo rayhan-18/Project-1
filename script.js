@@ -613,3 +613,179 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 });
+
+// ===================== Checkout =====================
+const shippingCosts = {
+  standard: 20000,
+  express: 40000,
+  pickup: 0
+};
+
+// Render checkout items dan update harga summary
+async function renderCheckout() {
+  const container = document.getElementById('checkoutItems');
+  container.innerHTML = '';
+
+  // Ambil user dan cart
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
+    container.innerHTML = '<p>Anda harus login untuk checkout.</p>';
+    return;
+  }
+
+  const user = JSON.parse(userStr);
+
+  try {
+    // Fetch cart API
+    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    if (!res.ok) throw new Error('Gagal fetch cart');
+
+    const cart = await res.json();
+
+    if (cart.length === 0) {
+      container.innerHTML = '<p>Keranjang Anda kosong.</p>';
+      updateSummary(0, 0);
+      return;
+    }
+
+    let subtotal = 0;
+    cart.forEach(item => {
+      const totalItemPrice = item.price * item.quantity;
+      subtotal += totalItemPrice;
+
+      const el = document.createElement('div');
+      el.className = 'checkout-item';
+      el.innerHTML = `
+        <img src="${item.image_url}" alt="${item.product_name}" />
+        <div class="checkout-item-info">
+          <h4>${item.product_name}</h4>
+          <p>Harga: Rp ${item.price.toLocaleString()} x ${item.quantity}</p>
+          <p><strong>Subtotal: Rp ${totalItemPrice.toLocaleString()}</strong></p>
+        </div>
+      `;
+      container.appendChild(el);
+    });
+
+    const selectedShippingMethod = document.getElementById('shippingMethod').value;
+    const shippingCost = shippingCosts[selectedShippingMethod] || 0;
+
+    updateSummary(subtotal, shippingCost);
+
+  } catch (error) {
+    console.error(error);
+    container.innerHTML = '<p>Gagal memuat data checkout.</p>';
+    updateSummary(0, 0);
+  }
+}
+
+// Update ringkasan harga checkout
+function updateSummary(subtotal, shippingCost) {
+  const tax = subtotal * 0.10;
+  const total = subtotal + tax + shippingCost;
+
+  document.getElementById('checkoutSubtotal').textContent = `Rp ${subtotal.toLocaleString()}`;
+  document.getElementById('checkoutShipping').textContent = `Rp ${shippingCost.toLocaleString()}`;
+  document.getElementById('checkoutTax').textContent = `Rp ${tax.toLocaleString()}`;
+  document.getElementById('checkoutTotal').textContent = `Rp ${total.toLocaleString()}`;
+}
+
+// Fungsi yang dipanggil ketika metode pengiriman berubah
+function updateShippingCost() {
+  renderCheckout();
+}
+
+// Fungsi untuk place order
+async function placeOrder() {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
+    return Swal.fire('Error', 'Anda harus login untuk melakukan checkout.', 'error');
+  }
+  const user = JSON.parse(userStr);
+
+  // Validasi form alamat
+  const name = document.getElementById('shippingName').value.trim();
+  const phone = document.getElementById('shippingPhone').value.trim();
+  const address = document.getElementById('shippingAddress').value.trim();
+  const shippingMethod = document.getElementById('shippingMethod').value;
+  const paymentMethod = document.getElementById('paymentMethod').value;
+
+  if (!name || !phone || !address) {
+    return Swal.fire('Error', 'Mohon lengkapi informasi pengiriman.', 'warning');
+  }
+
+  try {
+    // Ambil cart
+    const resCart = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    if (!resCart.ok) throw new Error('Gagal fetch cart');
+    const cart = await resCart.json();
+    if (cart.length === 0) {
+      return Swal.fire('Error', 'Keranjang Anda kosong.', 'warning');
+    }
+
+    // Hitung subtotal, tax, shipping cost, total
+    let subtotal = 0;
+    cart.forEach(item => { subtotal += item.price * item.quantity; });
+    const shippingCost = shippingCosts[shippingMethod] || 0;
+    const tax = subtotal * 0.10;
+    const total = subtotal + tax + shippingCost;
+
+    // Data order yang dikirim ke server
+    const orderData = {
+      user_id: user.id,
+      items: cart.map(i => ({
+        product_id: i.product_id,
+        product_name: i.product_name, // Tambahkan product_name
+        quantity: i.quantity,
+        price: i.price
+      })),
+      shipping: {
+        name,
+        phone,
+        address,
+        method: shippingMethod,
+        cost: shippingCost
+      },
+      payment_method: paymentMethod,
+      subtotal,
+      tax,
+      total
+    };
+
+    // Kirim order ke API
+    const resOrder = await fetch('http://localhost:3000/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+
+    if (!resOrder.ok) {
+      const errorText = await resOrder.text();
+      throw new Error(`Gagal checkout: ${errorText}`);
+    }
+
+    const orderResponse = await resOrder.json();
+
+    // Kosongkan cart localStorage dan refresh UI
+    localStorage.removeItem('cart');
+    await renderCheckout();
+    updateCartCount();
+
+    // Reset form pengiriman
+    document.getElementById('shippingName').value = '';
+    document.getElementById('shippingPhone').value = '';
+    document.getElementById('shippingAddress').value = '';
+    document.getElementById('shippingMethod').value = 'standard';
+    document.getElementById('paymentMethod').value = 'transfer';
+
+    Swal.fire('Sukses', 'Pesanan berhasil dibuat!', 'success');
+
+  } catch (error) {
+    console.error(error);
+    Swal.fire('Error', error.message || 'Gagal checkout', 'error');
+  }
+}
+
+// Jalankan renderCheckout saat halaman dimuat
+document.addEventListener('DOMContentLoaded', () => {
+  renderCheckout();
+});
