@@ -9,25 +9,18 @@ const placeOrder = async (req, res) => {
       payment_method,
       subtotal,
       tax,
-      total,
+      total
     } = req.body;
 
-    // Validasi sederhana
-    if (
-      !user_id ||
-      !shipping ||
-      !shipping.name ||
-      !shipping.phone ||
-      !shipping.address ||
-      !shipping.method ||
-      !items ||
-      items.length === 0
-    ) {
-      return res.status(400).json({ message: 'Data order tidak lengkap' });
+    if (!user_id || !shipping || !shipping.name || !shipping.phone || !shipping.address) {
+      return res.status(400).json({ message: 'Data pengiriman tidak lengkap' });
+    }
+
+    if (!items || items.length === 0) {
+      return res.status(400).json({ message: 'Order harus memiliki item' });
     }
 
     const orderData = {
-      user_id,
       customer_name: shipping.name,
       customer_phone: shipping.phone,
       customer_address: shipping.address,
@@ -37,7 +30,7 @@ const placeOrder = async (req, res) => {
       subtotal,
       tax,
       total,
-      items,
+      items
     };
 
     const orderId = await createOrder(orderData);
@@ -45,12 +38,13 @@ const placeOrder = async (req, res) => {
     res.status(201).json({
       message: 'Order berhasil dibuat',
       orderId,
+      status: 'pending'
     });
   } catch (error) {
     console.error('Error di placeOrder:', error);
     res.status(500).json({
       message: 'Gagal membuat order',
-      error: error.message,
+      error: error.message
     });
   }
 };
