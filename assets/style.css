@@ -956,234 +956,277 @@ footer {
   }
 }
 
-/* ===== Checkout Container ===== */
-.checkout {
-  max-width: 600px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgb(0 0 0 / 0.1);
-  padding: 30px;
-}
-
-.checkout h2 {
-  font-size: 2rem;
-  margin-bottom: 25px;
-  text-align: center;
-  color: #333;
-}
-
-.checkout-items {
-  margin-bottom: 30px;
-  border-bottom: 1px solid #ddd;
-  padding-bottom: 20px;
-}
-
-/* Shipping info and methods */
-.shipping-info,
-.shipping-method,
-.payment-method {
-  margin-bottom: 25px;
-}
-
-.shipping-info h3,
-.shipping-method h3,
-.payment-method h3 {
-  margin-bottom: 12px;
-  color: #555;
-  font-weight: 600;
-  font-size: 1.1rem;
-}
-
-.shipping-info input[type="text"],
-.shipping-info textarea,
-.shipping-method select,
-.payment-method select {
+.checkout-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
   width: 100%;
-  padding: 10px 12px;
-  border: 1.5px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
-  transition: border-color 0.3s ease;
+  max-width: 600px;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  padding: 30px;
+  transform: translate(-50%, -50%);
+  overflow-y: auto;
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
 }
 
-.shipping-info input[type="text"]:focus,
-.shipping-info textarea:focus,
-.shipping-method select:focus,
-.payment-method select:focus {
-  border-color: #007bff;
-  outline: none;
+.checkout-multistep-container {
+  max-width: 600px;
+  margin: 40px auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+  padding: 30px 40px;
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
 }
 
-.shipping-info textarea {
-  resize: vertical;
-  min-height: 70px;
-}
-
-/* Checkout summary */
-.checkout-summary {
-  background: #f0f0f0;
-  padding: 20px 25px;
-  border-radius: 6px;
-  margin-bottom: 30px;
-  color: #333;
-}
-
-.checkout-summary p {
-  font-size: 1rem;
-  margin-bottom: 10px;
+/* Stepper indikator */
+.stepper {
   display: flex;
   justify-content: space-between;
+  margin-bottom: 30px;
+  counter-reset: step;
 }
 
-.checkout-summary hr {
-  border: none;
-  border-top: 1px solid #ccc;
-  margin: 15px 0;
-}
-
-.checkout-summary h3 {
-  font-size: 1.3rem;
-  text-align: right;
-  color: #000;
-}
-
-.checkout-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-}
-.checkout-item-info {
-  display: flex;
-  flex-direction: column;
-}
-
-/* Button */
-.checkout-btn {
-  width: 100%;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  padding: 14px 0;
-  font-size: 1.2rem;
+.stepper .step {
+  position: relative;
+  text-align: center;
+  flex: 1;
+  color: #aaa;
   font-weight: 600;
-  border-radius: 7px;
+}
+
+.stepper .step::before {
+  counter-increment: step;
+  content: counter(step);
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border: 2px solid #ccc;
+  display: block;
+  text-align: center;
+  margin: 0 auto 8px auto;
+  border-radius: 50%;
+  background-color: white;
+  transition: all 0.3s ease;
+}
+
+.stepper .step::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background-color: #ccc;
+  top: 16px;
+  left: -50%;
+  z-index: -1;
+}
+
+.stepper .step:first-child::after {
+  content: none;
+}
+
+.stepper .step.active {
+  color: #0077cc;
+}
+
+.stepper .step.active::before {
+  border-color: #0077cc;
+  background-color: #0077cc;
+  color: white;
+}
+
+.stepper .step.completed {
+  color: #00aa88;
+}
+
+.stepper .step.completed::before {
+  border-color: #00aa88;
+  background-color: #00aa88;
+  color: white;
+}
+
+/* Konten step */
+.step-content {
+  display: none;
+  animation: fadeInStep 0.6s ease forwards;
+}
+
+.step-content.active {
+  display: block;
+}
+
+/* Tombol navigasi */
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+}
+
+.navigation-buttons button {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
 
-.checkout-btn:hover {
-  background-color: #0056b3;
+.navigation-buttons .btn-prev {
+  background-color: #ddd;
+  color: #555;
+}
+
+.navigation-buttons .btn-prev:hover {
+  background-color: #ccc;
+}
+
+.navigation-buttons .btn-next {
+  background: linear-gradient(135deg, #0077cc, #005fa3);
+  color: white;
+}
+
+.navigation-buttons .btn-next:hover {
+  background: linear-gradient(135deg, #005fa3, #003f66);
+}
+
+/* Form input style */
+.checkout-multistep-container input,
+.checkout-multistep-container textarea,
+.checkout-multistep-container select {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 18px;
+  border: 1.5px solid #ccc;
+  border-radius: 8px;
+  font-size: 1rem;
+  box-sizing: border-box;
+  transition: border-color 0.3s;
+}
+
+.checkout-multistep-container input:focus,
+.checkout-multistep-container textarea:focus,
+.checkout-multistep-container select:focus {
+  border-color: #0077cc;
+  outline: none;
+}
+
+.checkout-multistep-container textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Produk Ringkasan di Step 3 */
+.product-summary-list {
+  margin-top: 20px;
+  border-top: 1px solid #ddd;
+  padding-top: 15px;
+
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  justify-content: flex-start;
+}
+
+.product-summary-item {
+  flex: 0 0 80px; /* ukuran kotak gambar, bisa diubah */
+  height: 80px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+}
+
+.product-summary-image {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  user-select: none;
+}
+
+.product-summary-item:last-child {
+  border-bottom: none;
+}
+
+.product-summary-item .product-info {
+  flex: 1;
+}
+
+.product-summary-item .product-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
+  color: #333;
+}
+
+.product-summary-item .product-quantity {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+.product-summary-item .product-price {
+  font-weight: 600;
+  color: #0077cc;
+  font-size: 0.95rem;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+/* Summary harga */
+.checkout-summary {
+  background: #f0f4f8;
+  padding: 18px 20px;
+  border-radius: 8px;
+  margin-top: 20px;
+}
+
+.checkout-summary p {
+  margin: 8px 0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.checkout-summary h4 {
+  font-size: 1.1rem;
+  color: #0077cc;
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+/* Animasi fadeIn untuk konten step */
+@keyframes fadeInStep {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Responsive */
 @media (max-width: 640px) {
-  .checkout {
+  .checkout-multistep-container {
     padding: 20px;
   }
 
-  .checkout h2 {
-    font-size: 1.6rem;
-  }
-}
-
-/* ===== Detail Pesanan ===== */
-.detail-pesanan {
-  max-width: 600px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 15px rgb(0 0 0 / 0.1);
-  padding: 30px;
-}
-
-.detail-pesanan h1 {
-  font-size: 2rem;
-  margin-bottom: 25px;
-  text-align: center;
-  color: #333;
-}
-
-.order-info p {
-  margin-bottom: 10px;
-  font-size: 1rem;
-  color: #555;
-}
-
-.order-info strong {
-  color: #333;
-}
-
-.items-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-.items-table th, 
-.items-table td {
-  padding: 10px;
-  border: 1px solid #ddd;
-  font-size: 0.95rem;
-}
-
-.items-table th {
-  background-color: #f8f8f8;
-  color: #555;
-}
-
-.summary p {
-  font-size: 1rem;
-  margin-bottom: 10px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.summary p strong {
-  color: #333;
-}
-
-.status {
-  font-weight: bold;
-  padding: 4px 8px;
-  border-radius: 4px;
-  display: inline-block;
-  font-size: 0.9rem;
-}
-
-.status-selesai {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-batal {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-.status-proses {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.back-link {
-  display: inline-block;
-  margin-top: 20px;
-  text-decoration: none;
-  color: #007bff;
-  font-weight: 600;
-}
-
-.back-link:hover {
-  text-decoration: underline;
-}
-
-@media (max-width: 640px) {
-  .detail-pesanan {
-    padding: 20px;
+  .navigation-buttons button {
+    flex: 1;
+    margin: 0 5px;
   }
 
-  .detail-pesanan h1 {
-    font-size: 1.6rem;
+  .stepper .step::before {
+    width: 28px;
+    height: 28px;
+    line-height: 28px;
   }
 }

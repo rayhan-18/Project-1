@@ -2,138 +2,76 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Checkout - Toko Rayhan</title>
-  <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout - Product</title>
+  <link rel="stylesheet" href="/assets/style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <header>
-    <div class="container">
-      <nav>
-        <div class="logo">Toko<span>Rayhan</span></div>
-        <ul class="nav-links">
-          <li><a href="index.html">Home</a></li>
-          <li><a href="products.html">Products</a></li>
-          <li><a href="collections.html">Collections</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-        <div class="nav-icons">
-          <div class="wishlist-icon" onclick="openWishlistModal()" title="Wishlist">
-            <i class="fa-light fa-heart"></i>
-            <span class="wishlist-count">0</span>
-          </div>
-          <div class="cart-icon" onclick="openCartModal()" title="Shopping Cart">
-            <i class="fa-light fa-cart-shopping-fast"></i>
-            <span class="cart-count">0</span>
-          </div>
-          <div class="user-icon" onclick="toggleModal('loginModal')" title="User Account">
-            <i class="fa-light fa-user"></i>
-          </div>
-        </div>
-      </nav>
+<main class="checkout-multistep-container">
+  <h2 style="text-align:center; color:#0077cc; margin-bottom:30px;">🛒 Checkout Anda</h2>
+
+  <!-- Stepper indikator -->
+  <div class="stepper" id="stepper">
+    <div class="step active" data-step="1">Informasi Pengiriman</div>
+    <div class="step" data-step="2">Metode Pengiriman</div>
+    <div class="step" data-step="3">Pembayaran & Ringkasan</div>
+  </div>
+
+  <!-- Step 1: Informasi Pengiriman -->
+  <section class="step-content active" data-step="1">
+    <!-- Container Produk -->
+    <div id="checkoutItems" style="margin-bottom: 20px;">
+      <!-- Produk akan dirender di sini -->
     </div>
-  </header>
 
-<main>
-  <section class="checkout">
-    <div class="container">
-      <h2>Checkout</h2>
+    <input type="text" id="shippingName" placeholder="Nama Penerima" autocomplete="name" />
+    <input type="tel" id="shippingPhone" placeholder="No. Telepon" autocomplete="tel" />
+    <textarea id="shippingAddress" placeholder="Alamat Lengkap" rows="3"></textarea>
+  </section>
 
-      <!-- Daftar produk di checkout -->
-      <div id="checkoutItems" class="checkout-items">
-        <!-- Produk akan di-render secara dinamis di sini -->
-      </div>
+  <!-- Step 2: Metode Pengiriman -->
+  <section class="step-content" data-step="2">
+    <h3>🚚 Pilih Metode Pengiriman</h3>
+    <select id="shippingMethod" onchange="updateShippingCost()">
+      <option value="standard">Standard - Rp20.000</option>
+      <option value="express">Express - Rp40.000</option>
+      <option value="pickup">Ambil di Toko - Gratis</option>
+    </select>
+  </section>
 
-      <!-- Form alamat pengiriman -->
-      <div class="shipping-info">
-        <h3>Informasi Pengiriman</h3>
-        <input type="text" id="shippingName" placeholder="Nama Penerima" required>
-        <input type="text" id="shippingPhone" placeholder="No. Telepon" required>
-        <textarea id="shippingAddress" placeholder="Alamat Lengkap" required></textarea>
-      </div>
+    <!-- Step 3: Metode Pembayaran & Ringkasan -->
+  <section class="step-content" data-step="3">
+    <h3>💳 Pilih Metode Pembayaran</h3>
+    <select id="paymentMethod">
+      <option value="transfer">Transfer Bank</option>
+      <option value="ewallet">E-Wallet</option>
+      <option value="cod">Bayar di Tempat (COD)</option>
+    </select>
 
-      <!-- Pilih metode pengiriman -->
-      <div class="shipping-method">
-        <h3>Metode Pengiriman</h3>
-        <select id="shippingMethod" onchange="updateShippingCost()">
-          <option value="standard">Standard - Rp20.000</option>
-          <option value="express">Express - Rp40.000</option>
-          <option value="pickup">Ambil di Toko - Gratis</option>
-        </select>
-      </div>
+    <!-- Daftar Produk Ringkasan -->
+    <h3 style="margin-top: 30px;">📦 Ringkasan Produk</h3>
+    <div id="productSummaryList" class="product-summary-list">
+      <!-- Produk akan dirender di sini -->
+    </div>
 
-      <!-- Pilih metode pembayaran -->
-      <div class="payment-method">
-        <h3>Metode Pembayaran</h3>
-        <select id="paymentMethod">
-          <option value="transfer">Transfer Bank</option>
-          <option value="ewallet">E-Wallet</option>
-          <option value="cod">Bayar di Tempat (COD)</option>
-        </select>
-      </div>
-
-      <!-- Ringkasan harga -->
-      <div class="checkout-summary">
-        <p><strong>Subtotal:</strong> <span id="checkoutSubtotal">Rp0.00</span></p>
-        <p><strong>Shipping:</strong> <span id="checkoutShipping">Rp0.00</span></p>
-        <p><strong>Tax (10%):</strong> <span id="checkoutTax">Rp0.00</span></p>
-        <hr />
-        <h3><strong>Total:</strong> <span id="checkoutTotal">Rp0.00</span></h3>
-      </div>
-
-      <!-- Tombol Place Order -->
-      <button class="checkout-btn" onclick="placeOrder()">Place Order</button>
+    <!-- Ringkasan Total -->
+    <div class="summary" style="margin-top: 20px;">
+      <p>Subtotal: <span id="checkoutSubtotal">Rp0</span></p>
+      <p>Shipping: <span id="checkoutShipping">Rp0</span></p>
+      <p>Tax (10%): <span id="checkoutTax">Rp0</span></p>
+      <hr />
+      <h4>Total: <span id="checkoutTotal">Rp0</span></h4>
     </div>
   </section>
-</main>
 
-<!-- Footer -->
-<footer>
-<div class="container">
-    <div class="footer-content">
-    <div class="footer-column">
-        <h3>Toko Rayhan</h3>
-        <p>Premium furniture for modern living.</p>
-    </div>
-    <div class="footer-column">
-        <h3>All Products</h3>
-        <ul class="footer-links">
-        <li><a href="products.html">Living Room</a></li>
-        <li><a href="products.html">Bedroom</a></li>
-        <li><a href="products.html">Dining Room</a></li>
-        <li><a href="products.html">Office</a></li>
-        </ul>
-    </div>
-    <div class="footer-column">
-        <h3>Information</h3>
-        <ul class="footer-links">
-        <li><a href="about.html">About Us</a></li>
-        <li><a href="contact.html">Contact Us</a></li>
-        <li><a href="#">Blog</a></li>
-        <li><a href="#">FAQs</a></li>
-        <li><a href="#">Privacy Policy</a></li>
-        </ul>
-    </div>
-    <div class="footer-column">
-        <h3>Customer Service</h3>
-        <ul class="footer-links">
-        <li><a href="#">My Account</a></li>
-        <li><a href="#">Track Order</a></li>
-        <li><a href="#">Returns & Exchanges</a></li>
-        <li><a href="#">Shipping Policy</a></li>
-        <li><a href="#">Warranty</a></li>
-        </ul>
-    </div>
-    </div>
-    <div class="footer-bottom">
-    <p>&copy; 2025 Toko Perabot Rayhan. All rights reserved.</p>
-    </div>
-</div>
-</footer>
+  <!-- Navigasi tombol -->
+  <div class="navigation-buttons">
+    <button class="btn-prev" onclick="prevStep()" disabled>← Sebelumnya</button>
+    <button class="btn-next" onclick="nextStep()">Selanjutnya →</button>
+  </div>
+</main>
 
   <script src="/assets/script.js"></script>
 </body>

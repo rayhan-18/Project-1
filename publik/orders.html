@@ -130,7 +130,7 @@
             <td>${order.customer_name || '-'}</td>
             <td>${formatRupiah(order.total)}</td>
             <td><span class="status ${getStatusClass(order.status)}">${order.status || '-'}</span></td>
-            <td><a href="detail-pesanan.html?id=${order.id}">Lihat Detail</a></td>
+            <td><a href="order-detail2.html?id=${order.id}">Lihat Detail</a></td>
           `;
 
           tbody.appendChild(tr);

@@ -614,87 +614,255 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 });
 
-// ===================== Checkout =====================
+// ===================== Checkout Multi-step =====================
+
 const shippingCosts = {
   standard: 20000,
   express: 40000,
   pickup: 0
 };
 
-// Render checkout items dan update harga summary
-async function renderCheckout() {
-  const container = document.getElementById('checkoutItems');
-  container.innerHTML = '';
+let currentStep = 1;
+const totalSteps = 3;
 
-  // Ambil user dan cart
+// Helper format Rupiah
+function formatRupiah(value) {
+  return `Rp ${value.toLocaleString('id-ID')}`;
+}
+
+// Render produk checkout di step 1 (#checkoutItems)
+async function renderCheckoutItems() {
+  const container = document.getElementById('checkoutItems');
+  container.innerHTML = '<h3>Produk Anda:</h3>';
+
+  // Ambil user dari localStorage
   const userStr = localStorage.getItem('user');
   if (!userStr) {
-    container.innerHTML = '<p>Anda harus login untuk checkout.</p>';
+    container.innerHTML += '<p>Silakan login terlebih dahulu.</p>';
     return;
   }
-
   const user = JSON.parse(userStr);
 
   try {
-    // Fetch cart API
     const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
-    if (!res.ok) throw new Error('Gagal fetch cart');
+    if (!res.ok) throw new Error('Gagal memuat keranjang');
+    const cart = await res.json();
 
+    if (cart.length === 0) {
+      container.innerHTML += '<p>Keranjang Anda kosong.</p>';
+      return;
+    }
+
+    // Buat list produk
+    const listEl = document.createElement('ul');
+    listEl.style.listStyle = 'none';
+    listEl.style.padding = 0;
+
+    cart.forEach(item => {
+      const li = document.createElement('li');
+      li.style.marginBottom = '10px';
+      li.style.borderBottom = '1px solid #ddd';
+      li.style.paddingBottom = '10px';
+
+      li.innerHTML = `
+        <strong>${item.product_name}</strong> 
+        <br>Harga: ${formatRupiah(item.price)} x ${item.quantity} = <em>${formatRupiah(item.price * item.quantity)}</em>
+      `;
+      listEl.appendChild(li);
+    });
+
+    container.appendChild(listEl);
+
+  } catch (error) {
+    console.error(error);
+    container.innerHTML += '<p>Gagal memuat produk keranjang.</p>';
+  }
+}
+
+// Tampilkan step sesuai currentStep
+function showStep(step) {
+  // Update konten step
+  document.querySelectorAll('.step-content').forEach(section => {
+    section.classList.toggle('active', Number(section.dataset.step) === step);
+  });
+
+  // Update tombol navigasi
+  document.querySelector('.btn-prev').disabled = step === 1;
+  document.querySelector('.btn-next').textContent = step === totalSteps ? '🎉 Place Order' : 'Selanjutnya →';
+
+  // Update stepper indicator
+  document.querySelectorAll('.stepper .step').forEach(indicator => {
+    const stepNum = Number(indicator.dataset.step);
+    indicator.classList.toggle('active', stepNum === step);
+    indicator.classList.toggle('completed', stepNum < step);
+  });
+
+  // Render produk di step 1
+  if (step === 1) {
+    renderCheckoutItems();
+  }
+
+  if (step === totalSteps) {
+    // Render ringkasan & update harga terakhir
+    renderSummary();
+    renderProductSummary();
+  }
+}
+
+// Render daftar produk di Step 3
+async function renderProductSummary() {
+  const container = document.getElementById('productSummaryList');
+  container.innerHTML = '';
+
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
+    container.innerHTML = '<p>Silakan login terlebih dahulu.</p>';
+    return;
+  }
+  const user = JSON.parse(userStr);
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    if (!res.ok) throw new Error('Gagal memuat keranjang');
     const cart = await res.json();
 
     if (cart.length === 0) {
       container.innerHTML = '<p>Keranjang Anda kosong.</p>';
-      updateSummary(0, 0);
+      return;
+    }
+
+    const listEl = document.createElement('ul');
+    listEl.style.listStyle = 'none';
+    listEl.style.padding = 0;
+
+    cart.forEach(item => {
+      const li = document.createElement('li');
+      li.style.marginBottom = '10px';
+      li.style.borderBottom = '1px solid #ddd';
+      li.style.paddingBottom = '10px';
+
+      li.innerHTML = `
+        <strong>${item.product_name}</strong> 
+        <br>Harga: ${formatRupiah(item.price)} x ${item.quantity} = <em>${formatRupiah(item.price * item.quantity)}</em>
+      `;
+      listEl.appendChild(li);
+    });
+
+    container.appendChild(listEl);
+
+  } catch (error) {
+    console.error(error);
+    container.innerHTML = '<p>Gagal memuat produk ringkasan.</p>';
+  }
+}
+
+// Next step handler
+async function nextStep() {
+  if (!await validateStep(currentStep)) return;
+
+  if (currentStep < totalSteps) {
+    currentStep++;
+    showStep(currentStep);
+  } else {
+    // Submit order di step terakhir
+    await placeOrder();
+  }
+}
+
+// Prev step handler
+function prevStep() {
+  if (currentStep > 1) {
+    currentStep--;
+    showStep(currentStep);
+  }
+}
+
+// Validasi tiap step
+async function validateStep(step) {
+  if (step === 1) {
+    const name = document.getElementById('shippingName').value.trim();
+    const phone = document.getElementById('shippingPhone').value.trim();
+    const address = document.getElementById('shippingAddress').value.trim();
+    if (!name || !phone || !address) {
+      await Swal.fire('Error', 'Mohon lengkapi informasi pengiriman.', 'warning');
+      return false;
+    }
+  }
+  if (step === 2) {
+    // Contoh validasi minimal: pastikan metode pengiriman dipilih
+    const shippingMethod = document.getElementById('shippingMethod').value;
+    if (!shippingMethod) {
+      await Swal.fire('Error', 'Pilih metode pengiriman.', 'warning');
+      return false;
+    }
+  }
+  if (step === 3) {
+    const paymentMethod = document.getElementById('paymentMethod').value;
+    if (!paymentMethod) {
+      await Swal.fire('Error', 'Pilih metode pembayaran.', 'warning');
+      return false;
+    }
+  }
+  return true;
+}
+
+// Render ringkasan harga pada step 3
+async function renderSummary() {
+  const userStr = localStorage.getItem('user');
+  if (!userStr) {
+    document.getElementById('checkoutSubtotal').textContent = formatRupiah(0);
+    document.getElementById('checkoutShipping').textContent = formatRupiah(0);
+    document.getElementById('checkoutTax').textContent = formatRupiah(0);
+    document.getElementById('checkoutTotal').textContent = formatRupiah(0);
+    document.getElementById('productSummaryList').innerHTML = ''; // Clear product list
+    return;
+  }
+  const user = JSON.parse(userStr);
+
+  try {
+    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    if (!res.ok) throw new Error('Gagal fetch cart');
+    const cart = await res.json();
+    if (cart.length === 0) {
+      Swal.fire('Error', 'Keranjang Anda kosong.', 'warning');
       return;
     }
 
     let subtotal = 0;
+    cart.forEach(item => { subtotal += item.price * item.quantity; });
+
+    const shippingMethod = document.getElementById('shippingMethod').value;
+    const shippingCost = shippingCosts[shippingMethod] || 0;
+    const tax = subtotal * 0.10;
+    const total = subtotal + tax + shippingCost;
+
+    document.getElementById('checkoutSubtotal').textContent = formatRupiah(subtotal);
+    document.getElementById('checkoutShipping').textContent = formatRupiah(shippingCost);
+    document.getElementById('checkoutTax').textContent = formatRupiah(tax);
+    document.getElementById('checkoutTotal').textContent = formatRupiah(total);
+
+    // Render produk lengkap dengan gambar di summary step 3
+    const productSummaryList = document.getElementById('productSummaryList');
+    productSummaryList.innerHTML = ''; // Clear first
+
     cart.forEach(item => {
-      const totalItemPrice = item.price * item.quantity;
-      subtotal += totalItemPrice;
+      const itemEl = document.createElement('div');
+      itemEl.className = 'product-summary-item';
 
-      const el = document.createElement('div');
-      el.className = 'checkout-item';
-      el.innerHTML = `
-        <img src="${item.image_url}" alt="${item.product_name}" />
-        <div class="checkout-item-info">
-          <h4>${item.product_name}</h4>
-          <p>Harga: Rp ${item.price.toLocaleString()} x ${item.quantity}</p>
-          <p><strong>Subtotal: Rp ${totalItemPrice.toLocaleString()}</strong></p>
-        </div>
+      itemEl.innerHTML = `
+        <img src="${item.image_url || 'default-product.png'}" alt="${item.product_name}" class="product-summary-image" />
       `;
-      container.appendChild(el);
+
+      productSummaryList.appendChild(itemEl);
     });
-
-    const selectedShippingMethod = document.getElementById('shippingMethod').value;
-    const shippingCost = shippingCosts[selectedShippingMethod] || 0;
-
-    updateSummary(subtotal, shippingCost);
 
   } catch (error) {
     console.error(error);
-    container.innerHTML = '<p>Gagal memuat data checkout.</p>';
-    updateSummary(0, 0);
+    Swal.fire('Error', 'Gagal memuat ringkasan harga.', 'error');
   }
 }
 
-// Update ringkasan harga checkout
-function updateSummary(subtotal, shippingCost) {
-  const tax = subtotal * 0.10;
-  const total = subtotal + tax + shippingCost;
-
-  document.getElementById('checkoutSubtotal').textContent = `Rp ${subtotal.toLocaleString()}`;
-  document.getElementById('checkoutShipping').textContent = `Rp ${shippingCost.toLocaleString()}`;
-  document.getElementById('checkoutTax').textContent = `Rp ${tax.toLocaleString()}`;
-  document.getElementById('checkoutTotal').textContent = `Rp ${total.toLocaleString()}`;
-}
-
-// Fungsi yang dipanggil ketika metode pengiriman berubah
-function updateShippingCost() {
-  renderCheckout();
-}
-
-// Fungsi untuk place order
+// Fungsi place order yang sama, dipanggil di step terakhir
 async function placeOrder() {
   const userStr = localStorage.getItem('user');
   if (!userStr) {
@@ -702,15 +870,22 @@ async function placeOrder() {
   }
   const user = JSON.parse(userStr);
 
-  // Validasi form alamat
+  // Ambil data form
   const name = document.getElementById('shippingName').value.trim();
   const phone = document.getElementById('shippingPhone').value.trim();
   const address = document.getElementById('shippingAddress').value.trim();
   const shippingMethod = document.getElementById('shippingMethod').value;
   const paymentMethod = document.getElementById('paymentMethod').value;
 
+  // Validasi terakhir sebelum submit
   if (!name || !phone || !address) {
     return Swal.fire('Error', 'Mohon lengkapi informasi pengiriman.', 'warning');
+  }
+  if (!shippingMethod) {
+    return Swal.fire('Error', 'Pilih metode pengiriman.', 'warning');
+  }
+  if (!paymentMethod) {
+    return Swal.fire('Error', 'Pilih metode pembayaran.', 'warning');
   }
 
   try {
@@ -729,29 +904,19 @@ async function placeOrder() {
     const tax = subtotal * 0.10;
     const total = subtotal + tax + shippingCost;
 
-    // Data order yang dikirim ke server
     const orderData = {
       user_id: user.id,
       items: cart.map(i => ({
         product_id: i.product_id,
-        product_name: i.product_name, // Tambahkan product_name
+        product_name: i.product_name,
         quantity: i.quantity,
         price: i.price
       })),
-      shipping: {
-        name,
-        phone,
-        address,
-        method: shippingMethod,
-        cost: shippingCost
-      },
+      shipping: { name, phone, address, method: shippingMethod, cost: shippingCost },
       payment_method: paymentMethod,
-      subtotal,
-      tax,
-      total
+      subtotal, tax, total
     };
 
-    // Kirim order ke API
     const resOrder = await fetch('http://localhost:3000/api/orders', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -765,20 +930,16 @@ async function placeOrder() {
 
     const orderResponse = await resOrder.json();
 
-    // Kosongkan cart localStorage dan refresh UI
+    // Reset form dan UI
     localStorage.removeItem('cart');
-    await renderCheckout();
-    updateCartCount();
-
-    // Reset form pengiriman
     document.getElementById('shippingName').value = '';
     document.getElementById('shippingPhone').value = '';
     document.getElementById('shippingAddress').value = '';
     document.getElementById('shippingMethod').value = 'standard';
     document.getElementById('paymentMethod').value = 'transfer';
 
-    // Redirect ke halaman order complete dengan order_id
-    window.location.href = `order-complete.html?order_id=${orderResponse.orderId}`;
+    // Redirect ke halaman selesai order
+    window.location.href = `order-complete.html?order_id=${orderResponse.order_id}`;
 
   } catch (error) {
     console.error(error);
@@ -786,7 +947,13 @@ async function placeOrder() {
   }
 }
 
-// Jalankan renderCheckout saat halaman dimuat
+// Inisialisasi halaman dan event listener tombol
 document.addEventListener('DOMContentLoaded', () => {
-  renderCheckout();
+  showStep(currentStep);
+
+  // Update shipping cost setiap perubahan pilihan
+  document.getElementById('shippingMethod').addEventListener('change', renderSummary);
+
+  // Update ringkasan harga juga saat payment method berubah
+  document.getElementById('paymentMethod').addEventListener('change', renderSummary);
 });
