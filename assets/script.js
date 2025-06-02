@@ -777,7 +777,8 @@ async function placeOrder() {
     document.getElementById('shippingMethod').value = 'standard';
     document.getElementById('paymentMethod').value = 'transfer';
 
-    Swal.fire('Sukses', 'Pesanan berhasil dibuat!', 'success');
+    // Redirect ke halaman order complete dengan order_id
+    window.location.href = `order-complete.html?order_id=${orderResponse.orderId}`;
 
   } catch (error) {
     console.error(error);

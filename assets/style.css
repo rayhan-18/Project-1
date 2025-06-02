@@ -785,11 +785,10 @@ footer {
   color: red;
 }
 
-/* === Product Detail Layout === */
+/* === Product Detail Layout === */ 
 .product-detail {
   display: flex;
   flex-wrap: wrap;
-  gap: 2rem;
   margin: 4rem auto;
   padding: 2rem;
   max-width: 900px; /* dikurangi dari 1100 agar lebih compact */
@@ -806,7 +805,6 @@ footer {
   margin: 4rem auto;
   padding: 2rem;
 }
-
 
 /* Product Image Container */
 .product-detail-container {
@@ -1085,6 +1083,107 @@ footer {
   }
 
   .checkout h2 {
+    font-size: 1.6rem;
+  }
+}
+
+/* ===== Detail Pesanan ===== */
+.detail-pesanan {
+  max-width: 600px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgb(0 0 0 / 0.1);
+  padding: 30px;
+}
+
+.detail-pesanan h1 {
+  font-size: 2rem;
+  margin-bottom: 25px;
+  text-align: center;
+  color: #333;
+}
+
+.order-info p {
+  margin-bottom: 10px;
+  font-size: 1rem;
+  color: #555;
+}
+
+.order-info strong {
+  color: #333;
+}
+
+.items-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.items-table th, 
+.items-table td {
+  padding: 10px;
+  border: 1px solid #ddd;
+  font-size: 0.95rem;
+}
+
+.items-table th {
+  background-color: #f8f8f8;
+  color: #555;
+}
+
+.summary p {
+  font-size: 1rem;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.summary p strong {
+  color: #333;
+}
+
+.status {
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: inline-block;
+  font-size: 0.9rem;
+}
+
+.status-selesai {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-batal {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.status-proses {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.back-link {
+  display: inline-block;
+  margin-top: 20px;
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 600;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 640px) {
+  .detail-pesanan {
+    padding: 20px;
+  }
+
+  .detail-pesanan h1 {
     font-size: 1.6rem;
   }
 }

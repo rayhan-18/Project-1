@@ -1,8 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { placeOrder } = require('../controllers/ordercontroller');
+const { placeOrder, updateOrderStatus, getOrderDetail, getAllOrders } = require('../controllers/ordercontroller');
 
-// POST /api/orders/
+// Route untuk membuat order
 router.post('/', placeOrder);
+
+// Route untuk get semua orders (letakkan di atas /:id agar tidak tertangkap)
+router.get('/', getAllOrders);
+
+// Route untuk get detail order by ID
+router.get('/:id', getOrderDetail);
+
+// Route untuk update status order
+router.patch('/:id/status', updateOrderStatus);
 
 module.exports = router;

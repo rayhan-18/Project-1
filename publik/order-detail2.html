@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detail Pesanan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      background: #f9f9f9;
+      color: #333;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+
+    .order-info, .items-table, .summary {
+      background: #fff;
+      padding: 20px;
+      margin-bottom: 25px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .status {
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      text-transform: capitalize;
+      font-size: 0.9rem;
+    }
+
+    .status-selesai {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .status-batal {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-proses {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .back-links {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .back-links a {
+      display: inline-block;
+      margin: 0 10px;
+      text-decoration: none;
+      color: #3498db;
+      font-weight: 600;
+      border: 1px solid #3498db;
+      padding: 8px 15px;
+      border-radius: 25px;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    .back-links a:hover {
+      background-color: #3498db;
+      color: white;
+    }
+
+    #loading {
+      font-style: italic;
+      text-align: center;
+      margin-bottom: 25px;
+      color: #555;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      body {
+        margin: 10px;
+      }
+      th, td {
+        font-size: 14px;
+        padding: 8px;
+      }
+      .status {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+      }
+    }
+  </style>
+</head>
+<body class="detail-pesanan">
+
+  <h1>Detail Pesanan</h1>
+
+  <div id="loading" style="display:none;">Memuat data pesanan...</div>
+
+  <div id="orderInfo" class="order-info"></div>
+
+  <table class="items-table" id="itemsTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>Nama Produk</th>
+        <th>Jumlah</th>
+        <th>Harga</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="summary" class="summary"></div>
+
+  <div class="back-links">
+    <a href="orders.html">← Kembali ke Daftar Pesanan</a>
+    <a href="index.html">🏠 Kembali ke Beranda</a>
+  </div>
+
+  <script>
+    const apiBaseUrl = 'http://localhost:3000/api/orders';
+
+    // Format angka ke Rupiah
+    function formatRupiah(value) {
+      if (typeof value !== 'number') return 'Rp 0';
+      return 'Rp ' + value.toLocaleString('id-ID');
+    }
+
+    // Buat elemen dari string HTML
+    function createElement(html) {
+      const template = document.createElement('template');
+      template.innerHTML = html.trim();
+      return template.content.firstChild;
+    }
+
+    // Ambil orderId dari URL ?id=
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('id');
+
+    if (!orderId) {
+      document.body.innerHTML = `
+        <p style="color: red; text-align:center;">
+          Order ID tidak ditemukan di URL.<br>Harap tambahkan parameter <code>?id=</code> di URL.
+        </p>
+        <div class="back-links">
+          <a href="orders.html">← Kembali ke Daftar Pesanan</a>
+          <a href="index.html">🏠 Kembali ke Beranda</a>
+        </div>
+      `;
+    } else {
+      fetchOrderDetail(orderId);
+    }
+
+    async function fetchOrderDetail(orderId) {
+      const loadingEl = document.getElementById('loading');
+      const itemsTable = document.getElementById('itemsTable');
+      loadingEl.style.display = 'block';
+
+      try {
+        const res = await fetch(`${apiBaseUrl}/${orderId}`);
+        loadingEl.style.display = 'none';
+
+        if (!res.ok) {
+          document.body.innerHTML = `
+            <p style="color: red; text-align:center;">
+              Order dengan ID ${orderId} tidak ditemukan.
+            </p>
+            <div class="back-links">
+              <a href="orders.html">← Kembali ke Daftar Pesanan</a>
+              <a href="index.html">🏠 Kembali ke Beranda</a>
+            </div>
+          `;
+          return;
+        }
+
+        const order = await res.json();
+        renderOrderDetail(order);
+        itemsTable.style.display = '';
+      } catch (error) {
+        loadingEl.style.display = 'none';
+        document.body.innerHTML = `
+          <p style="color: red; text-align:center;">
+            Terjadi kesalahan: ${error.message}
+          </p>
+          <div class="back-links">
+            <a href="orders.html">← Kembali ke Daftar Pesanan</a>
+            <a href="index.html">🏠 Kembali ke Beranda</a>
+          </div>
+        `;
+      }
+    }
+
+    function renderOrderDetail(order) {
+      const orderInfoDiv = document.getElementById('orderInfo');
+      const statusClass = getStatusClass(order.status);
+      orderInfoDiv.innerHTML = `
+        <p><strong>Nama Pelanggan:</strong> ${order.customer_name || '-'}</p>
+        <p><strong>Telepon:</strong> ${order.customer_phone || '-'}</p>
+        <p><strong>Alamat:</strong> ${order.customer_address || '-'}</p>
+        <p><strong>Metode Pengiriman:</strong> ${order.shipping_method || '-'} (${formatRupiah(order.shipping_cost)})</p>
+        <p><strong>Metode Pembayaran:</strong> ${order.payment_method || '-'}</p>
+        <p><strong>Status Pesanan:</strong> <span class="status ${statusClass}">${order.status || '-'}</span></p>
+      `;
+
+      const tbody = document.querySelector('#itemsTable tbody');
+      tbody.innerHTML = '';
+
+      const items = order.items || [];
+      if (items.length === 0) {
+        tbody.appendChild(createElement('<tr><td colspan="4" style="text-align: center;">Tidak ada item dalam pesanan.</td></tr>'));
+      } else {
+        items.forEach(item => {
+          const subtotal = (item.price || 0) * (item.quantity || 0);
+          const tr = createElement(`
+            <tr>
+              <td>${item.product_name || '-'}</td>
+              <td>${item.quantity || 0}</td>
+              <td>${formatRupiah(item.price)}</td>
+              <td>${formatRupiah(subtotal)}</td>
+            </tr>
+          `);
+          tbody.appendChild(tr);
+        });
+      }
+
+      const summaryDiv = document.getElementById('summary');
+      summaryDiv.innerHTML = `
+        <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal)}</p>
+        <p><strong>Pajak (10%):</strong> ${formatRupiah(order.tax)}</p>
+        <p><strong>Biaya Pengiriman:</strong> ${formatRupiah(order.shipping_cost)}</p>
+        <p><strong>Total:</strong> ${formatRupiah(order.total)}</p>
+      `;
+    }
+
+    function getStatusClass(status) {
+      const lower = (status || '').toLowerCase();
+      if (lower.includes('selesai') || lower.includes('completed')) return 'status-selesai';
+      if (lower.includes('batal') || lower.includes('cancelled')) return 'status-batal';
+      return 'status-proses';
+    }
+  </script>
+
+</body>
+</html>

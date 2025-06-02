@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daftar Pesanan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 20px auto;
+      background: #f9f9f9;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #2c3e50;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+    a {
+      color: #3498db;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    a:hover {
+      text-decoration: underline;
+    }
+    #loading {
+      text-align: center;
+      font-style: italic;
+      color: #555;
+      margin-bottom: 20px;
+    }
+    .status {
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      text-transform: capitalize;
+      font-size: 0.9rem;
+    }
+    .status-selesai {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .status-batal {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .status-proses {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+  </style>
+</head>
+<body>
+  <h1>Daftar Pesanan</h1>
+  <div id="loading">Memuat daftar pesanan...</div>
+  <table id="ordersTable" style="display:none;">
+    <thead>
+      <tr>
+        <th>ID Pesanan</th>
+        <th>Nama Pelanggan</th>
+        <th>Total</th>
+        <th>Status</th>
+        <th>Detail</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const apiBaseUrl = 'http://localhost:3000/api/orders';
+
+    function formatRupiah(value) {
+      if (typeof value !== 'number') return 'Rp 0';
+      return 'Rp ' + value.toLocaleString('id-ID');
+    }
+
+    function getStatusClass(status) {
+      const lower = (status || '').toLowerCase();
+      if (lower.includes('selesai') || lower.includes('completed')) return 'status-selesai';
+      if (lower.includes('batal') || lower.includes('cancelled')) return 'status-batal';
+      return 'status-proses';
+    }
+
+    async function fetchOrders() {
+      const loadingEl = document.getElementById('loading');
+      const table = document.getElementById('ordersTable');
+      const tbody = table.querySelector('tbody');
+
+      try {
+        const res = await fetch(apiBaseUrl);
+        if (!res.ok) {
+          loadingEl.textContent = 'Gagal memuat daftar pesanan.';
+          return;
+        }
+
+        const orders = await res.json();
+
+        if (orders.length === 0) {
+          loadingEl.textContent = 'Belum ada pesanan.';
+          return;
+        }
+
+        loadingEl.style.display = 'none';
+        table.style.display = '';
+
+        orders.forEach(order => {
+          const tr = document.createElement('tr');
+
+          tr.innerHTML = `
+            <td>${order.id}</td>
+            <td>${order.customer_name || '-'}</td>
+            <td>${formatRupiah(order.total)}</td>
+            <td><span class="status ${getStatusClass(order.status)}">${order.status || '-'}</span></td>
+            <td><a href="detail-pesanan.html?id=${order.id}">Lihat Detail</a></td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      } catch (error) {
+        loadingEl.textContent = 'Terjadi kesalahan saat memuat data pesanan.';
+        console.error(error);
+      }
+    }
+
+    fetchOrders();
+  </script>
+</body>
+</html>
