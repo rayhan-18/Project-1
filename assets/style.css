@@ -956,26 +956,9 @@ footer {
   }
 }
 
-.checkout-container {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  width: 100%;
-  max-width: 600px;
-  max-height: 90vh;
-  background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1);
-  padding: 30px;
-  transform: translate(-50%, -50%);
-  overflow-y: auto;
-  font-family: 'Poppins', sans-serif;
-  box-sizing: border-box;
-}
-
 .checkout-multistep-container {
   max-width: 600px;
-  margin: 40px auto;
+  margin: 10px auto;
   background: #fff;
   border-radius: 16px;
   box-shadow: 0 8px 24px rgba(0,0,0,0.1);
@@ -1031,12 +1014,12 @@ footer {
 }
 
 .stepper .step.active {
-  color: #0077cc;
+  color: #4a7c59;
 }
 
 .stepper .step.active::before {
-  border-color: #0077cc;
-  background-color: #0077cc;
+  border-color: #4a7c59;
+  background-color: #4a7c59;
   color: white;
 }
 
@@ -1087,12 +1070,12 @@ footer {
 }
 
 .navigation-buttons .btn-next {
-  background: linear-gradient(135deg, #0077cc, #005fa3);
+  background: linear-gradient(135deg, #4a7c59, #35623b);
   color: white;
 }
 
 .navigation-buttons .btn-next:hover {
-  background: linear-gradient(135deg, #005fa3, #003f66);
+  background: linear-gradient(135deg, #35623b, #234225);
 }
 
 /* Form input style */
@@ -1112,7 +1095,7 @@ footer {
 .checkout-multistep-container input:focus,
 .checkout-multistep-container textarea:focus,
 .checkout-multistep-container select:focus {
-  border-color: #0077cc;
+  border-color: #4a7c59;
   outline: none;
 }
 
@@ -1174,7 +1157,7 @@ footer {
 
 .product-summary-item .product-price {
   font-weight: 600;
-  color: #0077cc;
+  color: #4a7c59;
   font-size: 0.95rem;
   margin-left: 10px;
   white-space: nowrap;
@@ -1196,7 +1179,7 @@ footer {
 
 .checkout-summary h4 {
   font-size: 1.1rem;
-  color: #0077cc;
+  color: #4a7c59;
   font-weight: bold;
   margin-top: 12px;
 }
