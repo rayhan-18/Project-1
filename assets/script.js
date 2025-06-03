@@ -986,11 +986,15 @@ document.querySelectorAll('#shippingName, #shippingPhone, #shippingAddress, #shi
   el.addEventListener('input', () => checkValid(currentStep));
 });
 
-// Event listener tombol next dan prev
-document.querySelector('.btn-next').addEventListener('click', nextStep);
-document.querySelector('.btn-prev').addEventListener('click', prevStep);
-
-// Inisialisasi
 document.addEventListener('DOMContentLoaded', () => {
-  showStep(currentStep);
+  const nextBtn = document.querySelector('.btn-next');
+  const prevBtn = document.querySelector('.btn-prev');
+  
+  if (nextBtn) nextBtn.addEventListener('click', nextStep);
+  if (prevBtn) prevBtn.addEventListener('click', prevStep);
+  
+  // Hanya jalankan showStep jika di halaman checkout
+  if (nextBtn || prevBtn) {
+    showStep(currentStep);
+  }
 });
