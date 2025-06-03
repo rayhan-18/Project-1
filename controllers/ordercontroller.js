@@ -1,4 +1,5 @@
-const { createOrder, updateOrderStatusById, getOrderById, getAllOrders } = require('../models/ordermodel');
+const db = require('../config/db'); // ← untuk koneksi ke database
+const {createOrder,updateOrderStatusById,getOrderById,getAllOrders} = require('../models/ordermodel'); // ← tempat fungsi-fungsi order berada
 
 // Buat order
 const placeOrder = async (req, res) => {
@@ -13,6 +14,7 @@ const placeOrder = async (req, res) => {
       total
     } = req.body;
 
+    // Validasi data
     if (!user_id || !shipping || !shipping.name || !shipping.phone || !shipping.address) {
       return res.status(400).json({ message: 'Data pengiriman tidak lengkap' });
     }
@@ -21,6 +23,24 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: 'Order harus memiliki item' });
     }
 
+    // 1. Validasi stok produk sebelum membuat order
+    for (const item of items) {
+      const [productRows] = await db.query('SELECT stock FROM products WHERE id = ?', [item.product_id]);
+      if (productRows.length === 0) {
+        return res.status(404).json({ message: `Produk dengan ID ${item.product_id} tidak ditemukan` });
+      }
+      if (productRows[0].stock < item.quantity) {
+        return res.status(400).json({ message: `Stok produk ${item.product_id} tidak mencukupi` });
+      }
+    }
+
+    // 2. Kurangi stok produk
+    for (const item of items) {
+      await db.query('UPDATE products SET stock = stock - ? WHERE id = ?', 
+        [item.quantity, item.product_id]);
+    }
+
+    // 3. Buat order
     const orderData = {
       user_id,
       customer_name: shipping.name,
@@ -41,6 +61,9 @@ const placeOrder = async (req, res) => {
     if (!orderId) {
       return res.status(500).json({ message: 'Gagal membuat order: ID tidak tersedia' });
     }
+
+    // 4. Hapus cart user setelah order berhasil dibuat
+    await db.query('DELETE FROM cart WHERE user_id = ?', [user_id]);
 
     res.status(201).json({
       message: 'Order berhasil dibuat',

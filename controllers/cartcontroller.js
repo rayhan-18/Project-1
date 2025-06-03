@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-// Controller untuk tambah produk ke cart
+// Tambah produk ke cart
 exports.addToCart = async (req, res) => {
   try {
     const { user_id, product_id, product_name, price, image_url, quantity } = req.body;
@@ -18,7 +18,17 @@ exports.addToCart = async (req, res) => {
       return res.status(400).json({ message: 'Data numerik tidak valid' });
     }
 
-    // Cek produk sudah ada
+    // Cek stok produk di database
+    const [productRows] = await db.query('SELECT stock FROM products WHERE id = ?', [productId]);
+    if (productRows.length === 0) {
+      return res.status(404).json({ message: 'Produk tidak ditemukan' });
+    }
+    const stock = productRows[0].stock;
+    if (stock < qty) {
+      return res.status(400).json({ message: 'Stok produk tidak mencukupi' });
+    }
+
+    // Cek apakah produk sudah ada di cart
     const [existing] = await db.query(
       'SELECT * FROM cart WHERE user_id = ? AND product_id = ?',
       [userId, productId]
@@ -26,20 +36,15 @@ exports.addToCart = async (req, res) => {
 
     if (existing.length > 0) {
       const newQuantity = existing[0].quantity + qty;
-      console.log('Existing quantity:', existing[0].quantity);
-      console.log('Quantity to add:', qty);
-      console.log('New quantity:', newQuantity);
+      if (newQuantity > stock) {
+        return res.status(400).json({ message: 'Jumlah melebihi stok tersedia' });
+      }
 
       await db.query(
         `UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?`,
         [newQuantity, userId, productId]
       );
-
-      const [updatedCart] = await db.query('SELECT * FROM cart WHERE user_id = ?', [userId]);
-      return res.status(200).json(updatedCart);
-    }
-  else {
-      // Insert baru
+    } else {
       await db.query(
         `INSERT INTO cart (user_id, product_id, product_name, price, image_url, quantity)
          VALUES (?, ?, ?, ?, ?, ?)`,
@@ -47,20 +52,18 @@ exports.addToCart = async (req, res) => {
       );
     }
 
-    // Kirim cart terbaru
     const [updatedCart] = await db.query('SELECT * FROM cart WHERE user_id = ?', [userId]);
-    res.status(existing.length > 0 ? 200 : 201).json(updatedCart);
+    res.status(200).json(updatedCart);
   } catch (error) {
     console.error('Add to cart error:', error);
     res.status(500).json({ message: 'Terjadi kesalahan pada server' });
   }
 };
 
-// Controller ambil cart berdasarkan user_id
+// Ambil cart berdasarkan user_id
 exports.getCartByUserId = async (req, res) => {
   try {
     const userId = parseInt(req.params.user_id);
-
     if (!userId || isNaN(userId)) {
       return res.status(400).json({ message: 'ID user tidak valid' });
     }
@@ -73,7 +76,7 @@ exports.getCartByUserId = async (req, res) => {
   }
 };
 
-// Controller hapus 1 item dari cart berdasarkan user_id dan product_id
+// Hapus satu item dari cart
 exports.removeFromCart = async (req, res) => {
   try {
     const userId = parseInt(req.params.user_id);
@@ -99,7 +102,7 @@ exports.removeFromCart = async (req, res) => {
   }
 };
 
-// Controller update quantity produk cart
+// Update quantity produk di cart
 exports.updateQuantity = async (req, res) => {
   try {
     const { user_id, product_id, quantity } = req.body;
@@ -108,31 +111,53 @@ exports.updateQuantity = async (req, res) => {
       return res.status(400).json({ message: 'Data tidak lengkap' });
     }
 
-    // Ambil quantity sekarang
+    const userId = parseInt(user_id);
+    const productId = parseInt(product_id);
+    const change = parseInt(quantity);
+
     const [rows] = await db.query(
       'SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?',
-      [user_id, product_id]
+      [userId, productId]
     );
 
     if (rows.length === 0) {
       return res.status(404).json({ message: 'Produk tidak ditemukan di cart' });
     }
 
-    let currentQuantity = rows[0].quantity;
-    let newQuantity = currentQuantity + quantity;
+    const currentQuantity = rows[0].quantity;
+    let newQuantity = currentQuantity + change;
 
-    if (newQuantity < 1) newQuantity = 1;  // Jangan kurang dari 1, atau bisa juga hapus item jika 0
+    if (newQuantity <= 0) {
+      // Hapus item jika quantity <= 0
+      await db.query('DELETE FROM cart WHERE user_id = ? AND product_id = ?', [userId, productId]);
+    } else {
+      await db.query(
+        'UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?',
+        [newQuantity, userId, productId]
+      );
+    }
 
-    await db.query(
-      'UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?',
-      [newQuantity, user_id, product_id]
-    );
-
-    const [updatedCart] = await db.query('SELECT * FROM cart WHERE user_id = ?', [user_id]);
+    const [updatedCart] = await db.query('SELECT * FROM cart WHERE user_id = ?', [userId]);
     res.status(200).json(updatedCart);
-
   } catch (error) {
     console.error('Update quantity error:', error);
     res.status(500).json({ message: 'Gagal update kuantitas' });
+  }
+};
+
+// Hapus seluruh cart berdasarkan user_id (untuk checkout)
+exports.clearCartByUserId = async (req, res) => {
+  try {
+    const userId = parseInt(req.params.user_id);
+
+    if (!userId || isNaN(userId)) {
+      return res.status(400).json({ message: 'ID user tidak valid' });
+    }
+
+    await db.query('DELETE FROM cart WHERE user_id = ?', [userId]);
+    res.status(200).json({ message: 'Cart berhasil dikosongkan' });
+  } catch (error) {
+    console.error('Clear cart error:', error);
+    res.status(500).json({ message: 'Gagal mengosongkan cart' });
   }
 };

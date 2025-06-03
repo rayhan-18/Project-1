@@ -34,7 +34,8 @@
   <!-- Step 2: Metode Pengiriman -->
   <section class="step-content" data-step="2">
     <h3>🚚 Pilih Metode Pengiriman</h3>
-    <select id="shippingMethod" onchange="updateShippingCost()">
+    <select id="shippingMethod">
+      <option value="" selected hidden>-- Pilih Metode --</option>
       <option value="standard">Standard - Rp20.000</option>
       <option value="express">Express - Rp40.000</option>
       <option value="pickup">Ambil di Toko - Gratis</option>
@@ -45,6 +46,7 @@
   <section class="step-content" data-step="3">
     <h3>💳 Pilih Metode Pembayaran</h3>
     <select id="paymentMethod">
+      <option value="" selected hidden>-- Pilih Metode Pembayaran --</option>
       <option value="transfer">Transfer Bank</option>
       <option value="ewallet">E-Wallet</option>
       <option value="cod">Bayar di Tempat (COD)</option>
@@ -69,7 +71,7 @@
   <!-- Navigasi tombol -->
   <div class="navigation-buttons">
     <button class="btn-prev" onclick="prevStep()" disabled>← Sebelumnya</button>
-    <button class="btn-next" onclick="nextStep()">Selanjutnya →</button>
+    <button class="btn-next" disabled>Selanjutnya →</button>
   </div>
 </main>
 

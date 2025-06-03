@@ -1,72 +1,48 @@
-const cartModel = require('../models/cartmodel');
+const db = require('../config/db');
 
-// Controller untuk tambah produk ke cart
-exports.addToCart = async (req, res) => {
-  try {
-    const { user_id, product_id, product_name, price, image_url, quantity } = req.body;
+// Ambil semua item cart untuk user tertentu
+exports.getCartByUserId = async (userId) => {
+  const [rows] = await db.query('SELECT * FROM cart WHERE user_id = ?', [userId]);
+  return rows;
+};
 
-    if (!user_id || !product_id || !product_name || !price || !image_url) {
-      return res.status(400).json({ message: 'Semua data produk harus dikirim' });
-    }
+// Tambah produk ke cart (dipakai jika belum ada di cart)
+exports.addToCart = async (userId, productId, productName, price, imageUrl, quantity) => {
+  await db.query(
+    `INSERT INTO cart (user_id, product_id, product_name, price, image_url, quantity)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+    [userId, productId, productName, price, imageUrl, quantity]
+  );
+};
 
-    const userId = parseInt(user_id);
-    const productId = parseInt(product_id);
-    const productPrice = parseFloat(price);
-    const qty = quantity ? parseInt(quantity) : 1;
-
-    if (isNaN(userId) || isNaN(productId) || isNaN(productPrice) || isNaN(qty)) {
-      return res.status(400).json({ message: 'Data numerik tidak valid' });
-    }
-
-    // Cek apakah produk sudah ada di cart
-    const existingCart = await cartModel.getCartByUserId(userId);
-    const existingProduct = existingCart.find(item => item.product_id === productId);
-
-    if (existingProduct) {
-      // Update quantity jika sudah ada
-      const newQuantity = existingProduct.quantity + qty;
-      await cartModel.updateQuantity(userId, productId, newQuantity);
-    } else {
-      // Tambah produk baru ke cart
-      await cartModel.addToCart(userId, productId, product_name, productPrice, image_url, qty);
-    }
-
-    const updatedCart = await cartModel.getCartByUserId(userId);
-    res.status(200).json(updatedCart);
-
-  } catch (error) {
-    console.error('Add to cart error:', error);
-    res.status(500).json({ message: 'Terjadi kesalahan pada server' });
+// Update kuantitas produk di cart (atau hapus jika quantity < 1)
+exports.updateQuantity = async (userId, productId, newQuantity) => {
+  if (newQuantity < 1) {
+    // Jika kuantitas kurang dari 1, hapus dari cart
+    await db.query('DELETE FROM cart WHERE user_id = ? AND product_id = ?', [userId, productId]);
+  } else {
+    await db.query(
+      'UPDATE cart SET quantity = ? WHERE user_id = ? AND product_id = ?',
+      [newQuantity, userId, productId]
+    );
   }
 };
 
-// Controller ambil cart berdasarkan user_id
-exports.getCartByUserId = async (req, res) => {
-  try {
-    const userId = parseInt(req.params.user_id);
-    if (!userId || isNaN(userId)) {
-      return res.status(400).json({ message: 'ID user tidak valid' });
-    }
-    const cart = await cartModel.getCartByUserId(userId);
-    res.status(200).json(cart);
-  } catch (error) {
-    console.error('Get cart error:', error);
-    res.status(500).json({ message: 'Gagal mengambil data cart' });
-  }
+// Hapus satu item dari cart
+exports.removeItem = async (userId, productId) => {
+  await db.query('DELETE FROM cart WHERE user_id = ? AND product_id = ?', [userId, productId]);
 };
 
-// Controller update quantity produk cart
-exports.updateQuantity = async (req, res) => {
-  try {
-    const { user_id, product_id, quantity } = req.body;
-    if (!user_id || !product_id || typeof quantity === 'undefined') {
-      return res.status(400).json({ message: 'Data tidak lengkap' });
-    }
-    await cartModel.updateQuantity(user_id, product_id, quantity);
-    const updatedCart = await cartModel.getCartByUserId(user_id);
-    res.status(200).json(updatedCart);
-  } catch (error) {
-    console.error('Update quantity error:', error);
-    res.status(500).json({ message: 'Gagal update kuantitas' });
-  }
+// Hapus seluruh cart untuk user tertentu (dipanggil saat checkout)
+exports.clearCartByUserId = async (userId) => {
+  await db.query('DELETE FROM cart WHERE user_id = ?', [userId]);
+};
+
+// (Opsional) Cek apakah produk sudah ada di cart (dipakai oleh controller kalau dibutuhkan)
+exports.getCartItem = async (userId, productId) => {
+  const [rows] = await db.query(
+    'SELECT * FROM cart WHERE user_id = ? AND product_id = ?',
+    [userId, productId]
+  );
+  return rows.length > 0 ? rows[0] : null;
 };
