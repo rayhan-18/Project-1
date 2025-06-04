@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Dashboard - Toko Rayhan</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    body { font-family: 'Poppins', sans-serif; padding: 20px; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    h1 { font-size: 28px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+    th { background-color: #f4f4f4; }
+    input, button { padding: 8px; margin: 5px 0; }
+    form input { width: 200px; margin-right: 10px; }
+    .admin-section { margin-bottom: 40px; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard - Toko Rayhan</h1>
+    <button onclick="logoutAdmin()">Logout</button>
+  </header>
+
+  <main>
+    <!-- Produk Section -->
+    <section class="admin-section">
+      <h2>Manajemen Produk</h2>
+      <form id="addProductForm">
+        <input type="text" id="newName" placeholder="Nama Produk" required>
+        <input type="number" id="newPrice" placeholder="Harga" required>
+        <input type="number" id="newStock" placeholder="Stok" required>
+        <input type="text" id="newImage" placeholder="URL Gambar" required>
+        <button type="submit">Tambah Produk</button>
+      </form>
+      <table id="productTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <!-- Pesanan Section -->
+    <section class="admin-section">
+      <h2>Daftar Pesanan</h2>
+      <table id="orderTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>User</th><th>Total</th><th>Status</th><th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+  </main>
+
+  <script>
+    async function loadProducts() {
+      const res = await fetch('http://localhost:3000/api/products');
+      const products = await res.json();
+      const tbody = document.querySelector('#productTable tbody');
+      tbody.innerHTML = '';
+
+      products.forEach(p => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${p.id}</td>
+          <td>${p.product_name}</td>
+          <td>Rp ${p.price.toLocaleString()}</td>
+          <td>${p.stock}</td>
+          <td>
+            <button onclick="deleteProduct(${p.id})">Hapus</button>
+          </td>`;
+        tbody.appendChild(row);
+      });
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Yakin ingin menghapus produk ini?')) return;
+      await fetch(`http://localhost:3000/api/products/${id}`, { method: 'DELETE' });
+      loadProducts();
+    }
+
+    document.getElementById('addProductForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const name = document.getElementById('newName').value.trim();
+      const price = +document.getElementById('newPrice').value;
+      const stock = +document.getElementById('newStock').value;
+      const image = document.getElementById('newImage').value.trim();
+
+      await fetch('http://localhost:3000/api/products', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ product_name: name, price, stock, image_url: image })
+      });
+
+      this.reset();
+      loadProducts();
+    });
+
+    async function loadOrders() {
+      const res = await fetch('http://localhost:3000/api/orders');
+      const orders = await res.json();
+      const tbody = document.querySelector('#orderTable tbody');
+      tbody.innerHTML = '';
+
+      orders.forEach(o => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${o.id}</td>
+          <td>${o.user_name || 'User #' + o.user_id}</td>
+          <td>Rp ${o.total.toLocaleString()}</td>
+          <td>${o.status || 'Pending'}</td>
+          <td><button onclick="goToOrderDetail(${o.id})">Edit Status</button></td>`;
+        tbody.appendChild(row);
+      });
+    }
+
+    function goToOrderDetail(orderId) {
+        window.location.href = `/admin/order-detail.html?id=${orderId}`;
+    }
+
+    function logoutAdmin() {
+      localStorage.removeItem('user');
+      location.href = 'index.html';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return location.href = 'index.html';
+
+      const user = JSON.parse(userStr);
+      if (!user.is_admin) {
+        alert('Halaman ini hanya untuk admin.');
+        location.href = 'index.html';
+        return;
+      }
+
+      loadProducts();
+      loadOrders();
+    });
+  </script>
+</body>
+</html>

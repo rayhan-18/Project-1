@@ -21,8 +21,8 @@ const productRoutes = require('./routes/productroutes');
 const orderRoutes = require('./routes/orderroutes');
 
 // Gunakan routes
-app.use('/api/auth', authRoutes);
-app.use('/api/cart', cartRoutes);           // termasuk /clear/:user_id
+app.use('/api/auth', authRoutes);       // termasuk /login, /register, dan /admin/login
+app.use('/api/cart', cartRoutes);       // termasuk /clear/:user_id
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);

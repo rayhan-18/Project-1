@@ -2,7 +2,19 @@
 function toggleModal(modalId = 'loginModal') {
   const userStr = localStorage.getItem('user');
   if (userStr) {
-    window.location.href = "account.html";
+    try {
+      const user = JSON.parse(userStr);
+      if (user.is_admin) {
+        window.location.href = "admin.html";
+      } else {
+        window.location.href = "account.html";
+      }
+    } catch (e) {
+      console.error("User data tidak valid", e);
+      localStorage.removeItem('user');
+      const modal = document.getElementById(modalId);
+      if (modal) modal.classList.toggle('hidden');
+    }
   } else {
     const modal = document.getElementById(modalId);
     if (modal) modal.classList.toggle('hidden');
@@ -475,10 +487,26 @@ document.getElementById('loginForm')?.addEventListener('submit', async function 
     if (res.ok) {
       localStorage.setItem('user', JSON.stringify(data.user));
       await fetchAndStoreUserData(data.user.id);
-      Swal.fire({ title: "Success!", text: "Login Berhasil!", icon: "success" });
-      document.getElementById("loginModal")?.classList.add("hidden");
+
+      console.log('User login:', data.user); // 🐞 Tambahan log
+
+      Swal.fire({ title: "Success!", text: "Login Berhasil!", icon: "success" }).then(() => {
+        document.getElementById("loginModal")?.classList.add("hidden");
+
+        if (data.user.is_admin) {
+          console.log("Redirect ke admin.html"); // Debug info
+          window.location.href = "/admin/admin.html";
+        } else {
+          console.log("Redirect ke account.html"); // Debug info
+          window.location.href = "account.html";
+        }
+      });
     } else {
-      Swal.fire({ icon: "error", title: "Oops...", text: data.message || "Login gagal!" });
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: data.message || "Login gagal!"
+      });
     }
   } catch (err) {
     console.error(err);
