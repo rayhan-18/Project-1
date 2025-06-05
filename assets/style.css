@@ -599,6 +599,32 @@ footer {
   background-color: #c9302c;
 }
 
+.account-section {
+  margin-top: 40px;
+  padding: 20px;
+  background-color: #f7f7f7;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.account-section h2 {
+  margin-bottom: 10px;
+}
+
+.btn-view-orders {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  transition: background-color 0.3s;
+}
+
+.btn-view-orders:hover {
+  background-color: #0056b3;
+}
+
 /* ======== Responsive Styles for Account Page ======== */
 @media (max-width: 768px) {
   .account-info {

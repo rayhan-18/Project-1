@@ -125,7 +125,9 @@
 
     function logoutAdmin() {
       localStorage.removeItem('user');
-      location.href = 'index.html';
+      localStorage.removeItem('cart');
+      localStorage.removeItem('wishlist');
+      location.href = '/publik/index.html';
     }
 
     document.addEventListener('DOMContentLoaded', () => {

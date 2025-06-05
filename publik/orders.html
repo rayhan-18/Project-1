@@ -85,63 +85,71 @@
     <tbody></tbody>
   </table>
 
-  <script>
-    const apiBaseUrl = 'http://localhost:3000/api/orders';
+<script>
+  const apiBaseUrl = 'http://localhost:3000/api/orders';
 
-    function formatRupiah(value) {
-      if (typeof value !== 'number') return 'Rp 0';
-      return 'Rp ' + value.toLocaleString('id-ID');
+  function formatRupiah(value) {
+    if (typeof value !== 'number') return 'Rp 0';
+    return 'Rp ' + value.toLocaleString('id-ID');
+  }
+
+  function getStatusClass(status) {
+    const lower = (status || '').toLowerCase();
+    if (lower.includes('selesai') || lower.includes('completed')) return 'status-selesai';
+    if (lower.includes('batal') || lower.includes('cancelled')) return 'status-batal';
+    return 'status-proses';
+  }
+
+  async function fetchOrders() {
+    const loadingEl = document.getElementById('loading');
+    const table = document.getElementById('ordersTable');
+    const tbody = table.querySelector('tbody');
+
+    // Ambil data user dari localStorage
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (!userData || !userData.id) {
+      loadingEl.textContent = 'Silakan login untuk melihat pesanan Anda.';
+      return;
     }
 
-    function getStatusClass(status) {
-      const lower = (status || '').toLowerCase();
-      if (lower.includes('selesai') || lower.includes('completed')) return 'status-selesai';
-      if (lower.includes('batal') || lower.includes('cancelled')) return 'status-batal';
-      return 'status-proses';
-    }
-
-    async function fetchOrders() {
-      const loadingEl = document.getElementById('loading');
-      const table = document.getElementById('ordersTable');
-      const tbody = table.querySelector('tbody');
-
-      try {
-        const res = await fetch(apiBaseUrl);
-        if (!res.ok) {
-          loadingEl.textContent = 'Gagal memuat daftar pesanan.';
-          return;
-        }
-
-        const orders = await res.json();
-
-        if (orders.length === 0) {
-          loadingEl.textContent = 'Belum ada pesanan.';
-          return;
-        }
-
-        loadingEl.style.display = 'none';
-        table.style.display = '';
-
-        orders.forEach(order => {
-          const tr = document.createElement('tr');
-
-          tr.innerHTML = `
-            <td>${order.id}</td>
-            <td>${order.customer_name || '-'}</td>
-            <td>${formatRupiah(order.total)}</td>
-            <td><span class="status ${getStatusClass(order.status)}">${order.status || '-'}</span></td>
-            <td><a href="order-detail2.html?id=${order.id}">Lihat Detail</a></td>
-          `;
-
-          tbody.appendChild(tr);
-        });
-      } catch (error) {
-        loadingEl.textContent = 'Terjadi kesalahan saat memuat data pesanan.';
-        console.error(error);
+    try {
+      const res = await fetch(`${apiBaseUrl}/user/${userData.id}`);
+      if (!res.ok) {
+        loadingEl.textContent = 'Gagal memuat daftar pesanan.';
+        return;
       }
-    }
 
-    fetchOrders();
-  </script>
+      const orders = await res.json();
+
+      if (orders.length === 0) {
+        loadingEl.textContent = 'Belum ada pesanan.';
+        return;
+      }
+
+      loadingEl.style.display = 'none';
+      table.style.display = '';
+
+      orders.forEach(order => {
+        const tr = document.createElement('tr');
+
+        tr.innerHTML = `
+          <td>${order.id}</td>
+          <td>${order.customer_name || '-'}</td>
+          <td>${formatRupiah(order.total)}</td>
+          <td><span class="status ${getStatusClass(order.status)}">${order.status || '-'}</span></td>
+          <td><a href="order-detail2.html?id=${order.id}">Lihat Detail</a></td>
+        `;
+
+        tbody.appendChild(tr);
+      });
+    } catch (error) {
+      loadingEl.textContent = 'Terjadi kesalahan saat memuat data pesanan.';
+      console.error(error);
+    }
+  }
+
+  fetchOrders();
+</script>
+
 </body>
 </html>

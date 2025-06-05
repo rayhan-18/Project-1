@@ -20,19 +20,19 @@ const wishlistRoutes = require('./routes/wishlistroutes');
 const productRoutes = require('./routes/productroutes');
 const orderRoutes = require('./routes/orderroutes');
 
-// Gunakan routes
-app.use('/api/auth', authRoutes);       // termasuk /login, /register, dan /admin/login
-app.use('/api/cart', cartRoutes);       // termasuk /clear/:user_id
+// Gunakan routes dengan prefix API yang sesuai
+app.use('/api/auth', authRoutes);       // /api/auth/login, /api/auth/register, dll
+app.use('/api/cart', cartRoutes);       // /api/cart/...
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 
-// 404 handler
+// 404 handler untuk route yang tidak ditemukan
 app.use((req, res) => {
   res.status(404).json({ message: 'Route tidak ditemukan' });
 });
 
-// Jalankan server
+// Jalankan server di port yang di-set di .env atau default 3000
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}`);

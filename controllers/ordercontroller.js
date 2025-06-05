@@ -1,7 +1,13 @@
-const db = require('../config/db'); // ← untuk koneksi ke database
-const {createOrder,updateOrderStatusById,getOrderById,getAllOrders} = require('../models/ordermodel'); // ← tempat fungsi-fungsi order berada
+const db = require('../config/db');
+const {
+  createOrder,
+  updateOrderStatusById,
+  getOrderById,
+  getAllOrders,
+  getOrdersByUserId
+} = require('../models/ordermodel');
 
-// Buat order
+// Buat order baru
 const placeOrder = async (req, res) => {
   try {
     const {
@@ -14,33 +20,33 @@ const placeOrder = async (req, res) => {
       total
     } = req.body;
 
-    // Validasi data
+    // Validasi data shipping
     if (!user_id || !shipping || !shipping.name || !shipping.phone || !shipping.address) {
       return res.status(400).json({ message: 'Data pengiriman tidak lengkap' });
     }
 
+    // Validasi item order
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: 'Order harus memiliki item' });
     }
 
-    // 1. Validasi stok produk sebelum membuat order
+    // Validasi stok produk
     for (const item of items) {
       const [productRows] = await db.query('SELECT stock FROM products WHERE id = ?', [item.product_id]);
       if (productRows.length === 0) {
-        return res.status(404).json({ message: `Produk dengan ID ${item.product_id} tidak ditemukan` });
+        return res.status(404).json({ message: `Produk ID ${item.product_id} tidak ditemukan` });
       }
       if (productRows[0].stock < item.quantity) {
-        return res.status(400).json({ message: `Stok produk ${item.product_id} tidak mencukupi` });
+        return res.status(400).json({ message: `Stok produk ID ${item.product_id} tidak mencukupi` });
       }
     }
 
-    // 2. Kurangi stok produk
+    // Kurangi stok produk sesuai quantity
     for (const item of items) {
-      await db.query('UPDATE products SET stock = stock - ? WHERE id = ?', 
-        [item.quantity, item.product_id]);
+      await db.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
     }
 
-    // 3. Buat order
+    // Data order lengkap
     const orderData = {
       user_id,
       customer_name: shipping.name,
@@ -56,13 +62,14 @@ const placeOrder = async (req, res) => {
       items
     };
 
+    // Simpan order ke DB
     const orderId = await createOrder(orderData);
 
     if (!orderId) {
       return res.status(500).json({ message: 'Gagal membuat order: ID tidak tersedia' });
     }
 
-    // 4. Hapus cart user setelah order berhasil dibuat
+    // Hapus cart user
     await db.query('DELETE FROM cart WHERE user_id = ?', [user_id]);
 
     res.status(201).json({
@@ -72,10 +79,7 @@ const placeOrder = async (req, res) => {
     });
   } catch (error) {
     console.error('Error di placeOrder:', error);
-    res.status(500).json({
-      message: 'Gagal membuat order',
-      error: error.message
-    });
+    res.status(500).json({ message: 'Gagal membuat order', error: error.message });
   }
 };
 
@@ -119,10 +123,10 @@ const getOrderDetail = async (req, res) => {
   }
 };
 
-// Get all orders
+// Get semua orders
 const getAllOrdersHandler = async (req, res) => {
   try {
-    const orders = await getAllOrders();  // ini fungsi dari model
+    const orders = await getAllOrders();
     res.json(orders);
   } catch (error) {
     console.error('Error di getAllOrdersHandler:', error);
@@ -130,9 +134,22 @@ const getAllOrdersHandler = async (req, res) => {
   }
 };
 
+// Get orders by user_id
+const getOrdersByUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const orders = await getOrdersByUserId(userId);
+    res.json(orders);
+  } catch (error) {
+    console.error('Error di getOrdersByUser:', error);
+    res.status(500).json({ message: 'Gagal mengambil pesanan user', error: error.message });
+  }
+};
+
 module.exports = {
   placeOrder,
   updateOrderStatus,
   getOrderDetail,
-  getAllOrders: getAllOrdersHandler,  // ekspor dengan nama getAllOrders agar routes tetap jalan
-};  
+  getAllOrders: getAllOrdersHandler,
+  getOrdersByUser
+};

@@ -1,4 +1,4 @@
-const db = require('../config/db'); // Sesuaikan dengan koneksi database kamu
+const db = require('../config/db');
 
 // Buat order baru
 async function createOrder(orderData) {
@@ -53,7 +53,7 @@ async function updateOrderStatusById(orderId, newStatus) {
       `UPDATE orders SET status = ? WHERE id = ?`,
       [newStatus, orderId]
     );
-    return result.affectedRows; // jumlah baris yang diupdate (0 = tidak ada)
+    return result.affectedRows;
   } finally {
     connection.release();
   }
@@ -63,19 +63,17 @@ async function updateOrderStatusById(orderId, newStatus) {
 async function getOrderById(orderId) {
   const connection = await db.getConnection();
   try {
-    // Ambil data order utama
     const [orders] = await connection.query(
       `SELECT * FROM orders WHERE id = ?`,
       [orderId]
     );
 
     if (orders.length === 0) {
-      return null; // Tidak ada order dengan ID tersebut
+      return null;
     }
 
     const order = orders[0];
 
-    // Ambil item detail
     const [items] = await connection.query(
       `SELECT product_id, product_name, quantity, price FROM order_items WHERE order_id = ?`,
       [orderId]
@@ -100,9 +98,24 @@ async function getAllOrders() {
   }
 }
 
+// Get orders by user ID
+async function getOrdersByUserId(userId) {
+  const connection = await db.getConnection();
+  try {
+    const [orders] = await connection.query(
+      `SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC`,
+      [userId]
+    );
+    return orders;
+  } finally {
+    connection.release();
+  }
+}
+
 module.exports = {
   createOrder,
   updateOrderStatusById,
   getOrderById,
-  getAllOrders
+  getAllOrders,
+  getOrdersByUserId
 };

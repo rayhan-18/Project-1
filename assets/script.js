@@ -1,21 +1,25 @@
   // ===================== Modal Handling =====================
 function toggleModal(modalId = 'loginModal') {
   const userStr = localStorage.getItem('user');
+
   if (userStr) {
     try {
       const user = JSON.parse(userStr);
-      if (user.is_admin) {
-        window.location.href = "admin.html";
-      } else {
-        window.location.href = "account.html";
-      }
+
+      // Semua user (admin atau bukan) langsung ke account.html
+      window.location.href = "/publik/account.html";
+
     } catch (e) {
+      // Kalau userStr rusak / tidak bisa di-parse
       console.error("User data tidak valid", e);
       localStorage.removeItem('user');
+
+      // Tampilkan modal login
       const modal = document.getElementById(modalId);
       if (modal) modal.classList.toggle('hidden');
     }
   } else {
+    // Kalau belum login, tampilkan modal login
     const modal = document.getElementById(modalId);
     if (modal) modal.classList.toggle('hidden');
   }
