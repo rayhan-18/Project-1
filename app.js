@@ -19,13 +19,15 @@ const cartRoutes = require('./routes/cartroutes');
 const wishlistRoutes = require('./routes/wishlistroutes');
 const productRoutes = require('./routes/productroutes');
 const orderRoutes = require('./routes/orderroutes');
+const reportRoutes = require('./routes/reportroutes');
 
 // Gunakan routes dengan prefix API yang sesuai
-app.use('/api/auth', authRoutes);       // /api/auth/login, /api/auth/register, dll
-app.use('/api/cart', cartRoutes);       // /api/cart/...
+app.use('/api/auth', authRoutes);
+app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/export', reportRoutes);
 
 // 404 handler untuk route yang tidak ditemukan
 app.use((req, res) => {

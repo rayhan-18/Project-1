@@ -100,11 +100,11 @@
     });
 
     const summaryDiv = document.getElementById('summary');
-    const tax = order.subtotal * 0.10;
+    const tax = order.subtotal * 0.12;
     const total = order.subtotal + tax + order.shipping_cost;
     summaryDiv.innerHTML = `
       <p><strong>Subtotal:</strong> Rp ${order.subtotal.toLocaleString()}</p>
-      <p><strong>Tax (10%):</strong> Rp ${tax.toLocaleString()}</p>
+      <p><strong>Tax (12%):</strong> Rp ${tax.toLocaleString()}</p>
       <p><strong>Biaya Pengiriman:</strong> Rp ${order.shipping_cost.toLocaleString()}</p>
       <p><strong>Total:</strong> Rp ${total.toLocaleString()}</p>
     `;

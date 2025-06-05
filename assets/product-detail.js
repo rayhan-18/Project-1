@@ -107,7 +107,7 @@ async function openCartModal() {
     });
 
     // Hitung total & tax
-    const tax = subtotal * 0.10;
+    const tax = subtotal * 0.12;
     const total = subtotal + tax;
 
     document.getElementById('subtotalAmount').textContent = `Rp ${subtotal.toLocaleString()}`;

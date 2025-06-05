@@ -271,7 +271,7 @@ async function openCartModal() {
     });
 
     // Hitung total & tax
-    const tax = subtotal * 0.10;
+    const tax = subtotal * 0.12;
     const total = subtotal + tax;
 
     document.getElementById('subtotalAmount').textContent = `Rp ${subtotal.toLocaleString()}`;
@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ===================== Checkout Multi-step =====================
 const shippingCosts = {
-  standard: 20000,
+  standard: 0,
   express: 40000,
   pickup: 0
 };
@@ -787,7 +787,7 @@ async function renderSummary() {
 
     const shippingMethod = document.getElementById('shippingMethod').value;
     const shippingCost = shippingCosts[shippingMethod] || 0;
-    const tax = subtotal * 0.10;
+    const tax = subtotal * 0.12;
     const total = subtotal + tax + shippingCost;
 
     document.getElementById('checkoutSubtotal').textContent = formatRupiah(subtotal);
@@ -965,7 +965,7 @@ async function placeOrder() {
 
     // Hitung biaya pengiriman dan pajak
     const shippingCost = shippingCosts[shippingMethod] || 0;
-    const tax = subtotal * 0.10;
+    const tax = subtotal * 0.12;
     const total = subtotal + shippingCost + tax;
 
     // Buat payload order

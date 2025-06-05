@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Admin Dashboard - Toko Rayhan</title>
+  <title>Admin - Daftar Pesanan</title>
   <link rel="stylesheet" href="/assets/style.css">
   <style>
     body { font-family: 'Poppins', sans-serif; padding: 20px; }
@@ -11,41 +11,30 @@
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
     th { background-color: #f4f4f4; }
-    input, button { padding: 8px; margin: 5px 0; }
-    form input { width: 200px; margin-right: 10px; }
-    .admin-section { margin-bottom: 40px; }
+    button { padding: 8px; margin: 5px 0; }
+    .filter-export { margin-bottom: 20px; }
   </style>
 </head>
 <body>
   <header>
-    <h1>Admin Dashboard - Toko Rayhan</h1>
+    <h1>Admin Toko Rayhan</h1>
     <button onclick="logoutAdmin()">Logout</button>
   </header>
 
   <main>
-    <!-- Produk Section -->
-    <section class="admin-section">
-      <h2>Manajemen Produk</h2>
-      <form id="addProductForm">
-        <input type="text" id="newName" placeholder="Nama Produk" required>
-        <input type="number" id="newPrice" placeholder="Harga" required>
-        <input type="number" id="newStock" placeholder="Stok" required>
-        <input type="text" id="newImage" placeholder="URL Gambar" required>
-        <button type="submit">Tambah Produk</button>
-      </form>
-      <table id="productTable">
-        <thead>
-          <tr>
-            <th>ID</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-    </section>
-
-    <!-- Pesanan Section -->
     <section class="admin-section">
       <h2>Daftar Pesanan</h2>
+
+      <!-- Filter & Export -->
+      <div class="filter-export">
+        <label>Filter Tanggal Pesanan:</label><br>
+        <input type="date" id="startDate">
+        <input type="date" id="endDate">
+        <button onclick="filterOrders()">Terapkan</button>
+        <button onclick="exportPDF()">Export PDF</button>
+        <button onclick="exportExcel()">Export Excel</button>
+      </div>
+
       <table id="orderTable">
         <thead>
           <tr>
@@ -58,51 +47,34 @@
   </main>
 
   <script>
-    async function loadProducts() {
-      const res = await fetch('http://localhost:3000/api/products');
-      const products = await res.json();
-      const tbody = document.querySelector('#productTable tbody');
-      tbody.innerHTML = '';
+    let currentStartDate = '';
+    let currentEndDate = '';
 
-      products.forEach(p => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${p.id}</td>
-          <td>${p.product_name}</td>
-          <td>Rp ${p.price.toLocaleString()}</td>
-          <td>${p.stock}</td>
-          <td>
-            <button onclick="deleteProduct(${p.id})">Hapus</button>
-          </td>`;
-        tbody.appendChild(row);
-      });
+    function logoutAdmin() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('cart');
+      localStorage.removeItem('wishlist');
+      location.href = '/publik/index.html';
     }
 
-    async function deleteProduct(id) {
-      if (!confirm('Yakin ingin menghapus produk ini?')) return;
-      await fetch(`http://localhost:3000/api/products/${id}`, { method: 'DELETE' });
-      loadProducts();
+    function getFilterQuery() {
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      currentStartDate = start;
+      currentEndDate = end;
+      const query = [];
+      if (start) query.push(`start=${start}`);
+      if (end) query.push(`end=${end}`);
+      return query.length ? `?${query.join('&')}` : '';
     }
 
-    document.getElementById('addProductForm').addEventListener('submit', async function (e) {
-      e.preventDefault();
-      const name = document.getElementById('newName').value.trim();
-      const price = +document.getElementById('newPrice').value;
-      const stock = +document.getElementById('newStock').value;
-      const image = document.getElementById('newImage').value.trim();
-
-      await fetch('http://localhost:3000/api/products', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ product_name: name, price, stock, image_url: image })
-      });
-
-      this.reset();
-      loadProducts();
-    });
+    async function filterOrders() {
+      await loadOrders(); // reload table with filter
+    }
 
     async function loadOrders() {
-      const res = await fetch('http://localhost:3000/api/orders');
+      const query = getFilterQuery();
+      const res = await fetch(`http://localhost:3000/api/orders${query}`);
       const orders = await res.json();
       const tbody = document.querySelector('#orderTable tbody');
       tbody.innerHTML = '';
@@ -120,14 +92,17 @@
     }
 
     function goToOrderDetail(orderId) {
-        window.location.href = `/admin/order-detail.html?id=${orderId}`;
+      window.location.href = `/admin/order-detail.html?id=${orderId}`;
     }
 
-    function logoutAdmin() {
-      localStorage.removeItem('user');
-      localStorage.removeItem('cart');
-      localStorage.removeItem('wishlist');
-      location.href = '/publik/index.html';
+    function exportPDF() {
+      const query = getFilterQuery();
+      window.open(`http://localhost:3000/api/export/pdf${query}`, '_blank');
+    }
+
+    function exportExcel() {
+      const query = getFilterQuery();
+      window.open(`http://localhost:3000/api/export/excel${query}`, '_blank');
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -137,11 +112,10 @@
       const user = JSON.parse(userStr);
       if (!user.is_admin) {
         alert('Halaman ini hanya untuk admin.');
-        location.href = 'index.html';
+        location.href = '/publik/index.html';
         return;
       }
 
-      loadProducts();
       loadOrders();
     });
   </script>
