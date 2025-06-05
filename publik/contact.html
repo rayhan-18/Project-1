@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Kontak - Toko Rayhan</title>
+  <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+
+  <!-- Header / Navbar -->
+  <header>
+    <div class="container">
+      <nav>
+        <div class="logo">Toko<span>Rayhan</span></div>
+        <ul class="nav-links">
+          <li><a href="index.html">Home</a></li>
+          <li><a href="products.html">Products</a></li>
+          <li><a href="collections.html">Collections</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html" class="active">Contact</a></li>
+        </ul>
+        <div class="nav-icons">
+          <div class="wishlist-icon" onclick="openWishlistModal()" title="Wishlist">
+            <i class="fa-light fa-heart"></i>
+            <span class="wishlist-count">0</span>
+          </div>
+          <div class="cart-icon" onclick="openCartModal()" title="Shopping Cart">
+            <i class="fa-light fa-cart-shopping-fast"></i>
+            <span class="cart-count">0</span>
+          </div>
+          <div class="user-icon" onclick="toggleModal('loginModal')" title="User Account">
+            <i class="fa-light fa-user"></i>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <section class="contact-section">
+      <div class="container">
+        <h2 class="section-title">Hubungi Kami</h2>
+        <p class="section-subtitle">Kami siap membantu Anda. Silakan isi formulir di bawah ini.</p>
+        <form id="contactForm" class="contact-form">
+          <div class="form-group">
+            <input type="text" id="contactName" placeholder="Nama Lengkap" required>
+          </div>
+          <div class="form-group">
+            <input type="email" id="contactEmail" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <input type="text" id="contactSubject" placeholder="Subjek" required>
+          </div>
+          <div class="form-group">
+            <textarea id="contactMessage" rows="5" placeholder="Pesan Anda..." required></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Kirim Pesan</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Login/Register, Popup Cart/Wishlist, Footer -->
+  <!-- (copy saja dari collections.html atau index.html agar konsisten) -->
+  <!-- Mulai dari sini -->
+  <!-- ...Modal Login/Register... -->
+  <!-- ...Wishlist Popup... -->
+  <!-- ...Cart Popup... -->
+  <!-- ...Footer... -->
+  <!-- Akhir bagian tersebut -->
+
+  <script src="/assets/script.js"></script>
+  <script>
+    document.getElementById('contactForm').addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const name = document.getElementById('contactName').value.trim();
+      const email = document.getElementById('contactEmail').value.trim();
+      const subject = document.getElementById('contactSubject').value.trim();
+      const message = document.getElementById('contactMessage').value.trim();
+
+      if (!name || !email || !subject || !message) {
+        return Swal.fire('Gagal', 'Mohon lengkapi semua field.', 'warning');
+      }
+
+      try {
+        const res = await fetch('http://localhost:3000/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, subject, message })
+        });
+
+        if (!res.ok) throw new Error('Gagal mengirim pesan.');
+
+        Swal.fire('Terkirim!', 'Pesan Anda telah dikirim.', 'success');
+
+        document.getElementById('contactForm').reset();
+
+      } catch (error) {
+        console.error(error);
+        Swal.fire('Error', 'Terjadi kesalahan saat mengirim pesan.', 'error');
+      }
+    });
+  </script>
+</body>
+</html>

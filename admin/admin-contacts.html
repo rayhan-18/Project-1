@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin - Pesan Kontak</title>
+  <link rel="stylesheet" href="/assets/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #333;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header nav a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    h2 {
+      margin-top: 30px;
+      font-size: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    /* Style untuk pesan yang sudah dibaca */
+    tr.read {
+      background-color: #e0f7e9;
+      color: #555;
+    }
+
+    button {
+      padding: 5px 10px;
+      margin: 2px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button.read-btn {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    button.delete-btn {
+      background-color: #f44336;
+      color: white;
+    }
+
+    /* Pagination */
+    #pagination {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    #pagination button {
+      padding: 8px 16px;
+      background-color: #333;
+      color: white;
+    }
+
+    #pagination button:disabled {
+      background-color: #999;
+      cursor: not-allowed;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Admin Toko Rayhan</h1>
+    <nav>
+      <a href="admin-orders.html">Pesanan</a>
+      <a href="admin-contacts.html">Pesan Kontak</a>
+      <a href="#" onclick="logoutAdmin()">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <h2>Daftar Pesan Kontak</h2>
+    <div id="messageList">
+      <p>Memuat pesan...</p>
+    </div>
+    <div id="pagination">
+      <button id="prevBtn" disabled>Prev</button>
+      <button id="nextBtn" disabled>Next</button>
+    </div>
+  </main>
+
+  <!-- Script -->
+  <script>
+    let currentPage = 1;
+    const limit = 10;
+    let totalMessages = 0;
+
+    function logoutAdmin() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('cart');
+      localStorage.removeItem('wishlist');
+      location.href = '/publik/index.html';
+    }
+
+    async function fetchMessages(page = 1) {
+      try {
+        const res = await fetch(`http://localhost:3000/api/contact?page=${page}&limit=${limit}`);
+        const data = await res.json();
+
+        // Asumsi backend mengembalikan object { data: [], total: number }
+        // Jika backend belum, kita harus update Contact.getAll agar return total count dan data
+        if (!data || !Array.isArray(data.data)) {
+          throw new Error('Format data tidak sesuai');
+        }
+
+        totalMessages = data.total || 0;
+        currentPage = page;
+        renderMessages(data.data);
+        updatePagination();
+      } catch (error) {
+        console.error('Gagal memuat pesan:', error);
+        Swal.fire('Error', 'Tidak bisa mengambil data pesan.', 'error');
+      }
+    }
+
+    function renderMessages(messages) {
+      const container = document.getElementById('messageList');
+
+      if (messages.length === 0) {
+        container.innerHTML = '<p>Tidak ada pesan masuk.</p>';
+        return;
+      }
+
+      let html = `
+        <table>
+          <thead>
+            <tr>
+              <th>Nama</th>
+              <th>Email</th>
+              <th>Subjek</th>
+              <th>Pesan</th>
+              <th>Waktu</th>
+              <th>Status</th>
+              <th>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+      `;
+
+      messages.forEach(msg => {
+        const readClass = msg.read ? 'read' : '';
+        const readText = msg.read ? 'Sudah dibaca' : 'Belum dibaca';
+
+        html += `
+          <tr class="${readClass}">
+            <td>${msg.name}</td>
+            <td>${msg.email}</td>
+            <td>${msg.subject}</td>
+            <td>${msg.message}</td>
+            <td>${new Date(msg.created_at).toLocaleString('id-ID')}</td>
+            <td>${readText}</td>
+            <td>
+              ${!msg.read ? `<button class="read-btn" onclick="markAsRead(${msg.id})">Tandai sudah dibaca</button>` : ''}
+              <button class="delete-btn" onclick="deleteMessage(${msg.id})">Hapus</button>
+            </td>
+          </tr>
+        `;
+      });
+
+      html += `</tbody></table>`;
+      container.innerHTML = html;
+    }
+
+    function updatePagination() {
+      const prevBtn = document.getElementById('prevBtn');
+      const nextBtn = document.getElementById('nextBtn');
+
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage * limit >= totalMessages;
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => {
+      if (currentPage > 1) {
+        fetchMessages(currentPage - 1);
+      }
+    });
+
+    document.getElementById('nextBtn').addEventListener('click', () => {
+      if (currentPage * limit < totalMessages) {
+        fetchMessages(currentPage + 1);
+      }
+    });
+
+    async function markAsRead(id) {
+      try {
+        const res = await fetch(`http://localhost:3000/api/contact/${id}/read`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const result = await res.json();
+
+        if (res.ok) {
+          Swal.fire('Berhasil', 'Pesan berhasil ditandai sudah dibaca.', 'success');
+          fetchMessages(currentPage);
+        } else {
+          throw new Error(result.message || 'Gagal update status pesan');
+        }
+      } catch (error) {
+        console.error('Gagal update status pesan:', error);
+        Swal.fire('Error', 'Gagal update status pesan.', 'error');
+      }
+    }
+
+    async function deleteMessage(id) {
+      try {
+        const confirmed = await Swal.fire({
+          title: 'Hapus pesan?',
+          text: 'Pesan yang dihapus tidak dapat dikembalikan!',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, hapus',
+          cancelButtonText: 'Batal'
+        });
+
+        if (!confirmed.isConfirmed) return;
+
+        const res = await fetch(`http://localhost:3000/api/contact/${id}`, {
+          method: 'DELETE'
+        });
+        const result = await res.json();
+
+        if (res.ok) {
+          Swal.fire('Terhapus', 'Pesan berhasil dihapus.', 'success');
+          fetchMessages(currentPage);
+        } else {
+          throw new Error(result.message || 'Gagal hapus pesan');
+        }
+      } catch (error) {
+        console.error('Gagal hapus pesan:', error);
+        Swal.fire('Error', 'Gagal hapus pesan.', 'error');
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return location.href = '/publik/index.html';
+      const user = JSON.parse(userStr);
+      if (!user.is_admin) {
+        alert('Halaman hanya untuk admin.');
+        location.href = '/publik/index.html';
+        return;
+      }
+
+      fetchMessages();
+    });
+  </script>
+</body>
+</html>

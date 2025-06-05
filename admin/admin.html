@@ -1,26 +1,98 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <title>Admin - Daftar Pesanan</title>
   <link rel="stylesheet" href="/assets/style.css">
   <style>
-    body { font-family: 'Poppins', sans-serif; padding: 20px; }
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    h1 { font-size: 28px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
-    th { background-color: #f4f4f4; }
-    button { padding: 8px; margin: 5px 0; }
-    .filter-export { margin-bottom: 20px; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #333;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header nav a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    main {
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      background: #4a7c59;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background: #3b6449;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    .filter-export {
+      margin-bottom: 20px;
+    }
+
+    .filter-export input,
+    .filter-export button {
+      margin-right: 10px;
+      padding: 6px;
+    }
   </style>
 </head>
 <body>
+
+  <!-- Header -->
   <header>
     <h1>Admin Toko Rayhan</h1>
-    <button onclick="logoutAdmin()">Logout</button>
+    <nav>
+      <a href="/publik/orders.html">Pesanan</a>
+      <a href="admin-contacts.html">Pesan Kontak</a>
+      <a href="#" onclick="logoutAdmin()">Logout</a>
+    </nav>
   </header>
 
+  <!-- Main Content -->
   <main>
     <section class="admin-section">
       <h2>Daftar Pesanan</h2>
@@ -30,15 +102,20 @@
         <label>Filter Tanggal Pesanan:</label><br>
         <input type="date" id="startDate">
         <input type="date" id="endDate">
-        <button onclick="filterOrders()">Terapkan</button>
-        <button onclick="exportPDF()">Export PDF</button>
-        <button onclick="exportExcel()">Export Excel</button>
+        <button class="btn" onclick="filterOrders()">Terapkan</button>
+        <button class="btn" onclick="exportPDF()">Export PDF</button>
+        <button class="btn" onclick="exportExcel()">Export Excel</button>
       </div>
 
+      <!-- Tabel Pesanan -->
       <table id="orderTable">
         <thead>
           <tr>
-            <th>ID</th><th>User</th><th>Total</th><th>Status</th><th>Aksi</th>
+            <th>ID</th>
+            <th>User</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody></tbody>
@@ -46,6 +123,7 @@
     </section>
   </main>
 
+  <!-- Script -->
   <script>
     let currentStartDate = '';
     let currentEndDate = '';
@@ -69,7 +147,7 @@
     }
 
     async function filterOrders() {
-      await loadOrders(); // reload table with filter
+      await loadOrders();
     }
 
     async function loadOrders() {
@@ -86,7 +164,7 @@
           <td>${o.user_name || 'User #' + o.user_id}</td>
           <td>Rp ${o.total.toLocaleString()}</td>
           <td>${o.status || 'Pending'}</td>
-          <td><button onclick="goToOrderDetail(${o.id})">Edit Status</button></td>`;
+          <td><button class="btn" onclick="goToOrderDetail(${o.id})">Edit Status</button></td>`;
         tbody.appendChild(row);
       });
     }
@@ -107,7 +185,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       const userStr = localStorage.getItem('user');
-      if (!userStr) return location.href = 'index.html';
+      if (!userStr) return location.href = '/publik/index.html';
 
       const user = JSON.parse(userStr);
       if (!user.is_admin) {
