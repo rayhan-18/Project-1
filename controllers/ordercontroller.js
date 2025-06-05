@@ -1,10 +1,13 @@
 const db = require('../config/db');
+const { Parser } = require('json2csv');
 const {
   createOrder,
   updateOrderStatusById,
   getOrderById,
   getAllOrders,
-  getOrdersByUserId
+  getOrdersByUserId,
+  getTotalOrdersToday,
+  getLatestOrders
 } = require('../models/ordermodel');
 
 // Buat order baru
@@ -20,17 +23,14 @@ const placeOrder = async (req, res) => {
       total
     } = req.body;
 
-    // Validasi data shipping
     if (!user_id || !shipping || !shipping.name || !shipping.phone || !shipping.address) {
       return res.status(400).json({ message: 'Data pengiriman tidak lengkap' });
     }
 
-    // Validasi item order
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: 'Order harus memiliki item' });
     }
 
-    // Validasi stok produk
     for (const item of items) {
       const [productRows] = await db.query('SELECT stock FROM products WHERE id = ?', [item.product_id]);
       if (productRows.length === 0) {
@@ -41,12 +41,10 @@ const placeOrder = async (req, res) => {
       }
     }
 
-    // Kurangi stok produk sesuai quantity
     for (const item of items) {
       await db.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
     }
 
-    // Data order lengkap
     const orderData = {
       user_id,
       customer_name: shipping.name,
@@ -62,14 +60,12 @@ const placeOrder = async (req, res) => {
       items
     };
 
-    // Simpan order ke DB
     const orderId = await createOrder(orderData);
 
     if (!orderId) {
       return res.status(500).json({ message: 'Gagal membuat order: ID tidak tersedia' });
     }
 
-    // Hapus cart user
     await db.query('DELETE FROM cart WHERE user_id = ?', [user_id]);
 
     res.status(201).json({
@@ -87,9 +83,15 @@ const placeOrder = async (req, res) => {
 const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
-    const { status } = req.body;
+    let { status } = req.body;
 
-    const validStatuses = ['pending', 'shipped', 'completed', 'cancelled'];
+    if (!status) {
+      return res.status(400).json({ message: 'Status harus diisi' });
+    }
+
+    status = status.toLowerCase();
+
+    const validStatuses = ['pending', 'confirmed', 'shipped', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: 'Status tidak valid' });
     }
@@ -106,7 +108,7 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-// Get detail order by ID
+// Detail order
 const getOrderDetail = async (req, res) => {
   try {
     const { id } = req.params;
@@ -123,18 +125,61 @@ const getOrderDetail = async (req, res) => {
   }
 };
 
-// Get semua orders
+// Semua order dengan pagination dan filter
 const getAllOrdersHandler = async (req, res) => {
   try {
-    const orders = await getAllOrders();
-    res.json(orders);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const status = req.query.status || null;
+    const startDate = req.query.start;
+    const endDate = req.query.end;
+    const offset = (page - 1) * limit;
+
+    let countQuery = 'SELECT COUNT(*) as total FROM orders';
+    let dataQuery = 'SELECT * FROM orders';
+    const values = [];
+    const whereClauses = [];
+
+    if (status) {
+      whereClauses.push('status = ?');
+      values.push(status);
+    }
+
+    if (startDate) {
+      whereClauses.push('DATE(created_at) >= ?');
+      values.push(startDate);
+    }
+
+    if (endDate) {
+      whereClauses.push('DATE(created_at) <= ?');
+      values.push(endDate);
+    }
+
+    if (whereClauses.length > 0) {
+      const whereStatement = ' WHERE ' + whereClauses.join(' AND ');
+      countQuery += whereStatement;
+      dataQuery += whereStatement;
+    }
+
+    dataQuery += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+    values.push(limit, offset);
+
+    const [countRows] = await db.query(countQuery, values.slice(0, -2)); // Exclude limit/offset for count
+    const [orders] = await db.query(dataQuery, values);
+
+    res.json({
+      total: countRows[0].total,
+      currentPage: page,
+      totalPages: Math.ceil(countRows[0].total / limit),
+      orders
+    });
   } catch (error) {
     console.error('Error di getAllOrdersHandler:', error);
     res.status(500).json({ message: 'Gagal mendapatkan daftar orders', error: error.message });
   }
 };
 
-// Get orders by user_id
+// Order berdasarkan user
 const getOrdersByUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -146,10 +191,46 @@ const getOrdersByUser = async (req, res) => {
   }
 };
 
+// Ringkasan order untuk dashboard admin
+const getOrderSummary = async (req, res) => {
+  try {
+    const totalToday = await getTotalOrdersToday();
+    const latestOrders = await getLatestOrders(5);
+
+    res.json({
+      totalToday,
+      latestOrders
+    });
+  } catch (error) {
+    console.error('Error di getOrderSummary:', error);
+    res.status(500).json({ message: 'Gagal mengambil ringkasan pesanan', error: error.message });
+  }
+};
+
+// Export ke CSV
+const exportOrdersToCSV = async (req, res) => {
+  try {
+    const [orders] = await db.query('SELECT * FROM orders ORDER BY created_at DESC');
+
+    const fields = ['id', 'user_id', 'customer_name', 'customer_phone', 'customer_address', 'payment_method', 'status', 'total', 'created_at'];
+    const parser = new Parser({ fields });
+    const csv = parser.parse(orders);
+
+    res.header('Content-Type', 'text/csv');
+    res.attachment('orders.csv');
+    return res.send(csv);
+  } catch (error) {
+    console.error('Error di exportOrdersToCSV:', error);
+    res.status(500).json({ message: 'Gagal mengekspor data orders', error: error.message });
+  }
+};
+
 module.exports = {
   placeOrder,
   updateOrderStatus,
   getOrderDetail,
   getAllOrders: getAllOrdersHandler,
-  getOrdersByUser
+  getOrdersByUser,
+  getOrderSummary,
+  exportOrdersToCSV // ✅ Tambahkan ini
 };

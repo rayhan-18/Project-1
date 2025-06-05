@@ -6,12 +6,12 @@ require('dotenv').config();
 const app = express();
 
 // Middleware global
-app.use(cors());
-app.use(express.json());
+app.use(cors()); // Enable CORS agar frontend bisa akses API
+app.use(express.json()); // Parsing JSON request body
 
 // Static file serving
-app.use(express.static(path.join(__dirname, 'publik')));
-app.use('/assets', express.static(path.join(__dirname, 'assets')));
+app.use(express.static(path.join(__dirname, 'publik'))); // Folder publik untuk frontend static files
+app.use('/assets', express.static(path.join(__dirname, 'assets'))); // Static assets folder
 
 // Import route files
 const authRoutes = require('./routes/authroutes');

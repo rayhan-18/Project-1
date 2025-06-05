@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin - Daftar Pesanan</title>
+  <link rel="stylesheet" href="/assets/style.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #333;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    header nav a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    main {
+      margin-top: 30px;
+    }
+
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      background: #4a7c59;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+    }
+
+    .btn:hover {
+      background: #3b6449;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #f4f4f4;
+    }
+
+    .filter-export {
+      margin-bottom: 20px;
+    }
+
+    .filter-export input,
+    .filter-export select,
+    .filter-export button {
+      margin-right: 10px;
+      padding: 6px;
+    }
+
+    .status-pending {
+      color: orange;
+      font-weight: 600;
+    }
+
+    .status-confirmed {
+      color: blue;
+      font-weight: 600;
+    }
+
+    .status-shipped {
+      color: green;
+      font-weight: 600;
+    }
+
+    .status-cancelled {
+      color: red;
+      font-weight: 600;
+    }
+
+    .pagination button {
+        margin: 0 3px;
+        padding: 4px 8px;
+    }
+    .pagination button.active {
+        background-color: #333;
+        color: #fff;
+        font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <h1>Admin Toko Rayhan</h1>
+    <nav>
+      <a href="admin.html">Dashboard</a>
+      <a href="admin-orders.html">Pesanan</a>
+      <a href="admin-contacts.html">Pesan Kontak</a>
+      <a href="#" onclick="logoutAdmin()">Logout</a>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <section class="admin-section">
+      <h2>Daftar Pesanan</h2>
+
+      <!-- Filter -->
+      <div class="filter-export">
+        <label>Filter Tanggal:</label>
+        <input type="date" id="startDate" />
+        <input type="date" id="endDate" />
+
+        <label>Status:</label>
+        <select id="statusFilter">
+          <option value="">Semua</option>
+          <option value="Pending">Pending</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+
+        <button class="btn" onclick="applyFilter()">Terapkan</button>
+      </div>
+        <table id="ordersTable">
+            <thead>
+                <tr>
+                <th>ID</th>
+                <th>User</th>
+                <th>Tanggal</th>
+                <th>Total</th>
+                <th>Status</th>
+                <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
+            </tbody>
+        </table>
+
+        <div id="pagination" class="pagination" style="margin-top:15px; text-align:center;"></div>
+
+    </section>
+  </main>
+
+<script>
+    let currentPage = 1;
+    const limitPerPage = 10;
+
+    function logoutAdmin() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('cart');
+    localStorage.removeItem('wishlist');
+    location.href = '/publik/index.html';
+    }
+
+    function getFilterQuery() {
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    const status = document.getElementById('statusFilter').value;
+
+    const query = [];
+    if (start) query.push(`start=${start}`);
+    if (end) query.push(`end=${end}`);
+    if (status) query.push(`status=${status}`);
+    return query.join('&');
+    }
+
+    async function loadOrders(page = 1) {
+    try {
+        currentPage = page;
+        const filterQuery = getFilterQuery();
+        const queryParams = [`page=${page}`, `limit=${limitPerPage}`];
+        if (filterQuery) queryParams.push(filterQuery);
+        const fullQuery = queryParams.length ? `?${queryParams.join('&')}` : '';
+
+        const res = await fetch(`http://localhost:3000/api/orders${fullQuery}`);
+        if (!res.ok) throw new Error('Gagal mengambil data pesanan');
+
+        const data = await res.json();
+        const orders = Array.isArray(data.orders) ? data.orders : [];
+        const total = data.total || 0;
+
+        const tbody = document.querySelector('#ordersTable tbody');
+        tbody.innerHTML = '';
+
+        if (orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Tidak ada pesanan</td></tr>`;
+        } else {
+        orders.forEach(order => {
+            const tr = document.createElement('tr');
+            let statusClass = '';
+            switch ((order.status || '').toLowerCase()) {
+            case 'pending': statusClass = 'status-pending'; break;
+            case 'confirmed': statusClass = 'status-confirmed'; break;
+            case 'shipped': statusClass = 'status-shipped'; break;
+            case 'cancelled': statusClass = 'status-cancelled'; break;
+            }
+
+            tr.innerHTML = `
+            <td>${order.id}</td>
+            <td>${order.user_name || 'User #' + order.user_id}</td>
+            <td>${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
+            <td>Rp ${order.total.toLocaleString()}</td>
+            <td class="${statusClass}">${order.status || 'Pending'}</td>
+            <td>
+                <button class="btn" onclick="updateStatus(${order.id}, 'Confirmed')">Konfirmasi</button>
+                <button class="btn" onclick="updateStatus(${order.id}, 'Shipped')">Kirim</button>
+                <button class="btn" onclick="updateStatus(${order.id}, 'Cancelled')">Batalkan</button>
+            </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        }
+
+        renderPagination(total, page);
+    } catch (error) {
+        console.error(error);
+        alert('Terjadi kesalahan saat memuat data pesanan.');
+        const tbody = document.querySelector('#ordersTable tbody');
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">Gagal memuat data</td></tr>`;
+    }
+    }
+
+    function renderPagination(totalItems, currentPage) {
+    const pagination = document.getElementById('pagination');
+    if (!pagination) return;
+
+    const totalPages = Math.ceil(totalItems / limitPerPage);
+    pagination.innerHTML = '';
+
+    for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = i === currentPage ? 'active' : '';
+        btn.addEventListener('click', () => loadOrders(i));
+        pagination.appendChild(btn);
+    }
+    }
+
+    async function updateStatus(orderId, newStatus) {
+    if (!confirm(`Apakah Anda yakin ingin mengubah status pesanan #${orderId} menjadi "${newStatus}"?`)) {
+        return;
+    }
+    try {
+        const res = await fetch(`http://localhost:3000/api/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+        });
+        if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Gagal update status');
+        }
+        alert(`Status pesanan #${orderId} berhasil diubah menjadi "${newStatus}"`);
+        loadOrders(currentPage);
+    } catch (error) {
+        console.error(error);
+        alert('Gagal mengubah status pesanan');
+    }
+    }
+
+    function applyFilter() {
+    loadOrders(1);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return location.href = '/publik/index.html';
+
+    const user = JSON.parse(userStr);
+    if (!user.is_admin) {
+        alert('Halaman ini hanya untuk admin.');
+        location.href = '/publik/index.html';
+        return;
+    }
+
+    loadOrders();
+    });
+</script>
+
+</body>
+</html>

@@ -19,19 +19,23 @@ const Contact = {
   async getAll(page = 1, limit = 10) {
     const offset = (page - 1) * limit;
 
-    // Query untuk ambil data dengan limit & offset
     const [rows] = await db.query(
       'SELECT id, name, email, subject, message, status, created_at FROM contact_messages ORDER BY created_at DESC LIMIT ? OFFSET ?',
       [limit, offset]
     );
 
-    // Query untuk menghitung total pesan (untuk pagination)
     const [[{ total }]] = await db.query(
       'SELECT COUNT(*) as total FROM contact_messages'
     );
 
+    // Tambahkan field read sebagai boolean
+    const mappedRows = rows.map(row => ({
+      ...row,
+      read: row.status === 'read'
+    }));
+
     return {
-      data: rows,
+      data: mappedRows,
       pagination: {
         total,
         page,
@@ -52,6 +56,7 @@ const Contact = {
 
   // Hapus pesan berdasarkan ID
   async delete(id) {
+    if (!id) throw new Error('ID tidak valid');
     const [result] = await db.query(
       'DELETE FROM contact_messages WHERE id = ?',
       [id]
@@ -61,6 +66,7 @@ const Contact = {
 
   // Tandai pesan sebagai sudah dibaca
   async markAsRead(id) {
+    if (!id) throw new Error('ID tidak valid');
     const [result] = await db.query(
       'UPDATE contact_messages SET status = ? WHERE id = ?',
       ['read', id]

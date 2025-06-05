@@ -85,14 +85,42 @@ async function getOrderById(orderId) {
   }
 }
 
-// Get semua orders
-async function getAllOrders() {
+// Get semua orders dengan pagination dan filter status
+async function getAllOrders(limit = 10, offset = 0, status = null) {
   const connection = await db.getConnection();
   try {
-    const [orders] = await connection.query(
-      `SELECT * FROM orders ORDER BY created_at DESC`
-    );
+    let query = `SELECT * FROM orders`;
+    const values = [];
+
+    if (status) {
+      query += ` WHERE status = ?`;
+      values.push(status);
+    }
+
+    query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+    values.push(limit, offset);
+
+    const [orders] = await connection.query(query, values);
     return orders;
+  } finally {
+    connection.release();
+  }
+}
+
+// Hitung total orders (untuk pagination)
+async function countAllOrders(status = null) {
+  const connection = await db.getConnection();
+  try {
+    let query = `SELECT COUNT(*) AS total FROM orders`;
+    const values = [];
+
+    if (status) {
+      query += ` WHERE status = ?`;
+      values.push(status);
+    }
+
+    const [rows] = await connection.query(query, values);
+    return rows[0].total;
   } finally {
     connection.release();
   }
@@ -112,10 +140,43 @@ async function getOrdersByUserId(userId) {
   }
 }
 
+// Hitung total order hari ini
+async function getTotalOrdersToday() {
+  const connection = await db.getConnection();
+  try {
+    const [rows] = await connection.query(
+      `SELECT COUNT(*) AS total_today FROM orders WHERE DATE(created_at) = CURDATE()`
+    );
+    return rows[0].total_today || 0;
+  } finally {
+    connection.release();
+  }
+}
+
+// Ambil order terbaru (limit bisa di-set, misal 5)
+async function getLatestOrders(limit = 5) {
+  const connection = await db.getConnection();
+  try {
+    const [orders] = await connection.query(
+      `SELECT id, user_id, customer_name, total, status, created_at 
+       FROM orders 
+       ORDER BY created_at DESC 
+       LIMIT ?`,
+      [limit]
+    );
+    return orders;
+  } finally {
+    connection.release();
+  }
+}
+
 module.exports = {
   createOrder,
   updateOrderStatusById,
   getOrderById,
   getAllOrders,
-  getOrdersByUserId
+  countAllOrders,
+  getOrdersByUserId,
+  getTotalOrdersToday,
+  getLatestOrders
 };

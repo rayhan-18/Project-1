@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <title>Admin - Daftar Pesanan</title>
+  <title>Admin Dashboard</title>
   <link rel="stylesheet" href="/assets/style.css">
   <style>
     body {
@@ -86,7 +86,7 @@
   <header>
     <h1>Admin Toko Rayhan</h1>
     <nav>
-      <a href="/publik/orders.html">Pesanan</a>
+      <a href="admin-orders.html">Pesanan</a>
       <a href="admin-contacts.html">Pesan Kontak</a>
       <a href="#" onclick="logoutAdmin()">Logout</a>
     </nav>
@@ -95,30 +95,33 @@
   <!-- Main Content -->
   <main>
     <section class="admin-section">
-      <h2>Daftar Pesanan</h2>
+      <h2>Ringkasan Pesanan</h2>
 
       <!-- Filter & Export -->
       <div class="filter-export">
         <label>Filter Tanggal Pesanan:</label><br>
         <input type="date" id="startDate">
         <input type="date" id="endDate">
-        <button class="btn" onclick="filterOrders()">Terapkan</button>
+        <button class="btn" onclick="applyFilter()">Terapkan</button>
         <button class="btn" onclick="exportPDF()">Export PDF</button>
         <button class="btn" onclick="exportExcel()">Export Excel</button>
       </div>
 
-      <!-- Tabel Pesanan -->
-      <table id="orderTable">
+      <p><strong>Total Pesanan Hari Ini:</strong> <span id="totalToday">0</span></p>
+
+      <h3>Pesanan Terbaru</h3>
+      <table id="latestOrdersTable">
         <thead>
           <tr>
             <th>ID</th>
             <th>User</th>
             <th>Total</th>
             <th>Status</th>
-            <th>Aksi</th>
           </tr>
         </thead>
-        <tbody></tbody>
+        <tbody>
+          <tr><td colspan="4" style="text-align:center;">Memuat data...</td></tr>
+        </tbody>
       </table>
     </section>
   </main>
@@ -146,31 +149,44 @@
       return query.length ? `?${query.join('&')}` : '';
     }
 
-    async function filterOrders() {
-      await loadOrders();
+    async function loadSummary() {
+      try {
+        const query = getFilterQuery();
+        // Endpoint backend yang mengembalikan ringkasan dengan filter tanggal
+        const res = await fetch(`http://localhost:3000/api/orders/summary${query}`);
+        if (!res.ok) throw new Error('Gagal mengambil ringkasan pesanan');
+        const data = await res.json();
+
+        document.getElementById('totalToday').textContent = data.totalToday || 0;
+
+        const tbody = document.querySelector('#latestOrdersTable tbody');
+        tbody.innerHTML = '';
+
+        if (!data.latestOrders || data.latestOrders.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Tidak ada pesanan terbaru</td></tr>`;
+          return;
+        }
+
+        data.latestOrders.forEach(o => {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${o.id}</td>
+            <td>${o.user_name || 'User #' + o.user_id}</td>
+            <td>Rp ${o.total.toLocaleString()}</td>
+            <td>${o.status || 'Pending'}</td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (error) {
+        console.error(error);
+        alert('Terjadi kesalahan saat memuat ringkasan pesanan');
+        const tbody = document.querySelector('#latestOrdersTable tbody');
+        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:red;">Gagal memuat data</td></tr>`;
+      }
     }
 
-    async function loadOrders() {
-      const query = getFilterQuery();
-      const res = await fetch(`http://localhost:3000/api/orders${query}`);
-      const orders = await res.json();
-      const tbody = document.querySelector('#orderTable tbody');
-      tbody.innerHTML = '';
-
-      orders.forEach(o => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${o.id}</td>
-          <td>${o.user_name || 'User #' + o.user_id}</td>
-          <td>Rp ${o.total.toLocaleString()}</td>
-          <td>${o.status || 'Pending'}</td>
-          <td><button class="btn" onclick="goToOrderDetail(${o.id})">Edit Status</button></td>`;
-        tbody.appendChild(row);
-      });
-    }
-
-    function goToOrderDetail(orderId) {
-      window.location.href = `/admin/order-detail.html?id=${orderId}`;
+    function applyFilter() {
+      loadSummary();
     }
 
     function exportPDF() {
@@ -194,7 +210,7 @@
         return;
       }
 
-      loadOrders();
+      loadSummary();
     });
   </script>
 </body>
