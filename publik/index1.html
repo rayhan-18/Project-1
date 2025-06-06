@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Toko Perabot Rayhan</title>
   <link rel="stylesheet" href="https://site-assets.fontawesome.com/releases/v6.7.2/css/all.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-  <!-- Header -->
   <header>
     <div class="container">
       <nav>
@@ -39,19 +38,95 @@
     </div>
   </header>
 
-  <!-- Main Produk -->
-  <main>
-    <section>
+  <main id="homepage">
+    <!-- Hero -->
+    <section class="hero-slider">
+      <div class="slides">
+        <div class="slide" style="background-image: url(/images/home.avif);"></div>
+      </div>
+    </section>
+
+        <!-- Categories Section -->
+    <section class="categories">
       <div class="container">
-        <h1>All Products</h1>
-        <div class="product-grid" id="productGrid">
-          <!-- Produk akan di-render secara dinamis -->
+        <h2 class="section-title">Browse by Category</h2>
+        <div class="category-grid">
+          <div class="category-card" onclick="window.location.href='products.html'">
+            <div class="category-img">
+              <img src="/product/category/bathroom.jpg" alt="Bathroom">
+            </div>
+            <div class="category-info">
+              <h3>Bathroom</h3>
+              <p>Rak Cermin, Rak Sabun, Shower, and more</p>
+            </div>
+          </div>
+          <div class="category-card" onclick="window.location.href='products.html'">
+            <div class="category-img">
+              <img src="/product/category/kitchen.jpg" alt="Kitchen">
+            </div>
+            <div class="category-info">
+              <h3>Kitchen</h3>
+              <p>Pisau, Teko Listrik, Microwave, and more</p>
+            </div>
+          </div>
+          <div class="category-card" onclick="window.location.href='products.html'">
+            <div class="category-img">
+              <img src="/product/category/sittingroom.jpg" alt="Sitting Room">
+            </div>
+            <div class="category-info">
+              <h3>Sitting Room</h3>
+              <p>Rumah Lampu, Karpet Plastik, Lampu, and more</p>
+            </div>
+          </div>
+          <div class="category-card" onclick="window.location.href='products.html'">
+            <div class="category-img">
+              <img src="/product/category/Bedroom.jpg" alt="Bedroom">
+            </div>
+            <div class="category-info">
+              <h3>Bedroom</h3>
+              <p>Meja Lipat, Lampu Belajar, Standing Mirror, and more</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<section class="featured-products">
+  <h2>Produk Unggulan</h2>
+  <div id="featuredProductGrid" class="product-grid"></div>
+</section>
+
+    <!-- Features Section -->
+    <section class="features">
+      <div class="container">
+        <h2 class="section-title">Why Choose Us</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🚚</div>
+            <h3>Free Delivery</h3>
+            <p>Free shipping on all orders over $500</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🛠️</div>
+            <h3>Assembly Service</h3>
+            <p>Professional assembly available</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⏱️</div>
+            <h3>30-Day Returns</h3>
+            <p>Easy returns within 30 days</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🏆</div>
+            <h3>Quality Guarantee</h3>
+            <p>5-year warranty on all products</p>
+          </div>
         </div>
       </div>
     </section>
   </main>
 
-<!-- Modal for Login -->
+  <!-- Modal for Login -->
   <div id="loginModal" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="toggleModal('loginModal')">&times;</span>
@@ -184,7 +259,7 @@
     </div>
   </footer>
 
-  <!-- Script -->
-  <script src="/assets/script1.js"></script>
+<script src="/assets/script1.js"></script>
+
 </body>
 </html>

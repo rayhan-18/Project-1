@@ -1,7 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { getProductById } = require('../controllers/productcontroller');
+const productController = require('../controllers/productcontroller'); // ✅ tambahkan ini!
 
-router.get('/:id', getProductById);
+// GET semua produk
+router.get('/', productController.getProducts);
+
+// GET produk berdasarkan ID
+router.get('/:id', productController.getProductById);
 
 module.exports = router;
