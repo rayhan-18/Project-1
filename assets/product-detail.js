@@ -432,24 +432,24 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Tampilkan detail produk di DOM
     document.getElementById("product-image").src = product.image_url || "placeholder.jpg";
     document.getElementById("product-name").textContent = productName;
-    document.getElementById("product-description").textContent = product.description || "Tidak ada deskripsi.";
+    document.getElementById("product-description").textContent = product.description || "Deskripsi produk tidak tersedia.";
+    document.getElementById("product-price").textContent = `Rp ${productPrice.toLocaleString("id-ID")}`;
 
+    // Update stock display
     const stockElement = document.getElementById("product-stock");
     if (stockElement) {
-      console.log("Stok produk setelah parse:", stock);  // Debug stok yang sudah diparse
-
       if (stock === null) {
-        stockElement.textContent = "Informasi stok tidak tersedia";
+        stockElement.textContent = "Stok: -";
         stockElement.classList.remove("low");
       } else if (stock > 5) {
-        stockElement.textContent = `Stok tersedia: ${stock}`;
+        stockElement.textContent = `Stok: ${stock} tersedia`;
         stockElement.classList.remove("low");
       } else if (stock > 0) {
-        stockElement.textContent = `🔥 Tersisa ${stock} item`;
+        stockElement.textContent = `Stok: ${stock} (hampir habis!)`;
         stockElement.classList.add("low");
       } else {
-        stockElement.textContent = "❌ Stok habis";
-        stockElement.classList.remove("low");
+        stockElement.textContent = "Stok habis";
+        stockElement.classList.add("low");
       }
     }
 

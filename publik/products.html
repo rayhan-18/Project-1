@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -11,6 +10,7 @@
   <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
+  <!-- Header -->
   <header>
     <div class="container">
       <nav>
@@ -39,499 +39,19 @@
     </div>
   </header>
 
+  <!-- Main Produk -->
   <main>
     <section>
       <div class="container">
         <h1>All Products</h1>
-        <div class="product-grid">
-
-          <!-- Contoh Produk -->
-          <div class="product-card" onclick="goToProductDetail(1)">
-            <div class="product-img">
-              <img src="/product/dapur/blender.jpg" alt="blender">
-              <span class="product-tag">New</span>
-            </div>
-            <div class="product-info">
-              <h3>Blender Kapsul</h3>
-              <div class="product-stock" data-product-id="1">Stok: <span>--</span></div>
-              <div class="product-price">Rp 89.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="1" data-product-name="Blender Kapsul" data-price="89000" data-image="/product/dapur/blender.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="1" data-product-name="Blender Kapsul" data-price="89000" data-image="/product/dapur/blender.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(2)">
-            <div class="product-img">
-              <img src="/product/kamar tidur/cermin-kamar.jpg" alt="cermin-kamar">
-            </div>
-            <div class="product-info">
-              <h3>Standing Mirror</h3>
-              <div class="product-stock" data-product-id="2">Stok: <span>--</span></div>
-              <div class="product-price">Rp 150.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="2" data-product-name="Standing Mirror" data-price="150000" data-image="/product/kamar tidur/cermin-kamar.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="2" data-product-name="Standing Mirror" data-price="150000" data-image="/product/kamar tidur/cermin-kamar.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(3)">
-            <div class="product-img">
-              <img src="/product/kamarmandi/botol-sabun.jpg" alt="botol-sabun">
-            </div>
-            <div class="product-info">
-              <h3>Botol Sabun Cair</h3>
-              <div class="product-stock" data-product-id="3">Stok: <span>--</span></div>
-              <div class="product-price">Rp 10.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="3" data-product-name="Botol Sabun Cair" data-price="10000" data-image="/product/kamarmandi/botol-sabun.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="3" data-product-name="Botol Sabun Cair" data-price="10000" data-image="/product/kamarmandi/botol-sabun.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(4)">
-            <div class="product-img">
-              <img src="/product/ruang-tamu/jam-dinding.jpg" alt="jam-dinding">
-            </div>
-            <div class="product-info">
-              <h3>Jam Dinding</h3>
-              <div class="product-stock" data-product-id="4">Stok: <span>--</span></div>
-              <div class="product-price">Rp 50.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="4" data-product-name="Jam Dinding" data-price="50000" data-image="/product/ruang-tamu/jam-dinding.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="4" data-product-name="Jam Dinding" data-price="50000" data-image="/product/ruang-tamu/jam-dinding.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(5)">
-            <div class="product-img">
-              <img src="/product/dapur/kompor listrik.jpg" alt="kompor-listrik">
-            </div>
-            <div class="product-info">
-              <h3>IDEALIFE Kompor Listrik</h3>
-              <div class="product-stock" data-product-id="5">Stok: <span>--</span></div>
-              <div class="product-price">Rp 350.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="5" data-product-name="Kompor Listrik" data-price="350000" data-image="/product/dapur/kompor listrik.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="5" data-product-name="Kompor listrik" data-price="350000" data-image="/product/dapur/kompor listrik.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(6)">
-            <div class="product-img">
-              <img src="/product/kamar tidur/jam-digital.jpg" alt="jam-digital">
-            </div>
-            <div class="product-info">
-              <h3>Jam Digital</h3>
-              <div class="product-stock" data-product-id="6">Stok: <span>--</span></div>
-              <div class="product-price">Rp 150.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="6" data-product-name="Jam Digital" data-price="150000" data-image="/product/kamar tidur/jam-digital.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="6" data-product-name="Jam Digital" data-price="150000" data-image="/product/kamar tidur/jam-digital.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(7)">
-            <div class="product-img">
-              <img src="/product/kamarmandi/cermin.jpg" alt="cermin">
-            </div>
-            <div class="product-info">
-              <h3>Rak Cermin</h3>
-              <div class="product-stock" data-product-id="7">Stok: <span>--</span></div>
-              <div class="product-price">Rp 149.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="7" data-product-name="Rak Cermin" data-price="149000" data-image="/product/kamarmandi/cermin.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="7" data-product-name="Rak Cermin" data-price="149000" data-image="/product/kamarmandi/cermin.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(8)">
-            <div class="product-img">
-              <img src="/product/ruang-tamu/karpet-plastik.jpg" alt="karpet-plastik">
-            </div>
-            <div class="product-info">
-              <h3>Karpet Plastik</h3>
-              <div class="product-stock" data-product-id="8">Stok: <span>--</span></div>
-              <div class="product-price">Rp 20.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="8" data-product-name="Karpet Plastik" data-price="20000" data-image="/product/ruang-tamu/karpet-plastik.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="8" data-product-name="Karpet Plastik" data-price="20000" data-image="/product/ruang-tamu/karpet-plastik.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(9)">
-            <div class="product-img">
-              <img src="/product/dapur/microwave.jpg" alt="microwave">
-            </div>
-            <div class="product-info">
-              <h3>Microwave</h3>
-              <div class="product-stock" data-product-id="9">Stok: <span>--</span></div>
-              <div class="product-price">Rp 500.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="9" data-product-name="Microwave" data-price="500000" data-image="/product/dapur/microwave.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="9" data-product-name="Microwave" data-price="500000" data-image="/product/dapur/microwave.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(10)">
-            <div class="product-img">
-              <img src="/product/kamar tidur/kipas-angin-meja.jpeg" alt="kipas-angin-meja">
-            </div>
-            <div class="product-info">
-              <h3>Kipas Angin Meja</h3>
-              <div class="product-stock" data-product-id="10">Stok: <span>--</span></div>
-              <div class="product-price">Rp 100.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="10" data-product-name="Kipas Angin Meja" data-price="100000" data-image="/product/kamar tidur/kipas-angin-meja.jpeg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="10" data-product-name="Kipas Angin Meja" data-price="100000" data-image="/product/kamar tidur/kipas-angin-meja.jpeg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(11)">
-            <div class="product-img">
-              <img src="/product/kamarmandi/gantungan-handuk.jpg" alt="gantungan-handuk">
-            </div>
-            <div class="product-info">
-              <h3>Gantungan Handuk</h3>
-              <div class="product-stock" data-product-id="11">Stok: <span>--</span></div>
-              <div class="product-price">Rp 100.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="11" data-product-name="Gantungan Handuk" data-price="100000" data-image="/product/kamarmandi/gantungan-handuk.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="11" data-product-name="Gantungan Handuk" data-price="100000" data-image="/product/kamarmandi/gantungan-handuk.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(12)">
-            <div class="product-img">
-              <img src="/product/ruang-tamu/kipas-angin.jpeg" alt="kipas-angin">
-            </div>
-            <div class="product-info">
-              <h3>Kipas Angin Advance</h3>
-              <div class="product-stock" data-product-id="12">Stok: <span>--</span></div>
-              <div class="product-price">Rp 180.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="12" data-product-name="Kipas Angin" data-price="180000" data-image="/product/ruang-tamu/kipas-angin.jpeg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="12" data-product-name="Kipas Angin" data-price="180000" data-image="/product/ruang-tamu/kipas-angin.jpeg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(13)">
-            <div class="product-img">
-              <img src="/product/dapur/mixer.jpeg" alt="mixer">
-            </div>
-            <div class="product-info">
-              <h3>Mixer</h3>
-              <div class="product-stock" data-product-id="13">Stok: <span>--</span></div>
-              <div class="product-price">Rp 500.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="13" data-product-name="Mixer" data-price="500000" data-image="/product/dapur/mixer.jpeg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="13" data-product-name="Mixer" data-price="500000" data-image="/product/dapur/mixer.jpeg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(14)">
-            <div class="product-img">
-              <img src="/product/kamar tidur/lampu-belajar.jpg" alt="lampu-belajar">
-            </div>
-            <div class="product-info">
-              <h3>Lampu Belajar</h3>
-              <div class="product-stock" data-product-id="14">Stok: <span>--</span></div>
-              <div class="product-price">Rp 50.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="14" data-product-name="Lampu Belajar" data-price="50000" data-image="/product/kamar tidur/lampu-belajar.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="14" data-product-name="Lampu Belajar" data-price="50000" data-image="/product/kamar tidur/lampu-belajar.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(15)">
-            <div class="product-img">
-              <img src="/product/kamarmandi/kran-cuci-piring.jpg" alt="kran-cuci-piring">
-            </div>
-            <div class="product-info">
-              <h3>Kran Angsa</h3>
-              <div class="product-stock" data-product-id="15">Stok: <span>--</span></div>
-              <div class="product-price">Rp 80.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="15" data-product-name="Kran Angsa" data-price="80000" data-image="/product/kamarmandi/kran-cuci-piring.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="15" data-product-name="Kran Angsa" data-price="80000" data-image="/product/kamarmandi/kran-cuci-piring.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(16)">
-            <div class="product-img">
-              <img src="/product/ruang-tamu/lampu.jpg" alt="lampu">
-            </div>
-            <div class="product-info">
-              <h3>Lampu Philips</h3>
-              <div class="product-stock" data-product-id="16">Stok: <span>--</span></div>
-              <div class="product-price">Rp 40.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="16" data-product-name="Lampu Philips" data-price="40000" data-image="/product/ruang-tamu/lampu.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="16" data-product-name="Lampu Philips" data-price="40000" data-image="/product/ruang-tamu/lampu.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(17)">
-            <div class="product-img">
-              <img src="/product/dapur/rak-piring.jpg" alt="rak-piring">
-            </div>
-            <div class="product-info">
-              <h3>Rak Piring</h3>
-              <div class="product-stock" data-product-id="17">Stok: <span>--</span></div>
-              <div class="product-price">Rp 100.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="17" data-product-name="Rak Piring" data-price="100000" data-image="/product/dapur/rak-piring.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="17" data-product-name="Rak Piring" data-price="100000" data-image="/product/dapur/rak-piring.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(18)">
-            <div class="product-img">
-              <img src="/product/kamar tidur/meja-lipat.jpg" alt="meja-lipat">
-            </div>
-            <div class="product-info">
-              <h3>Meja Lipat</h3>
-              <div class="product-stock" data-product-id="18">Stok: <span>--</span></div>
-              <div class="product-price">Rp 60.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="18" data-product-name="Meja Lipat" data-price="60000" data-image="/product/kamar tidur/meja-lipat.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="18" data-product-name="Meja Lipat" data-price="60000" data-image="/product/kamar tidur/meja-lipat.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(19)">
-            <div class="product-img">
-              <img src="/product/kamarmandi/rak-kamar-mandi.jpg" alt="rak-kamar-mandi">
-            </div>
-            <div class="product-info">
-              <h3>Rak Sabun</h3>
-              <div class="product-stock" data-product-id="19">Stok: <span>--</span></div>
-              <div class="product-price">Rp 100.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="19" data-product-name="Rak Sabun" data-price="100000" data-image="/product/kamarmandi/rak-kamar-mandi.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="19" data-product-name="Rak Sabun" data-price="100000" data-image="/product/kamarmandi/rak-kamar-mandi.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(20)">
-            <div class="product-img">
-              <img src="/product/ruang-tamu/meja-tambahan.jpg" alt="meja-tambahan">
-            </div>
-            <div class="product-info">
-              <h3>Meja Serbaguna</h3>
-              <div class="product-stock" data-product-id="20">Stok: <span>--</span></div>
-              <div class="product-price">Rp 90.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="20" data-product-name="Meja Serbaguna" data-price="90000" data-image="/product/ruang-tamu/meja-tambahan.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="20" data-product-name="Meja Serbaguna" data-price="90000" data-image="/product/ruang-tamu/meja-tambahan.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(21)">
-            <div class="product-img">
-              <img src="/product/dapur/ricecooker.jpg" alt="ricecooker">
-            </div>
-            <div class="product-info">
-              <h3>Rice Cooker</h3>
-              <div class="product-stock" data-product-id="21">Stok: <span>--</span></div>
-              <div class="product-price">Rp 270.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="21" data-product-name="Rice Cooker" data-price="270000" data-image="/product/dapur/ricecooker.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="21" data-product-name="Rice Cooker" data-price="270000" data-image="/product/dapur/ricecooker.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(22)">
-            <div class="product-img">
-              <img src="/product/kamar tidur/sapu-lidi.jpg" alt="sapu-lidi">
-            </div>
-            <div class="product-info">
-              <h3>Sapu Lidi Kasur</h3>
-              <div class="product-stock" data-product-id="22">Stok: <span>--</span></div>
-              <div class="product-price">Rp 15.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="22" data-product-name="Sapu Lidi Kasur" data-price="15000" data-image="/product/kamar tidur/sapu-lidi.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="22" data-product-name="Sapu Lidi Kasur" data-price="15000" data-image="/product/kamar tidur/sapu-lidi.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(23)">
-            <div class="product-img">
-              <img src="/product/kamarmandi/set-alat-kebersihan.jpg" alt="set-alat-kebersihan">
-            </div>
-            <div class="product-info">
-              <h3>Set Alat Kebersihan</h3>
-              <div class="product-stock" data-product-id="23">Stok: <span>--</span></div>
-              <div class="product-price">Rp 40.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="23" data-product-name="Set ALat Kebersihan" data-price="40000" data-image="/product/kamarmandi/set-alat-kebersihan.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="23" data-product-name="Set ALat Kebersihan" data-price="40000" data-image="/product/kamarmandi/set-alat-kebersihan.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(24)">
-            <div class="product-img">
-              <img src="/product/ruang-tamu/meja-tv.jpg" alt="meja-tv">
-            </div>
-            <div class="product-info">
-              <h3>Meja TV</h3>
-              <div class="product-stock" data-product-id="24">Stok: <span>--</span></div>
-              <div class="product-price">Rp 150.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="24" data-product-name="Meja TV" data-price="150000" data-image="/product/ruang-tamu/meja-tv.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="24" data-product-name="Meja TV" data-price="150000" data-image="/product/ruang-tamu/meja-tv.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(25)">
-            <div class="product-img">
-              <img src="/product/dapur/set pisau dapur.jpg" alt="set-pisau">
-            </div>
-            <div class="product-info">
-              <h3>Set Pisau Dapur</h3>
-              <div class="product-stock" data-product-id="25">Stok: <span>--</span></div>
-              <div class="product-price">Rp 50.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="25" data-product-name="Set Pisau Dapur" data-price="50000" data-image="/product/dapur/set pisau dapur.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="25" data-product-name="Set Pisau Dapur" data-price="50000" data-image="/product/dapur/set pisau dapur.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(26)">
-            <div class="product-img">
-              <img src="/product/kamar tidur/set-alat-tulis.jpg" alt="set-alat-tulis">
-            </div>
-            <div class="product-info">
-              <h3>Set Alat Tulis</h3>
-              <div class="product-stock" data-product-id="26">Stok: <span>--</span></div>
-              <div class="product-price">Rp 10.000</div>
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="26" data-product-name="Set ALat Tulis" data-price="10000" data-image="/product/kamar tidur/set-alat-tulis.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="26" data-product-name="Set ALat Tulis" data-price="10000" data-image="/product/kamar tidur/set-alat-tulis.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(27)">
-            <div class="product-img">
-              <img src="/product/kamarmandi/shower.jpg" alt="shower">
-            </div>
-            <div class="product-info">
-              <h3>Shower</h3>
-              <div class="product-stock" data-product-id="27">Stok: <span>--</span></div>
-              <div class="product-price">Rp 50.000</div>
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="27" data-product-name="Shower" data-price="50000" data-image="/product/kamarmandi/shower.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="27" data-product-name="Shower" data-price="50000" data-image="/product/kamarmandi/shower.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(28)">
-            <div class="product-img">
-              <img src="/product/ruang-tamu/rumah-lampu.jpg" alt="rumah-lampu">
-            </div>
-            <div class="product-info">
-              <h3>Rumah Lampu</h3>
-              <div class="product-stock" data-product-id="28">Stok: <span>--</span></div>
-              <div class="product-price">Rp 5.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="28" data-product-name="Rumah Lampu" data-price="5000" data-image="/product/ruang-tamu/rumah-lampu.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="28" data-product-name="Rumah Lampu" data-price="5000" data-image="/product/ruang-tamu/rumah-lampu.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(29)">
-            <div class="product-img">
-              <img src="/product/dapur/teko-listrik.jpg" alt="teko-listrik">
-            </div>
-            <div class="product-info">
-              <h3>Teko Listrik</h3>
-              <div class="product-stock" data-product-id="29">Stok: <span>--</span></div>
-              <div class="product-price">Rp 80.000</div>               
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="29" data-product-name="Teko Listrik" data-price="80000" data-image="/product/dapur/teko-listrik.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="29" data-product-name="Teko Listrik" data-price="80000" data-image="/product/dapur/teko-listrik.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(30)">
-            <div class="product-img">
-              <img src="/product/kamar tidur/tempat-sampah.jpg" alt="tempat-sampah">
-            </div>
-            <div class="product-info">
-              <h3>Tempat Sampah</h3>
-              <div class="product-stock" data-product-id="30">Stok: <span>--</span></div>
-              <div class="product-price">Rp 20.000</div>
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="30" data-product-name="Tempat Sampah" data-price="20000" data-image="/product/kamar tidur/tempat-sampah.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="30" data-product-name="Tempat Sampah" data-price="20000" data-image="/product/kamar tidur/tempat-sampah.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(31)">
-            <div class="product-img">
-              <img src="/product/kamarmandi/tempat-tisu.jpg" alt="tempat-tisu">
-            </div>
-            <div class="product-info">
-              <h3>Tempat Tisu</h3>
-              <div class="product-stock" data-product-id="31">Stok: <span>--</span></div>
-              <div class="product-price">Rp 25.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="31" data-product-name="Tempat Tisu" data-price="25000" data-image="/product/kamarmandi/tempat-tisu.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="31" data-product-name="Tempat Tisu" data-price="25000" data-image="/product/kamarmandi/tempat-tisu.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
-
-          <div class="product-card" onclick="goToProductDetail(32)">
-            <div class="product-img">
-              <img src="/product/ruang-tamu/stopkontak.jpg" alt="stopkontak">
-            </div>
-            <div class="product-info">
-              <h3>Stop Kontak</h3>
-              <div class="product-stock" data-product-id="32">Stok: <span>--</span></div>
-              <div class="product-price">Rp 30.000</div> 
-              <div class="product-actions">
-                <button class="add-to-cart-btn" data-product-id="32" data-product-name="StopvKontak" data-price="30000" data-image="/product/ruang-tamu/stopkontak.jpg">Add to Cart</button>
-                <button class="add-to-wishlist-btn" data-product-id="32" data-product-name="StopvKontak" data-price="30000" data-image="/product/ruang-tamu/stopkontak.jpg"><i class="far fa-heart"></i></button>
-              </div>
-            </div>
-          </div>
+        <div class="product-grid" id="productGrid">
+          <!-- Produk akan di-render secara dinamis -->
         </div>
       </div>
     </section>
   </main>
 
-    <!-- Modal for Login -->
+<!-- Modal for Login -->
   <div id="loginModal" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="toggleModal('loginModal')">&times;</span>
@@ -576,7 +96,7 @@
     </div>
   </div>
 
-<!-- Wishlist Popup -->
+    <!-- Wishlist Popup -->
 <div id="wishlistPopup" class="popup">
   <div class="popup-header">
     <h2>Your Wishlist</h2>
@@ -601,26 +121,26 @@
   <div class="cart-summary">
     <div class="summary-line">
       <span>Subtotal:</span>
-      <span id="subtotalAmount">$0.00</span>
+      <span id="subtotalAmount">Rp0.00</span>
     </div>
     <div class="summary-line">
       <span>Shipping:</span>
-      <span id="shippingAmount">$0.00</span>
+      <span id="shippingAmount">Rp0.00</span>
     </div>
     <div class="summary-line">
       <span>Tax:</span>
-      <span id="taxAmount">$0.00</span>
+      <span id="taxAmount">Rp0.00</span>
     </div>
     <hr />
     <div class="summary-line total">
       <strong>Total:</strong>
-      <strong id="totalAmount">$0.00</strong>
+      <strong id="totalAmount">Rp0.00</strong>
     </div>
     <button class="continue-btn" onclick="window.location.href='checkout.html'">Proceed to Checkout</button>
   </div>
 </div>
 
-    <!-- Footer -->
+  <!-- Footer -->
   <footer>
     <div class="container">
       <div class="footer-content">
@@ -664,7 +184,7 @@
     </div>
   </footer>
 
-<script src="/assets/script.js"></script>
-
+  <!-- Script -->
+  <script src="/assets/script.js"></script>
 </body>
 </html>

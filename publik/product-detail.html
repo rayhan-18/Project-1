@@ -39,19 +39,31 @@
       </nav>
     </div>
   </header>
-
 <!-- Konten Detail Produk -->
-<main>
+<main class="product-detail-main">
   <!-- Tombol kembali di pojok kiri atas -->
-  <button class="btn-back" onclick="window.history.back()">← Kembali</button>
+  <button class="btn-back" onclick="window.history.back()">
+    <i class="fa-light fa-arrow-left"></i> Kembali ke Produk
+  </button>
 
   <div class="product-detail-container">
-    <img id="product-image" src="" alt="Gambar Produk" />
+    <div class="product-image-container">
+      <img id="product-image" src="" alt="Gambar Produk" class="product-main-image"/>
+    </div>
+    
     <div class="product-info">
-      <h1 id="product-name">Memuat...</h1>
-      <p id="product-description"></p>
-      <p id="product-stock" class="stock-info"></p> <!-- Tambahan untuk stok -->
-      <p id="product-price"></p>
+      <div class="product-header">
+        <h1 id="product-name">Memuat...</h1>
+        <div class="product-meta">
+          <span id="product-stock" class="stock-info"></span>
+          <span id="product-price" class="price-tag"></span>
+        </div>
+      </div>
+      
+      <div class="product-description-container">
+        <h3>Deskripsi Produk</h3>
+        <p id="product-description" class="description-text"></p>
+      </div>
 
       <!-- Tombol Tambah ke Keranjang dan Wishlist -->
       <div class="product-actions">
@@ -59,14 +71,14 @@
           <i class="fa-light fa-cart-shopping-fast"></i> Tambah ke Keranjang
         </button>
         <button id="addToWishlistBtn" class="add-to-wishlist-btn">
-          <i class="fa-light fa-heart"></i> Tambah ke Wishlist
+          <i class="fa-light fa-heart"></i> Wishlist
         </button>
       </div>
     </div>
   </div>
-</main>
+</main> 
 
-  <!-- Modal Login -->
+<!-- Modal Login -->
   <div id="loginModal" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="toggleModal('loginModal')">&times;</span>

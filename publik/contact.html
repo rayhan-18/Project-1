@@ -40,39 +40,147 @@
     </div>
   </header>
 
-  <!-- Main Content -->
-  <main>
-    <section class="contact-section">
-      <div class="container">
-        <h2 class="section-title">Hubungi Kami</h2>
-        <p class="section-subtitle">Kami siap membantu Anda. Silakan isi formulir di bawah ini.</p>
-        <form id="contactForm" class="contact-form">
-          <div class="form-group">
-            <input type="text" id="contactName" placeholder="Nama Lengkap" required>
-          </div>
-          <div class="form-group">
-            <input type="email" id="contactEmail" placeholder="Email" required>
-          </div>
-          <div class="form-group">
-            <input type="text" id="contactSubject" placeholder="Subjek" required>
-          </div>
-          <div class="form-group">
-            <textarea id="contactMessage" rows="5" placeholder="Pesan Anda..." required></textarea>
-          </div>
-          <button type="submit" class="btn-primary">Kirim Pesan</button>
-        </form>
-      </div>
-    </section>
-  </main>
+<!-- Main Content -->
+<main>
+  <section class="contact-section">
+    <div class="container">
+      <h2 class="section-title">Hubungi Kami</h2>
+      <p class="section-subtitle" style="text-align: center; margin-bottom: 2rem;">
+        Kami siap membantu Anda. Silakan isi formulir di bawah ini.
+      </p>
+      <form id="contactForm" class="contact-form">
+        <div class="form-group">
+          <input type="text" id="contactName" placeholder="Nama Lengkap" required>
+        </div>
+        <div class="form-group">
+          <input type="email" id="contactEmail" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="text" id="contactSubject" placeholder="Subjek" required>
+        </div>
+        <div class="form-group">
+          <textarea id="contactMessage" rows="5" placeholder="Pesan Anda..." required></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Kirim Pesan</button>
+      </form>
+    </div>
+  </section>
 
-  <!-- Modal Login/Register, Popup Cart/Wishlist, Footer -->
-  <!-- (copy saja dari collections.html atau index.html agar konsisten) -->
-  <!-- Mulai dari sini -->
-  <!-- ...Modal Login/Register... -->
-  <!-- ...Wishlist Popup... -->
-  <!-- ...Cart Popup... -->
-  <!-- ...Footer... -->
-  <!-- Akhir bagian tersebut -->
+  <section class="contact-info">
+    <div class="container">
+      <div class="contact-method">
+        <div class="contact-icon">
+          <i class="fas fa-map-marker-alt"></i>
+        </div>
+        <h3>Alamat Kami</h3>
+        <p>Jl. Contoh No. 123, Kota Bandung, Indonesia</p>
+      </div>
+      <div class="contact-method">
+        <div class="contact-icon">
+          <i class="fas fa-phone-alt"></i>
+        </div>
+        <h3>Telepon</h3>
+        <p><a href="tel:+622112345678">+62 21 1234 5678</a></p>
+      </div>
+      <div class="contact-method">
+        <div class="contact-icon">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <h3>Email</h3>
+        <p><a href="mailto:info@tokorayhan.com">info@tokorayhan.com</a></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Modal for Login -->
+  <div id="loginModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="toggleModal('loginModal')">&times;</span>
+      <h2>Login</h2>
+      <form id="loginForm" method="post">
+        <div class="form-group">
+          <input type="email" id="loginEmail" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="loginPassword" placeholder="Password" required>
+        </div>
+        <button type="submit">Login</button>
+      </form>
+      <p class="switch-auth">Belum punya akun? <a href="#" id="registerLink">Register</a></p>
+    </div>
+  </div>
+
+  <!-- Modal for Register -->
+  <div id="registerModal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close" onclick="toggleModal('registerModal')">&times;</span>
+      <h2>Register</h2>
+      <form id="registerForm" method="post">
+        <div class="form-group">
+          <input type="text" id="registerName" placeholder="Nama Lengkap" required>
+        </div>
+        <div class="form-group">
+          <input type="email" id="registerEmail" placeholder="Email" required>
+        </div>
+        <div class="form-group">
+          <input type="password" id="registerPassword" placeholder="Password" required>
+        </div>
+        <div class="form-group">
+          <input type="text" id="registerPhone" placeholder="Nomor Telepon" required>
+        </div>
+        <div class="form-group">
+          <textarea id="registerAddress" placeholder="Alamat" required></textarea>
+        </div>
+        <button type="submit">Register</button>
+      </form>
+      <p class="switch-auth">Sudah punya akun? <a href="#" id="loginLink">Login</a></p>
+    </div>
+  </div>
+
+    <!-- Wishlist Popup -->
+<div id="wishlistPopup" class="popup">
+  <div class="popup-header">
+    <h2>Your Wishlist</h2>
+    <button class="close-btn" onclick="toggleWishlistPopup()">×</button>
+  </div>
+  <div class="popup-content" id="wishlistItems"></div>
+  <hr>
+  <button class="continue-btn" onclick="window.location.href='products.html'">Continue Shopping</button>
+</div>
+
+<!-- Cart Popup -->
+<div id="cartPopup" class="popup">
+  <div class="popup-header">
+    <h2>Your Shopping Cart</h2>
+    <button class="close-btn" onclick="toggleCartPopup()">×</button>
+  </div>
+
+  <!-- Cart Items will be inserted here -->
+  <div class="popup-content" id="cartItems"></div>
+
+  <!-- Cart Summary -->
+  <div class="cart-summary">
+    <div class="summary-line">
+      <span>Subtotal:</span>
+      <span id="subtotalAmount">Rp0.00</span>
+    </div>
+    <div class="summary-line">
+      <span>Shipping:</span>
+      <span id="shippingAmount">Rp0.00</span>
+    </div>
+    <div class="summary-line">
+      <span>Tax:</span>
+      <span id="taxAmount">Rp0.00</span>
+    </div>
+    <hr />
+    <div class="summary-line total">
+      <strong>Total:</strong>
+      <strong id="totalAmount">Rp0.00</strong>
+    </div>
+    <button class="continue-btn" onclick="window.location.href='checkout.html'">Proceed to Checkout</button>
+  </div>
+</div>
 
   <script src="/assets/script.js"></script>
   <script>

@@ -271,7 +271,7 @@ async function openCartModal() {
     });
 
     // Hitung total & tax
-    const tax = subtotal * 0.12;
+    const tax = subtotal * 0.10;
     const total = subtotal + tax;
 
     document.getElementById('subtotalAmount').textContent = `Rp ${subtotal.toLocaleString()}`;
@@ -499,7 +499,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async function 
 
         if (data.user.is_admin) {
           console.log("Redirect ke admin.html"); // Debug info
-          window.location.href = "/admin/admin.html";
+          window.location.href = "/admin/admin-dashboard.html";
         } else {
           console.log("Redirect ke account.html"); // Debug info
           window.location.href = "account.html";
@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ===================== Checkout Multi-step =====================
 const shippingCosts = {
-  standard: 0,
+  standard: 20000,
   express: 40000,
   pickup: 0
 };
@@ -787,7 +787,7 @@ async function renderSummary() {
 
     const shippingMethod = document.getElementById('shippingMethod').value;
     const shippingCost = shippingCosts[shippingMethod] || 0;
-    const tax = subtotal * 0.12;
+    const tax = subtotal * 0.10;
     const total = subtotal + tax + shippingCost;
 
     document.getElementById('checkoutSubtotal').textContent = formatRupiah(subtotal);
@@ -965,7 +965,7 @@ async function placeOrder() {
 
     // Hitung biaya pengiriman dan pajak
     const shippingCost = shippingCosts[shippingMethod] || 0;
-    const tax = subtotal * 0.12;
+    const tax = subtotal * 0.10;
     const total = subtotal + shippingCost + tax;
 
     // Buat payload order
@@ -1030,3 +1030,125 @@ document.addEventListener('DOMContentLoaded', () => {
     showStep(currentStep);
   }
 });
+
+document.addEventListener('DOMContentLoaded', async () => {
+  try {
+    const res = await fetch('http://localhost:3000/api/products');
+    const products = await res.json();
+    if (!Array.isArray(products)) throw new Error("Data produk tidak valid");
+
+    // Untuk halaman index.html → 3 produk
+    const featuredGrid = document.getElementById('featuredProductGrid');
+    if (featuredGrid) {
+      const topThree = products.slice(0, 3);
+      topThree.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.setAttribute('onclick', `goToProductDetail(${product.product_id})`);
+        card.innerHTML = `
+          <div class="product-img">
+            <img src="${product.image_url}" alt="${sanitizeHTML(product.product_name)}">
+          </div>
+          <div class="product-info">
+            <h3>${sanitizeHTML(product.product_name)}</h3>
+            <div class="product-stock">Stok: <span>${product.stock}</span></div>
+            <div class="product-price">Rp ${Number(product.price).toLocaleString()}</div>
+            <div class="product-button"> <!-- Tambahkan div wrapper untuk button -->
+              <button class="add-to-cart-btn"
+                data-product-id="${product.product_id}"
+                data-product-name="${encodeURIComponent(product.product_name)}"
+                data-price="${product.price}"
+                data-image="${encodeURIComponent(product.image_url)}">Add to Cart</button>
+              <button class="add-to-wishlist-btn"
+                data-product-id="${product.product_id}"
+                data-product-name="${encodeURIComponent(product.product_name)}"
+                data-price="${product.price}"
+                data-image="${encodeURIComponent(product.image_url)}">
+                <i class="far fa-heart"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        featuredGrid.appendChild(card);
+      });
+
+      bindProductButtonListeners(); // Tambahkan ini
+    }
+
+    // Untuk halaman products.html → semua produk
+    const fullGrid = document.getElementById('productGrid');
+    if (fullGrid) {
+      products.forEach(product => {
+        const card = document.createElement('div');
+        card.className = 'product-card';
+        card.setAttribute('onclick', `goToProductDetail(${product.product_id})`);
+        card.innerHTML = `
+          <div class="product-img">
+            <img src="${product.image_url}" alt="${sanitizeHTML(product.product_name)}">
+          </div>
+          <div class="product-info">
+            <h3>${sanitizeHTML(product.product_name)}</h3>
+            <div class="product-stock">Stok: <span>${product.stock}</span></div>
+            <div class="product-price">Rp ${Number(product.price).toLocaleString()}</div>
+            <div class="product-actions">
+              <button class="add-to-cart-btn"
+                data-product-id="${product.product_id}"
+                data-product-name="${encodeURIComponent(product.product_name)}"
+                data-price="${product.price}"
+                data-image="${encodeURIComponent(product.image_url)}">Add to Cart</button>
+              <button class="add-to-wishlist-btn"
+                data-product-id="${product.product_id}"
+                data-product-name="${encodeURIComponent(product.product_name)}"
+                data-price="${product.price}"
+                data-image="${encodeURIComponent(product.image_url)}">
+                <i class="far fa-heart"></i>
+              </button>
+            </div>
+          </div>
+        `;
+        fullGrid.appendChild(card);
+      });
+
+      bindProductButtonListeners();
+    }
+
+  } catch (err) {
+    console.error('Gagal memuat produk:', err);
+    const fallbackGrid = document.getElementById('featuredProductGrid') || document.getElementById('productGrid');
+    if (fallbackGrid) fallbackGrid.innerHTML = '<p>Gagal memuat produk.</p>';
+  }
+});
+
+function bindProductButtonListeners() {
+  document.querySelectorAll('.add-to-cart-btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const product = {
+        product_id: parseInt(this.dataset.productId),
+        product_name: decodeURIComponent(this.dataset.productName),
+        price: parseInt(this.dataset.price),
+        image: decodeURIComponent(this.dataset.image)
+      };
+      if (typeof addToCart === 'function') addToCart(product);
+    });
+  });
+
+  document.querySelectorAll('.add-to-wishlist-btn').forEach(button => {
+    button.addEventListener('click', function (e) {
+      e.stopPropagation();
+      const product = {
+        product_id: parseInt(this.dataset.productId),
+        product_name: decodeURIComponent(this.dataset.productName),
+        price: parseInt(this.dataset.price),
+        image: decodeURIComponent(this.dataset.image)
+      };
+      if (typeof addToWishlist === 'function') addToWishlist(product);
+    });
+  });
+}
+
+function sanitizeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}

@@ -3,11 +3,15 @@ const moment = require('moment');
 const ExcelJS = require('exceljs');
 const db = require('../config/db'); // Sesuaikan path
 
+const formatRupiah = (number) => {
+  return 'Rp ' + Number(number).toLocaleString('id-ID');
+};
+
 exports.exportOrdersPDF = async (req, res) => {
   const { start, end } = req.query;
 
   let query = `
-    SELECT o.id, u.name AS user_name, o.total, o.status, o.created_at
+    SELECT o.id, u.name AS user_name, o.total, o.status, o.created_at, o.user_id
     FROM orders o
     LEFT JOIN users u ON o.user_id = u.id
     WHERE 1 = 1
@@ -24,6 +28,16 @@ exports.exportOrdersPDF = async (req, res) => {
   }
 
   const [orders] = await db.query(query, params);
+
+  // Hitung total omset
+  const [totalResult] = await db.query(`
+    SELECT SUM(total) AS total_omset
+    FROM orders
+    WHERE 1 = 1
+    ${start ? ' AND DATE(created_at) >= ?' : ''}
+    ${end ? ' AND DATE(created_at) <= ?' : ''}
+  `, params);
+  const totalOmset = totalResult[0].total_omset || 0;
 
   const doc = new PDFDocument({ margin: 30, size: 'A4' });
   res.setHeader('Content-Type', 'application/pdf');
@@ -41,9 +55,10 @@ exports.exportOrdersPDF = async (req, res) => {
     doc.text(`Periode: ${start || '...'} s/d ${end || '...'}`, { align: 'center' });
   }
 
+  doc.text(`Omset Bulanan: ${formatRupiah(totalOmset)}`, { align: 'center' });
+
   doc.moveDown();
 
-  // Fungsi untuk gambar header tabel
   function drawTableHeader(yPos) {
     doc.fontSize(12).font('Helvetica-Bold');
     doc.text('No', 30, yPos);
@@ -54,7 +69,7 @@ exports.exportOrdersPDF = async (req, res) => {
     doc.font('Helvetica');
   }
 
-  let y = 130; // posisi awal tabel
+  let y = 150; // posisi awal tabel
 
   drawTableHeader(y);
   y += 20;
@@ -72,7 +87,7 @@ exports.exportOrdersPDF = async (req, res) => {
     doc.text(i + 1, 30, y);
     doc.text(o.id, 60, y);
     doc.text(o.user_name || `User #${o.user_id}`, 150, y);
-    doc.text(`Rp ${o.total.toLocaleString()}`, 300, y);
+    doc.text(formatRupiah(o.total), 300, y);
     doc.text(o.status || 'Pending', 400, y);
     y += 20;
   });
@@ -84,7 +99,7 @@ exports.exportOrdersExcel = async (req, res) => {
   const { start, end } = req.query;
 
   let query = `
-    SELECT o.id, u.name AS user_name, o.total, o.status, o.created_at
+    SELECT o.id, u.name AS user_name, o.total, o.status, o.created_at, o.user_id
     FROM orders o
     LEFT JOIN users u ON o.user_id = u.id
     WHERE 1 = 1
@@ -101,6 +116,16 @@ exports.exportOrdersExcel = async (req, res) => {
   }
 
   const [orders] = await db.query(query, params);
+
+  // Hitung total omset
+  const [totalResult] = await db.query(`
+    SELECT SUM(total) AS total_omset
+    FROM orders
+    WHERE 1 = 1
+    ${start ? ' AND DATE(created_at) >= ?' : ''}
+    ${end ? ' AND DATE(created_at) <= ?' : ''}
+  `, params);
+  const totalOmset = totalResult[0].total_omset || 0;
 
   const workbook = new ExcelJS.Workbook();
   const worksheet = workbook.addWorksheet('Orders');
@@ -128,10 +153,13 @@ exports.exportOrdersExcel = async (req, res) => {
   worksheet.getCell('A5').value = `Periode: ${start || '...'} s/d ${end || '...'}`;
   worksheet.getCell('A5').alignment = { horizontal: 'center' };
 
+  worksheet.mergeCells('A6:E6');
+  worksheet.getCell('A6').value = `Omset Bulanan: ${formatRupiah(totalOmset)}`;
+  worksheet.getCell('A6').alignment = { horizontal: 'center' };
+
   worksheet.addRow([]);
   worksheet.addRow([]);
 
-  // Header kolom
   const headerRow = worksheet.addRow(['No', 'ID Pesanan', 'Nama Pelanggan', 'Total', 'Status']);
   headerRow.font = { bold: true };
   headerRow.alignment = { horizontal: 'center' };
@@ -144,20 +172,17 @@ exports.exportOrdersExcel = async (req, res) => {
     { key: 'status', width: 15 },
   ];
 
-  // Data rows
   orders.forEach((o, i) => {
     const row = worksheet.addRow([
       i + 1,
       o.id,
       o.user_name || `User #${o.user_id}`,
-      o.total,
+      Number(o.total), // pastikan number, bukan string
       o.status || 'Pending'
     ]);
-    // Rata tengah semua cell di baris ini
     row.alignment = { horizontal: 'center' };
   });
 
-  // Format kolom Total ke Rp
   worksheet.getColumn(4).numFmt = '"Rp"#,##0;[Red]\-"Rp"#,##0';
 
   res.setHeader('Content-Type',

@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Produk - Toko Rayhan</title>
+  <link rel="stylesheet" href="/assets/style.css" />
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      padding: 20px;
+      background: #f9f9f9;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #333;
+      color: white;
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+    header nav a {
+      color: white;
+      margin-left: 15px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    main {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      table-layout: fixed;
+      word-wrap: break-word;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+      vertical-align: middle;
+    }
+    th {
+      background: #f4f4f4;
+    }
+    .btn {
+      padding: 6px 12px;
+      border: none;
+      background: #4a7c59;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 5px;
+      transition: background-color 0.3s;
+      font-size: 14px;
+    }
+    .btn:hover {
+      background: #3b6449;
+    }
+    .btn-danger {
+      background: #c0392b;
+    }
+    .btn-danger:hover {
+      background: #922b21;
+    }
+    form > div {
+      margin-bottom: 12px;
+    }
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+    input[type="text"],
+    input[type="number"],
+    input[type="url"],
+    select {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    input[type="url"]:focus,
+    select:focus {
+      border-color: #4a7c59;
+      outline: none;
+    }
+    .form-actions {
+      margin-top: 10px;
+    }
+    .message {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+    /* Loading spinner */
+    #loadingSpinner {
+      display: none;
+      margin-top: 10px;
+      font-size: 14px;
+      color: #4a7c59;
+    }
+    /* Responsive table */
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        display: none;
+      }
+      tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 10px;
+      }
+      td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+        text-align: right;
+      }
+      td::before {
+        position: absolute;
+        left: 15px;
+        width: 45%;
+        white-space: nowrap;
+        font-weight: 600;
+        text-align: left;
+      }
+      td:nth-of-type(1)::before { content: "ID"; }
+      td:nth-of-type(2)::before { content: "Nama Produk"; }
+      td:nth-of-type(3)::before { content: "Kategori"; }
+      td:nth-of-type(4)::before { content: "Stok"; }
+      td:nth-of-type(5)::before { content: "Harga"; }
+      td:nth-of-type(6)::before { content: "Gambar"; }
+      td:nth-of-type(7)::before { content: "Aksi"; }
+      img {
+        max-width: 100%;
+        height: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Admin Produk - Toko Rayhan</h1>
+  <nav>
+    <a href="admin-orders.html">Pesanan</a>
+    <a href="admin-contacts.html">Pesan Kontak</a>
+    <a href="admin-dashboard.html">Dashboard</a>
+    <a href="#" onclick="logoutAdmin()">Logout</a>
+  </nav>
+</header>
+
+<main>
+  <section>
+    <h2>Tambah / Edit Produk</h2>
+    <form id="productForm" novalidate>
+      <input type="hidden" id="productId" />
+      <div>
+        <label for="productName">Nama Produk</label>
+        <input type="text" id="productName" required minlength="3" />
+      </div>
+      <div>
+        <label for="productCategory">Kategori</label>
+        <select id="productCategory" required>
+          <option value="" disabled selected>Pilih kategori</option>
+          <option value="Dapur">Dapur</option>
+          <option value="Kamar Mandi">Kamar Mandi</option>
+          <option value="Kamar Tidur">Kamar Tidur</option>
+          <option value="Ruang Tamu">Ruang Tamu</option>
+        </select>
+      </div>
+      <div>
+        <label for="productStock">Stok</label>
+        <input type="number" id="productStock" min="0" required />
+      </div>
+      <div>
+        <label for="productPrice">Harga (Rp)</label>
+        <input type="number" id="productPrice" min="0" step="100" required />
+      </div>
+      <div>
+        <label for="productImage">URL Gambar</label>
+        <input type="url" id="productImage" placeholder="https://example.com/image.jpg" required />
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn" id="saveBtn">Simpan Produk</button>
+        <button type="button" class="btn btn-danger" id="cancelEditBtn" style="display:none;">Batal Edit</button>
+      </div>
+    </form>
+    <div class="message" id="formMessage"></div>
+    <div id="loadingSpinner">Loading...</div>
+  </section>
+
+  <section>
+    <h2>Daftar Produk</h2>
+    <table id="productsTable" aria-describedby="productsDesc">
+      <caption id="productsDesc" class="sr-only">Daftar produk yang tersedia di toko</caption>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Nama Produk</th>
+          <th>Kategori</th>
+          <th>Stok</th>
+          <th>Harga (Rp)</th>
+          <th>Gambar</th>
+          <th>Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<script>
+  const apiBase = 'http://localhost:3000/api/products';
+
+  function logoutAdmin() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('cart');
+    localStorage.removeItem('wishlist');
+    location.href = '/publik/index.html';
+  }
+
+  function sanitizeHTML(str) {
+    const temp = document.createElement('div');
+    temp.textContent = str;
+    return temp.innerHTML;
+  }
+
+  const productForm = document.getElementById('productForm');
+  const productIdInput = document.getElementById('productId');
+  const productNameInput = document.getElementById('productName');
+  const productCategorySelect = document.getElementById('productCategory');
+  const productStockInput = document.getElementById('productStock');
+  const productPriceInput = document.getElementById('productPrice');
+  const productImageInput = document.getElementById('productImage');
+  const saveBtn = document.getElementById('saveBtn');
+  const cancelEditBtn = document.getElementById('cancelEditBtn');
+  const formMessage = document.getElementById('formMessage');
+  const productsTableBody = document.querySelector('#productsTable tbody');
+  const loadingSpinner = document.getElementById('loadingSpinner');
+
+  function showLoading(show) {
+    loadingSpinner.style.display = show ? 'block' : 'none';
+  }
+
+  async function loadProducts() {
+    productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>`;
+    showLoading(true);
+    try {
+      const res = await fetch(apiBase);
+      if (!res.ok) throw new Error('Gagal memuat data produk');
+      const products = await res.json();
+
+      if (!products.length) {
+        productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Tidak ada produk</td></tr>`;
+        return;
+      }
+
+      productsTableBody.innerHTML = '';
+      products.forEach(p => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${p.product_id}</td>
+          <td>${sanitizeHTML(p.product_name)}</td>
+          <td>${sanitizeHTML(p.category || '')}</td>
+          <td>${p.stock}</td>
+          <td>Rp ${Number(p.price).toLocaleString('id-ID')}</td>
+          <td><img src="${sanitizeHTML(p.image_url)}" alt="${sanitizeHTML(p.product_name)}" style="height:40px;object-fit:cover;border-radius:4px;"></td>
+          <td>
+            <button class="btn" onclick="startEdit(${p.product_id})" aria-label="Edit produk ${sanitizeHTML(p.product_name)}">Edit</button>
+            <button class="btn btn-danger" onclick="deleteProduct(${p.product_id})" aria-label="Hapus produk ${sanitizeHTML(p.product_name)}">Hapus</button>
+          </td>
+        `;
+        productsTableBody.appendChild(tr);
+      });
+    } catch (err) {
+      productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red;">${sanitizeHTML(err.message)}</td></tr>`;
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  function clearForm() {
+    productIdInput.value = '';
+    productNameInput.value = '';
+    productCategorySelect.value = '';
+    productStockInput.value = '';
+    productPriceInput.value = '';
+    productImageInput.value = '';
+    formMessage.textContent = '';
+    formMessage.style.color = '';
+    cancelEditBtn.style.display = 'none';
+    saveBtn.textContent = 'Simpan Produk';
+  }
+
+  async function startEdit(id) {
+    showLoading(true);
+    try {
+      const res = await fetch(`${apiBase}/${id}`);
+      if (!res.ok) throw new Error('Gagal memuat data produk');
+      const product = await res.json();
+      productIdInput.value = product.product_id;
+      productNameInput.value = product.product_name;
+      productCategorySelect.value = product.category || '';
+      productStockInput.value = product.stock;
+      productPriceInput.value = product.price;
+      productImageInput.value = product.image_url;
+      saveBtn.textContent = 'Update Produk';
+      cancelEditBtn.style.display = 'inline-block';
+      formMessage.textContent = '';
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      showLoading(false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm('Yakin ingin menghapus produk ini?')) return;
+    showLoading(true);
+    try {
+      const res = await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
+      if (!res.ok) throw new Error('Gagal menghapus produk');
+      alert('Produk berhasil dihapus');
+      loadProducts();
+      if (productIdInput.value == id) clearForm();
+    } catch (err) {
+      alert('Error: ' + err.message);
+    } finally {
+      showLoading(false);
+    }
+  }
+
+  productForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    formMessage.textContent = '';
+    formMessage.style.color = '';
+
+    if (productNameInput.value.trim().length < 3) {
+      formMessage.style.color = 'red';
+      formMessage.textContent = 'Nama produk minimal 3 karakter.';
+      productNameInput.focus();
+      return;
+    }
+
+    if (!productCategorySelect.value) {
+      formMessage.style.color = 'red';
+      formMessage.textContent = 'Kategori harus dipilih.';
+      productCategorySelect.focus();
+      return;
+    }
+
+    const stockVal = Number(productStockInput.value);
+    if (isNaN(stockVal) || stockVal < 0) {
+      formMessage.style.color = 'red';
+      formMessage.textContent = 'Stok harus berupa angka 0 atau lebih.';
+      productStockInput.focus();
+      return;
+    }
+
+    const priceVal = Number(productPriceInput.value);
+    if (isNaN(priceVal) || priceVal < 0) {
+      formMessage.style.color = 'red';
+      formMessage.textContent = 'Harga harus berupa angka 0 atau lebih.';
+      productPriceInput.focus();
+      return;
+    }
+
+    if (!productImageInput.value.trim()) {
+      formMessage.style.color = 'red';
+      formMessage.textContent = 'URL gambar harus diisi.';
+      productImageInput.focus();
+      return;
+    }
+
+    const productData = {
+      product_name: productNameInput.value.trim(),
+      category: productCategorySelect.value,
+      stock: stockVal,
+      price: priceVal,
+      image_url: productImageInput.value.trim(),
+    };
+
+    showLoading(true);
+    try {
+      let res;
+      if (productIdInput.value) {
+        // Update produk
+        res = await fetch(`${apiBase}/${productIdInput.value}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(productData),
+        });
+      } else {
+        // Tambah produk baru
+        res = await fetch(apiBase, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(productData),
+        });
+      }
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.message || 'Gagal menyimpan produk');
+      }
+
+      formMessage.style.color = 'green';
+      formMessage.textContent = productIdInput.value ? 'Produk berhasil diupdate.' : 'Produk berhasil ditambahkan.';
+      clearForm();
+      loadProducts();
+    } catch (err) {
+      formMessage.style.color = 'red';
+      formMessage.textContent = err.message;
+    } finally {
+      showLoading(false);
+    }
+  });
+
+  cancelEditBtn.addEventListener('click', () => {
+    clearForm();
+  });
+
+  // Inisialisasi halaman
+  loadProducts();
+</script>
+
+</body>
+</html>

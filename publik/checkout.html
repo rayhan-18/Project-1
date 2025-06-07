@@ -43,14 +43,51 @@
   </section>
 
     <!-- Step 3: Metode Pembayaran & Ringkasan -->
-  <section class="step-content" data-step="3">
-    <h3>💳 Pilih Metode Pembayaran</h3>
-    <select id="paymentMethod">
-      <option value="" selected hidden>-- Pilih Metode Pembayaran --</option>
-      <option value="transfer">Transfer Bank</option>
-      <option value="ewallet">E-Wallet</option>
-      <option value="cod">Bayar di Tempat (COD)</option>
-    </select>
+<section class="step-content" data-step="3">
+  <h3>💳 Pilih Metode Pembayaran</h3>
+  <select id="paymentMethod" onchange="showPaymentDetails()">
+    <option value="" selected hidden>-- Pilih Metode Pembayaran --</option>
+    
+    <!-- Bank Transfer -->
+    <optgroup label="Transfer Bank">
+      <option value="bca">BCA</option>
+      <option value="bri">BRI</option>
+      <option value="mandiri">Mandiri</option>
+      <option value="btn">BTN</option>
+    </optgroup>
+    
+    <!-- E-Wallet -->
+    <optgroup label="E-Wallet">
+      <option value="gopay">Gopay</option>
+      <option value="dana">DANA</option>
+      <option value="ovo">OVO</option>
+    </optgroup>
+    
+    <!-- COD -->
+    <option value="cod">Bayar di Tempat (COD)</option>
+  </select>
+
+  <!-- Container untuk detail pembayaran -->
+  <div id="paymentDetails" style="margin-top: 15px; display: none;">
+    <div id="bankDetails" style="display: none;">
+      <h4>Virtual Account</h4>
+      <p id="vaNumber" style="font-weight: bold; font-size: 1.1rem;"></p>
+      <p>Silakan transfer sesuai total pesanan ke nomor VA di atas</p>
+      <p>Pesanan akan diproses setelah pembayaran diterima</p>
+    </div>
+    
+    <div id="ewalletDetails" style="display: none;">
+      <h4>Instruksi Pembayaran</h4>
+      <p id="ewalletInstruction"></p>
+      <p>Pesanan akan diproses setelah pembayaran diterima</p>
+    </div>
+    
+    <div id="codDetails" style="display: none;">
+      <h4>Bayar di Tempat</h4>
+      <p>Anda akan membayar ketika barang sudah diterima</p>
+      <p>Pastikan Anda berada di alamat pengiriman saat kurir datang</p>
+    </div>
+  </div>
 
     <!-- Daftar Produk Ringkasan -->
     <h3 style="margin-top: 30px;">📦 Ringkasan Produk</h3>

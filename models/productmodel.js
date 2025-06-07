@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-// Ambil semua produk
+// Get all products
 async function getAllProducts() {
   const [rows] = await db.query(`
     SELECT 
@@ -17,7 +17,7 @@ async function getAllProducts() {
   return rows;
 }
 
-// Ambil produk berdasarkan ID
+// Get product by ID
 async function getProductById(id) {
   const [rows] = await db.query(`
     SELECT 
@@ -31,14 +31,46 @@ async function getProductById(id) {
     FROM products
     WHERE id = ?
   `, [id]);
+  return rows[0];
+}
 
-  const product = rows[0];
-  console.log('Queried product:', product);
+// Create new product
+async function createProduct(productData) {
+  const { product_name, price, image_url, stock, category, description } = productData;
+  const [result] = await db.query(`
+    INSERT INTO products 
+    (name, price, image_url, category, description, stock)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `, [product_name, price, image_url, category || '', description || '', stock]);
+  return { product_id: result.insertId, ...productData };
+}
 
-  return product;
+// Update product
+async function updateProduct(id, productData) {
+  const { product_name, price, image_url, stock, category, description } = productData;
+  await db.query(`
+    UPDATE products SET
+      name = ?,
+      price = ?,
+      image_url = ?,
+      category = ?,
+      description = ?,
+      stock = ?
+    WHERE id = ?
+  `, [product_name, price, image_url, category || '', description || '', stock, id]);
+  return { product_id: id, ...productData };
+}
+
+// Delete product
+async function deleteProduct(id) {
+  await db.query('DELETE FROM products WHERE id = ?', [id]);
+  return true;
 }
 
 module.exports = {
   getAllProducts,
-  getProductById
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct
 };
