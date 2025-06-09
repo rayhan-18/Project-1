@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-// Buat order baru
+// Buat order baru dengan transaksi
 async function createOrder(orderData) {
   const connection = await db.getConnection();
   try {
@@ -35,6 +35,29 @@ async function createOrder(orderData) {
       );
     }
 
+    if (orderData.payment_details) {
+      const pd = orderData.payment_details;
+      console.log('DEBUG: Data payment_details yang mau disimpan:', pd);
+      
+      await connection.query(
+        `INSERT INTO payment_details 
+        (order_id, payment_method, bank_name, virtual_account, wallet_name, phone_number, amount, expiry_time, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+        [
+          orderId,
+          orderData.payment_method,
+          pd.bank || null,
+          pd.virtual_account || null,
+          pd.wallet || null,
+          pd.phone_number || null,
+          pd.amount || 0,
+          pd.expiry ? new Date(pd.expiry) : null
+        ]
+      );
+      
+      console.log('DEBUG: payment_details berhasil disimpan untuk order id:', orderId);
+    }
+
     await connection.commit();
     return orderId;
   } catch (error) {
@@ -45,7 +68,6 @@ async function createOrder(orderData) {
   }
 }
 
-// Update status order by ID
 async function updateOrderStatusById(orderId, newStatus) {
   const connection = await db.getConnection();
   try {
@@ -59,7 +81,6 @@ async function updateOrderStatusById(orderId, newStatus) {
   }
 }
 
-// Get order detail + items by ID
 async function getOrderById(orderId) {
   const connection = await db.getConnection();
   try {
@@ -79,7 +100,26 @@ async function getOrderById(orderId) {
       [orderId]
     );
 
-    return { ...order, items };
+    const [paymentDetails] = await connection.query(
+      `SELECT 
+        bank_name AS bank, 
+        virtual_account, 
+        wallet_name AS wallet, 
+        phone_number, 
+        amount, 
+        expiry_time AS expiry
+      FROM payment_details 
+      WHERE order_id = ?`,
+      [orderId]
+    );
+
+    console.log('DEBUG: payment_details yang diambil dari DB:', paymentDetails);
+
+    return {
+      ...order,
+      items,
+      payment_details: paymentDetails[0] || null
+    };
   } finally {
     connection.release();
   }
@@ -107,7 +147,7 @@ async function getAllOrders(limit = 10, offset = 0, status = null) {
   }
 }
 
-// Hitung total orders (untuk pagination)
+// Hitung total orders (bisa filter status)
 async function countAllOrders(status = null) {
   const connection = await db.getConnection();
   try {
@@ -126,7 +166,7 @@ async function countAllOrders(status = null) {
   }
 }
 
-// Get orders by user ID
+// Get orders berdasarkan user ID
 async function getOrdersByUserId(userId) {
   const connection = await db.getConnection();
   try {
@@ -153,7 +193,7 @@ async function getTotalOrdersToday() {
   }
 }
 
-// Ambil order terbaru (limit bisa di-set, misal 5)
+// Ambil order terbaru (limit default 5)
 async function getLatestOrders(limit = 5) {
   const connection = await db.getConnection();
   try {

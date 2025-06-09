@@ -99,6 +99,10 @@
       background: red;
     }
 
+    .status.confirmed {
+      background: blue;
+    }
+
     .loading {
       text-align: center;
       font-style: italic;
@@ -214,7 +218,7 @@
       if (!res.ok) throw new Error(`Gagal mengambil ringkasan pesanan: ${res.statusText}`);
       const data = await res.json();
 
-      document.getElementById('totalToday').textContent = formatRupiah(data.totalToday || 0);
+      document.getElementById('totalToday').textContent = (data.totalToday || 0).toLocaleString('id-ID');
 
       const tbody = document.querySelector('#latestOrdersTable tbody');
       tbody.innerHTML = '';
@@ -257,6 +261,16 @@
   function exportExcel() {
     const query = getFilterQuery();
     window.open(`http://localhost:3000/api/export/excel${query}`, '_blank');
+  }
+
+  function getStatusColorClass(status) {
+    const map = {
+      pending: 'orange',
+      confirmed: 'blue',
+      selesai: 'green',
+      batal: 'red'
+    };
+    return map[status] || 'gray';
   }
 
   document.addEventListener('DOMContentLoaded', () => {

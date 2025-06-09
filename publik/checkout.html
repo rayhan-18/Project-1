@@ -4,114 +4,112 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Checkout - Product</title>
-  <link rel="stylesheet" href="/assets/style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link rel="stylesheet" href="/assets/stylecheckout.css" />
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
 <main class="checkout-multistep-container">
-  <h2 style="text-align:center; color:#4a7c59; margin-bottom:30px;">🛒 Checkout Anda</h2>
+  <h2 class="checkout-title"><i class="fas fa-shopping-cart"></i> Checkout Anda</h2>
 
-  <!-- Stepper indikator -->
+  <!-- Stepper indicator -->
   <div class="stepper" id="stepper">
+    <div class="progress-bar"></div>
     <div class="step active" data-step="1">Informasi Pengiriman</div>
     <div class="step" data-step="2">Metode Pengiriman</div>
-    <div class="step" data-step="3">Pembayaran & Ringkasan</div>
+    <div class="step" data-step="3">Pembayaran</div>
   </div>
 
-  <!-- Step 1: Informasi Pengiriman -->
+  <!-- Step 1: Shipping Information -->
   <section class="step-content active" data-step="1">
-    <!-- Container Produk -->
-    <div id="checkoutItems" style="margin-bottom: 20px;">
-      <!-- Produk akan dirender di sini -->
+    <div id="checkoutItems" class="checkout-items-container">
+      <h3><i class="fas fa-shopping-cart"></i> Produk Anda</h3>
+      <div class="items-list"></div>
     </div>
 
-    <input type="text" id="shippingName" placeholder="Nama Penerima" autocomplete="name" />
-    <input type="tel" id="shippingPhone" placeholder="No. Telepon" autocomplete="tel" />
-    <textarea id="shippingAddress" placeholder="Alamat Lengkap" rows="3"></textarea>
+    <div class="form-group">
+      <label for="shippingName">Nama Penerima</label>
+      <input type="text" id="shippingName" placeholder="Nama lengkap penerima" autocomplete="name" required>
+      <span class="error-message"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="shippingPhone">No. Telepon</label>
+      <input type="tel" id="shippingPhone" placeholder="Contoh: 081234567890" autocomplete="tel" pattern="[0-9]{10,13}" required>
+      <span class="error-message"></span>
+    </div>
+
+    <div class="form-group">
+      <label for="shippingAddress">Alamat Lengkap</label>
+      <textarea id="shippingAddress" placeholder="Masukkan alamat lengkap termasuk kecamatan dan kode pos" rows="4" required></textarea>
+      <span class="error-message"></span>
+    </div>
   </section>
 
-  <!-- Step 2: Metode Pengiriman -->
+  <!-- Step 2: Shipping Method -->
   <section class="step-content" data-step="2">
-    <h3>🚚 Pilih Metode Pengiriman</h3>
-    <select id="shippingMethod">
-      <option value="" selected hidden>-- Pilih Metode --</option>
+    <h3><i class="fas fa-truck"></i> Pilih Metode Pengiriman</h3>
+    <select id="shippingMethod" class="styled-select">
+      <option value="" selected disabled>-- Pilih Metode --</option>
       <option value="standard">Standard - Gratis</option>
       <option value="express">Express - Rp40.000</option>
       <option value="pickup">Ambil di Toko - Gratis</option>
     </select>
   </section>
 
-    <!-- Step 3: Metode Pembayaran & Ringkasan -->
-<section class="step-content" data-step="3">
-  <h3>💳 Pilih Metode Pembayaran</h3>
-  <select id="paymentMethod" onchange="showPaymentDetails()">
-    <option value="" selected hidden>-- Pilih Metode Pembayaran --</option>
-    
-    <!-- Bank Transfer -->
-    <optgroup label="Transfer Bank">
-      <option value="bca">BCA</option>
-      <option value="bri">BRI</option>
-      <option value="mandiri">Mandiri</option>
-      <option value="btn">BTN</option>
-    </optgroup>
-    
-    <!-- E-Wallet -->
-    <optgroup label="E-Wallet">
-      <option value="gopay">Gopay</option>
-      <option value="dana">DANA</option>
-      <option value="ovo">OVO</option>
-    </optgroup>
-    
-    <!-- COD -->
-    <option value="cod">Bayar di Tempat (COD)</option>
-  </select>
+  <!-- Step 3: Payment & Summary -->
+  <section class="step-content" data-step="3">
+    <div class="payment-section">
+      <h3><i class="fas fa-credit-card"></i> Metode Pembayaran</h3>
+      <select id="paymentMethod" class="styled-select">
+        <option value="" selected disabled>-- Pilih Metode Pembayaran --</option>
+        <option value="transfer">Transfer Bank</option>
+        <option value="ewallet">E-Wallet (OVO, Gopay, Dana)</option>
+        <option value="cod">Bayar di Tempat (COD)</option>
+      </select>
 
-  <!-- Container untuk detail pembayaran -->
-  <div id="paymentDetails" style="margin-top: 15px; display: none;">
-    <div id="bankDetails" style="display: none;">
-      <h4>Virtual Account</h4>
-      <p id="vaNumber" style="font-weight: bold; font-size: 1.1rem;"></p>
-      <p>Silakan transfer sesuai total pesanan ke nomor VA di atas</p>
-      <p>Pesanan akan diproses setelah pembayaran diterima</p>
-    </div>
-    
-    <div id="ewalletDetails" style="display: none;">
-      <h4>Instruksi Pembayaran</h4>
-      <p id="ewalletInstruction"></p>
-      <p>Pesanan akan diproses setelah pembayaran diterima</p>
-    </div>
-    
-    <div id="codDetails" style="display: none;">
-      <h4>Bayar di Tempat</h4>
-      <p>Anda akan membayar ketika barang sudah diterima</p>
-      <p>Pastikan Anda berada di alamat pengiriman saat kurir datang</p>
-    </div>
-  </div>
-
-    <!-- Daftar Produk Ringkasan -->
-    <h3 style="margin-top: 30px;">📦 Ringkasan Produk</h3>
-    <div id="productSummaryList" class="product-summary-list">
-      <!-- Produk akan dirender di sini -->
+      <!-- Payment details container -->
+      <div id="paymentDetails" class="payment-details-container" style="display: none;">
+        <!-- Will be filled by JavaScript -->
+      </div>
     </div>
 
-    <!-- Ringkasan Total -->
-    <div class="summary" style="margin-top: 20px;">
-      <p>Subtotal: <span id="checkoutSubtotal">Rp0</span></p>
-      <p>Shipping: <span id="checkoutShipping">Rp0</span></p>
-      <p>Tax (12%): <span id="checkoutTax">Rp0</span></p>
-      <hr />
-      <h4>Total: <span id="checkoutTotal">Rp0</span></h4>
+    <div class="summary-section">
+      <h3><i class="fas fa-file-invoice"></i> Ringkasan Pesanan</h3>
+      
+      <div class="order-details">
+        <div id="productSummaryList" class="product-summary-list"></div>
+        
+        <div class="order-summary">
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <span id="checkoutSubtotal">Rp0</span>
+          </div>
+          <div class="summary-row">
+            <span>Biaya Pengiriman:</span>
+            <span id="checkoutShipping">Rp0</span>
+          </div>
+          <div class="summary-row">
+            <span>Pajak (10%):</span>
+            <span id="checkoutTax">Rp0</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total Pembayaran:</span>
+            <span id="checkoutTotal">Rp0</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
-  <!-- Navigasi tombol -->
+  <!-- Navigation buttons -->
   <div class="navigation-buttons">
-    <button class="btn-prev">Sebelumnya</button>
-    <button class="btn-next">Selanjutnya</button>
+    <button class="btn-prev"><i class="fas fa-arrow-left"></i> Sebelumnya</button>
+    <button class="btn-next">Selanjutnya <i class="fas fa-arrow-right"></i></button>
   </div>
 </main>
 
-<script src="/assets/script.js"></script>
+<script src="/assets/checkout.js"></script>
 </body>
 </html>

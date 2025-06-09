@@ -20,9 +20,11 @@ const placeOrder = async (req, res) => {
       payment_method,
       subtotal,
       tax,
-      total
+      total,
+      payment_details
     } = req.body;
 
+    // Validasi pengiriman
     if (!user_id || !shipping || !shipping.name || !shipping.phone || !shipping.address) {
       return res.status(400).json({ message: 'Data pengiriman tidak lengkap' });
     }
@@ -31,6 +33,15 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: 'Order harus memiliki item' });
     }
 
+    // Validasi payment details sesuai metode pembayaran
+    if (payment_method === 'transfer' && !payment_details?.virtual_account) {
+      return res.status(400).json({ message: 'Virtual Account harus diisi untuk transfer' });
+    }
+    if (payment_method === 'ewallet' && !payment_details?.phone_number) {
+      return res.status(400).json({ message: 'Nomor HP harus diisi untuk e-wallet' });
+    }
+
+    // Cek stok setiap produk
     for (const item of items) {
       const [productRows] = await db.query('SELECT stock FROM products WHERE id = ?', [item.product_id]);
       if (productRows.length === 0) {
@@ -41,31 +52,35 @@ const placeOrder = async (req, res) => {
       }
     }
 
+    // Kurangi stok produk
     for (const item of items) {
       await db.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
     }
 
+    // Siapkan data order untuk model
     const orderData = {
       user_id,
       customer_name: shipping.name,
       customer_phone: shipping.phone,
       customer_address: shipping.address,
-      shipping_method: shipping.method,
-      shipping_cost: shipping.cost,
+      shipping_method: shipping.method || null,
+      shipping_cost: shipping.cost || 0,
       payment_method,
       subtotal,
       tax,
       total,
-      status: 'pending',
-      items
+      items,
+      payment_details
     };
 
+    // Simpan order dan dapatkan ID
     const orderId = await createOrder(orderData);
 
     if (!orderId) {
       return res.status(500).json({ message: 'Gagal membuat order: ID tidak tersedia' });
     }
 
+    // Hapus cart user setelah order berhasil
     await db.query('DELETE FROM cart WHERE user_id = ?', [user_id]);
 
     res.status(201).json({
@@ -108,7 +123,7 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-// Detail order
+// Dapatkan detail order lengkap (termasuk items dan payment_details)
 const getOrderDetail = async (req, res) => {
   try {
     const { id } = req.params;
@@ -164,7 +179,8 @@ const getAllOrdersHandler = async (req, res) => {
     dataQuery += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
     values.push(limit, offset);
 
-    const [countRows] = await db.query(countQuery, values.slice(0, -2)); // Exclude limit/offset for count
+    // Untuk query count, exclude limit dan offset
+    const [countRows] = await db.query(countQuery, values.slice(0, -2));
     const [orders] = await db.query(dataQuery, values);
 
     res.json({
@@ -232,5 +248,5 @@ module.exports = {
   getAllOrders: getAllOrdersHandler,
   getOrdersByUser,
   getOrderSummary,
-  exportOrdersToCSV // ✅ Tambahkan ini
+  exportOrdersToCSV
 };
