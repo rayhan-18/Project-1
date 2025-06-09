@@ -2,301 +2,215 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Dashboard</title>
-  <link rel="stylesheet" href="/assets/style.css" />
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      padding: 20px;
-      background: #f9f9f9;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #333;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    header nav a {
-      color: white;
-      margin-left: 15px;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    main {
-      margin-top: 30px;
-    }
-
-    .btn {
-      padding: 6px 12px;
-      border: none;
-      background: #4a7c59;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .btn:hover {
-      background: #3b6449;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    th,
-    td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f4f4f4;
-    }
-
-    .filter-export {
-      margin-bottom: 20px;
-    }
-
-    .filter-export input,
-    .filter-export button {
-      margin-right: 10px;
-      padding: 6px;
-    }
-
-    .status {
-      padding: 4px 8px;
-      border-radius: 4px;
-      color: white;
-      font-weight: bold;
-      font-size: 12px;
-      text-transform: capitalize;
-    }
-
-    .status.pending {
-      background: orange;
-    }
-    .status.selesai {
-      background: green;
-    }
-    .status.batal {
-      background: red;
-    }
-
-    .status.confirmed {
-      background: blue;
-    }
-
-    .loading {
-      text-align: center;
-      font-style: italic;
-      color: gray;
-    }
-
-    .greeting-text {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-
-  </style>
+  <title>Dashboard Admin - Toko Rayhan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
+<body class="bg-gray-900 text-white font-sans min-h-screen">
   <!-- Header -->
-  <header>
-    <h1>Admin Toko Rayhan</h1>
-    <nav>
-      <a href="admin-orders.html">Pesanan</a>
-      <a href="admin-contacts.html">Pesan Kontak</a>
-      <a href="admin-products.html">Produk</a> 
-      <a href="#" onclick="logoutAdmin()">Logout</a>
+  <header class="bg-gray-800 p-4 flex flex-col md:flex-row md:justify-between items-center gap-4 shadow">
+    <h1 class="text-2xl font-bold">Admin Toko Rayhan</h1>
+    <nav class="space-x-4 text-sm">
+      <a href="admin-orders.html" class="hover:text-blue-400">Pesanan</a>
+      <a href="admin-contacts.html" class="hover:text-blue-400">Pesan Kontak</a>
+      <a href="admin-products.html" class="hover:text-blue-400">Produk</a>
+      <a href="#" onclick="logoutAdmin()" class="hover:text-red-400">Logout</a>
     </nav>
   </header>
 
   <!-- Main Content -->
-  <main>
-    <section class="admin-section">
-      <p id="greeting" class="greeting-text"></p>
-      <h2>Ringkasan Pesanan</h2>
+  <main class="p-6 space-y-6">
+    <!-- Greeting -->
+    <section>
+      <h2 id="greeting" class="text-2xl font-semibold mb-1"></h2>
+      <p class="text-gray-400 text-sm">Tanggal: <span id="todayDate"></span></p>
+    </section>
 
-      <!-- Filter & Export -->
-      <div class="filter-export">
-        <label>Filter Tanggal Pesanan:</label><br />
-        <input type="date" id="startDate" />
-        <input type="date" id="endDate" />
-        <button class="btn" onclick="applyFilter()">Terapkan</button>
-        <button class="btn" onclick="exportPDF()">Export PDF</button>
-        <button class="btn" onclick="exportExcel()">Export Excel</button>
+    <!-- Summary Cards -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-gray-800 rounded-lg p-5 shadow">
+        <p class="text-gray-400">Total Pesanan Hari Ini</p>
+        <h3 id="totalToday" class="text-3xl font-bold text-green-400">0</h3>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-5 shadow">
+        <p class="text-gray-400">Total Omset Hari Ini</p>
+        <h3 id="totalIncome" class="text-3xl font-bold text-blue-400">Rp 0</h3>
+      </div>
+      <div class="bg-gray-800 rounded-lg p-5 shadow">
+        <p class="text-gray-400">Jumlah Produk Aktif</p>
+        <h3 id="productCount" class="text-3xl font-bold text-yellow-400">0</h3>
+      </div>
+    </section>
+
+    <!-- Chart -->
+    <section class="bg-gray-800 rounded-lg p-6 shadow">
+      <h3 class="text-lg font-semibold mb-4">Grafik Pesanan Mingguan</h3>
+      <canvas id="ordersChart" height="120"></canvas>
+    </section>
+
+    <!-- Filters & Table -->
+    <section class="bg-gray-800 rounded-lg p-6 shadow">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+        <div>
+          <label class="text-sm text-gray-300 mr-2">Filter Tanggal:</label>
+          <input type="date" id="startDate" class="bg-gray-700 text-white p-2 rounded" />
+          <input type="date" id="endDate" class="bg-gray-700 text-white p-2 rounded ml-2" />
+        </div>
+        <div class="flex gap-2">
+          <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Terapkan</button>
+          <button onclick="exportPDF()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">PDF</button>
+          <button onclick="exportExcel()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Excel</button>
+        </div>
       </div>
 
-      <p>
-        <strong>Tanggal Hari Ini:</strong>
-        <span id="todayDate"></span>
-      </p>
-      <p>
-        <strong>Total Pesanan Hari Ini:</strong>
-        <span id="totalToday">0</span>
-      </p>
-
-      <h3>Pesanan Terbaru</h3>
-      <table id="latestOrdersTable">
+      <!-- Table -->
+      <table class="w-full text-sm table-auto">
         <thead>
-          <tr>
-            <th>ID</th>
+          <tr class="border-b border-gray-700 text-left text-gray-300">
+            <th class="py-2">ID</th>
             <th>User</th>
             <th>Total</th>
             <th>Status</th>
           </tr>
         </thead>
-        <tbody>
-          <tr>
-            <td colspan="4" class="loading">Memuat data...</td>
-          </tr>
+        <tbody id="ordersBody">
+          <tr><td colspan="4" class="text-center py-4 text-gray-400">Memuat data...</td></tr>
         </tbody>
       </table>
     </section>
   </main>
 
-  <!-- Script -->
-<script>
-  let currentStartDate = '';
-  let currentEndDate = '';
-
-  function logoutAdmin() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('cart');
-    localStorage.removeItem('wishlist');
-    location.href = '/publik/index.html';
-  }
-
-  function getFilterQuery() {
-    const start = document.getElementById('startDate').value;
-    const end = document.getElementById('endDate').value;
-    currentStartDate = start;
-    currentEndDate = end;
-    const query = [];
-    if (start) query.push(`start=${start}`);
-    if (end) query.push(`end=${end}`);
-    return query.length ? `?${query.join('&')}` : '';
-  }
-
-  function tampilkanSalam(namaAdmin) {
-    const jam = new Date().getHours();
-    let salam = 'Selamat Datang';
-
-    if (jam >= 5 && jam < 11) {
-      salam = 'Selamat Pagi';
-    } else if (jam >= 11 && jam < 15) {
-      salam = 'Selamat Siang';
-    } else if (jam >= 15 && jam < 18) {
-      salam = 'Selamat Sore';
-    } else {
-      salam = 'Selamat Malam';
+  <!-- Scripts -->
+  <script>
+    function logoutAdmin() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('cart');
+      localStorage.removeItem('wishlist');
+      location.href = '/publik/index.html';
     }
 
-    document.getElementById('greeting').textContent = `${salam}, ${namaAdmin}!`;
-  }
+    function tampilkanSalam(namaAdmin) {
+      const jam = new Date().getHours();
+      let salam = 'Selamat Datang';
+      if (jam >= 5 && jam < 11) salam = 'Selamat Pagi';
+      else if (jam >= 11 && jam < 15) salam = 'Selamat Siang';
+      else if (jam >= 15 && jam < 18) salam = 'Selamat Sore';
+      else salam = 'Selamat Malam';
+      document.getElementById('greeting').textContent = `${salam}, ${namaAdmin}!`;
+    }
 
-  function formatRupiah(number) {
-    if (typeof number !== 'number') number = Number(number) || 0;
-    return 'Rp ' + number.toLocaleString('id-ID');
-  }
+    function formatRupiah(num) {
+      return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+    }
 
-  async function loadSummary() {
-    try {
-      const query = getFilterQuery();
-      const res = await fetch(`http://localhost:3000/api/orders/summary${query}`);
-      if (!res.ok) throw new Error(`Gagal mengambil ringkasan pesanan: ${res.statusText}`);
-      const data = await res.json();
+    function getFilterQuery() {
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      const query = [];
+      if (start) query.push(`start=${start}`);
+      if (end) query.push(`end=${end}`);
+      return query.length ? `?${query.join('&')}` : '';
+    }
 
-      document.getElementById('totalToday').textContent = (data.totalToday || 0).toLocaleString('id-ID');
+    async function loadSummary() {
+      try {
+        const res = await fetch(`http://localhost:3000/api/orders/summary${getFilterQuery()}`);
+        const data = await res.json();
 
-      const tbody = document.querySelector('#latestOrdersTable tbody');
-      tbody.innerHTML = '';
+        document.getElementById('totalToday').textContent = data.totalToday?.toLocaleString('id-ID') || '0';
+        document.getElementById('totalIncome').textContent = formatRupiah(data.totalIncome || 0);
+        document.getElementById('productCount').textContent = data.totalProducts || 0;
 
-      if (!data.latestOrders || data.latestOrders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Tidak ada pesanan terbaru</td></tr>`;
+        const tbody = document.getElementById('ordersBody');
+        tbody.innerHTML = '';
+
+        if (!data.latestOrders?.length) {
+          tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-400">Tidak ada pesanan</td></tr>`;
+          return;
+        }
+
+        data.latestOrders.forEach(o => {
+          const statusColor = {
+            pending: 'bg-yellow-500',
+            confirmed: 'bg-blue-500',
+            selesai: 'bg-green-500',
+            batal: 'bg-red-500'
+          }[o.status?.toLowerCase()] || 'bg-gray-500';
+
+          const row = `
+            <tr class="border-b border-gray-700">
+              <td class="py-2">${o.id}</td>
+              <td>${o.user_name || 'User #' + o.user_id}</td>
+              <td>${formatRupiah(o.total)}</td>
+              <td><span class="px-2 py-1 text-xs rounded ${statusColor} text-white">${o.status}</span></td>
+            </tr>`;
+          tbody.insertAdjacentHTML('beforeend', row);
+        });
+
+        if (data.weeklyStats) {
+          drawChart(data.weeklyStats);
+        }
+      } catch (e) {
+        console.error(e);
+        document.getElementById('ordersBody').innerHTML = `<tr><td colspan="4" class="text-center text-red-400">Gagal memuat data</td></tr>`;
+      }
+    }
+
+    function applyFilter() {
+      document.getElementById('ordersBody').innerHTML = `<tr><td colspan="4" class="text-center text-gray-400">Memuat data...</td></tr>`;
+      loadSummary();
+    }
+
+    function exportPDF() {
+      window.open(`http://localhost:3000/api/export/pdf${getFilterQuery()}`, '_blank');
+    }
+
+    function exportExcel() {
+      window.open(`http://localhost:3000/api/export/excel${getFilterQuery()}`, '_blank');
+    }
+
+    function drawChart(data) {
+      const ctx = document.getElementById('ordersChart').getContext('2d');
+      if (window.orderChart) window.orderChart.destroy();
+      window.orderChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(d => d.date),
+          datasets: [{
+            label: 'Jumlah Pesanan',
+            data: data.map(d => d.count),
+            fill: true,
+            borderColor: 'rgb(59, 130, 246)',
+            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+            tension: 0.3,
+          }]
+        },
+        options: {
+          plugins: {
+            legend: { labels: { color: '#fff' } }
+          },
+          scales: {
+            x: { ticks: { color: '#ccc' } },
+            y: { ticks: { color: '#ccc' } }
+          }
+        }
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const userStr = localStorage.getItem('user');
+      if (!userStr) return location.href = '/publik/index.html';
+      const user = JSON.parse(userStr);
+      if (!user.is_admin) {
+        alert('Halaman ini hanya untuk admin.');
+        location.href = '/publik/index.html';
         return;
       }
 
-      data.latestOrders.forEach((o) => {
-        const status = o.status ? o.status.toLowerCase() : 'pending';
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${o.id}</td>
-          <td>${o.user_name || 'User #' + o.user_id}</td>
-          <td>${formatRupiah(o.total)}</td>
-          <td><span class="status ${status}">${o.status || 'Pending'}</span></td>
-        `;
-        tbody.appendChild(row);
-      });
-    } catch (error) {
-      console.error(error);
-      alert('Terjadi kesalahan saat memuat ringkasan pesanan');
-      const tbody = document.querySelector('#latestOrdersTable tbody');
-      tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:red;">Gagal memuat data</td></tr>`;
-    }
-  }
-
-  function applyFilter() {
-    const tbody = document.querySelector('#latestOrdersTable tbody');
-    tbody.innerHTML = `<tr><td colspan="4" class="loading">Memuat data...</td></tr>`;
-    loadSummary();
-  }
-
-  function exportPDF() {
-    const query = getFilterQuery();
-    window.open(`http://localhost:3000/api/export/pdf${query}`, '_blank');
-  }
-
-  function exportExcel() {
-    const query = getFilterQuery();
-    window.open(`http://localhost:3000/api/export/excel${query}`, '_blank');
-  }
-
-  function getStatusColorClass(status) {
-    const map = {
-      pending: 'orange',
-      confirmed: 'blue',
-      selesai: 'green',
-      batal: 'red'
-    };
-    return map[status] || 'gray';
-  }
-
-  document.addEventListener('DOMContentLoaded', () => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return location.href = '/publik/index.html';
-
-    const user = JSON.parse(userStr);
-    if (!user.is_admin) {
-      alert('Halaman ini hanya untuk admin.');
-      location.href = '/publik/index.html';
-      return;
-    }
-
-    tampilkanSalam(user.name || 'Admin');
-
-    document.getElementById('todayDate').textContent = new Date().toLocaleDateString('id-ID');
-    loadSummary();
-  });
-</script>
-
+      tampilkanSalam(user.name || 'Admin');
+      document.getElementById('todayDate').textContent = new Date().toLocaleDateString('id-ID');
+      loadSummary();
+    });
+  </script>
 </body>
 </html>

@@ -4,11 +4,50 @@ const {
   createOrder,
   updateOrderStatusById,
   getOrderById,
-  getAllOrders,
   getOrdersByUserId,
   getTotalOrdersToday,
   getLatestOrders
 } = require('../models/ordermodel');
+
+// Fungsi tambahan untuk ringkasan dashboard
+const getTotalIncomeToday = async () => {
+  const [rows] = await db.query(`
+    SELECT SUM(total) AS totalIncome
+    FROM orders
+    WHERE DATE(created_at) = CURDATE()`  // Hapus CONVERT_TZ
+  );
+  return rows[0].totalIncome || 0;
+};
+
+const getProductCount = async () => {
+  const conn = await db.getConnection();
+  try {
+    const [rows] = await conn.query(
+      `SELECT COUNT(*) AS product_count FROM products`
+    );
+    return rows[0].product_count || 0;
+  } finally {
+    conn.release();
+  }
+};
+
+const getWeeklyOrderStats = async () => {
+  const [rows] = await db.query(`
+    SELECT DATE(created_at) AS date, COUNT(*) AS count
+    FROM orders
+    WHERE created_at >= CURDATE() - INTERVAL 6 DAY
+    GROUP BY DATE(created_at)
+    ORDER BY date
+  `);
+  
+  // Format hasil ke DD-MM-YYYY jika diperlukan
+  const formattedRows = rows.map(row => ({
+    ...row,
+    date: new Date(row.date).toLocaleDateString('id-ID') // Format Indonesia: DD/MM/YYYY
+  }));
+  
+  return formattedRows;
+};
 
 // Buat order baru
 const placeOrder = async (req, res) => {
@@ -24,16 +63,17 @@ const placeOrder = async (req, res) => {
       payment_details
     } = req.body;
 
-    // Validasi pengiriman
+    // Validasi data shipping
     if (!user_id || !shipping || !shipping.name || !shipping.phone || !shipping.address) {
       return res.status(400).json({ message: 'Data pengiriman tidak lengkap' });
     }
 
+    // Validasi items
     if (!items || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ message: 'Order harus memiliki item' });
     }
 
-    // Validasi payment details sesuai metode pembayaran
+    // Validasi payment details sesuai metode
     if (payment_method === 'transfer' && !payment_details?.virtual_account) {
       return res.status(400).json({ message: 'Virtual Account harus diisi untuk transfer' });
     }
@@ -41,7 +81,7 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ message: 'Nomor HP harus diisi untuk e-wallet' });
     }
 
-    // Cek stok setiap produk
+    // Cek stok produk
     for (const item of items) {
       const [productRows] = await db.query('SELECT stock FROM products WHERE id = ?', [item.product_id]);
       if (productRows.length === 0) {
@@ -52,7 +92,7 @@ const placeOrder = async (req, res) => {
       }
     }
 
-    // Kurangi stok produk
+    // Update stok produk
     for (const item of items) {
       await db.query('UPDATE products SET stock = stock - ? WHERE id = ?', [item.quantity, item.product_id]);
     }
@@ -73,14 +113,14 @@ const placeOrder = async (req, res) => {
       payment_details
     };
 
-    // Simpan order dan dapatkan ID
+    // Simpan order ke DB
     const orderId = await createOrder(orderData);
 
     if (!orderId) {
       return res.status(500).json({ message: 'Gagal membuat order: ID tidak tersedia' });
     }
 
-    // Hapus cart user setelah order berhasil
+    // Hapus cart user setelah order sukses
     await db.query('DELETE FROM cart WHERE user_id = ?', [user_id]);
 
     res.status(201).json({
@@ -123,7 +163,7 @@ const updateOrderStatus = async (req, res) => {
   }
 };
 
-// Dapatkan detail order lengkap (termasuk items dan payment_details)
+// Detail order
 const getOrderDetail = async (req, res) => {
   try {
     const { id } = req.params;
@@ -140,7 +180,7 @@ const getOrderDetail = async (req, res) => {
   }
 };
 
-// Semua order dengan pagination dan filter
+// Semua order (pagination + filter)
 const getAllOrdersHandler = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -161,12 +201,12 @@ const getAllOrdersHandler = async (req, res) => {
     }
 
     if (startDate) {
-      whereClauses.push('DATE(created_at) >= ?');
+      whereClauses.push('DATE(CONVERT_TZ(created_at, "+00:00", "+07:00")) >= ?');
       values.push(startDate);
     }
 
     if (endDate) {
-      whereClauses.push('DATE(created_at) <= ?');
+      whereClauses.push('DATE(CONVERT_TZ(created_at, "+00:00", "+07:00")) <= ?');
       values.push(endDate);
     }
 
@@ -179,7 +219,6 @@ const getAllOrdersHandler = async (req, res) => {
     dataQuery += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
     values.push(limit, offset);
 
-    // Untuk query count, exclude limit dan offset
     const [countRows] = await db.query(countQuery, values.slice(0, -2));
     const [orders] = await db.query(dataQuery, values);
 
@@ -195,7 +234,7 @@ const getAllOrdersHandler = async (req, res) => {
   }
 };
 
-// Order berdasarkan user
+// Order per user
 const getOrdersByUser = async (req, res) => {
   try {
     const { userId } = req.params;
@@ -207,15 +246,21 @@ const getOrdersByUser = async (req, res) => {
   }
 };
 
-// Ringkasan order untuk dashboard admin
+// Ringkasan untuk dashboard admin
 const getOrderSummary = async (req, res) => {
   try {
     const totalToday = await getTotalOrdersToday();
+    const totalIncome = await getTotalIncomeToday();
+    const totalProducts = await getProductCount();
+    const weeklyStats = await getWeeklyOrderStats();
     const latestOrders = await getLatestOrders(5);
 
     res.json({
       totalToday,
-      latestOrders
+      totalIncome,
+      totalProducts,
+      latestOrders,
+      weeklyStats
     });
   } catch (error) {
     console.error('Error di getOrderSummary:', error);
@@ -223,7 +268,7 @@ const getOrderSummary = async (req, res) => {
   }
 };
 
-// Export ke CSV
+// Export CSV
 const exportOrdersToCSV = async (req, res) => {
   try {
     const [orders] = await db.query('SELECT * FROM orders ORDER BY created_at DESC');

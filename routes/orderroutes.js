@@ -9,23 +9,23 @@ const {
   getOrderSummary
 } = require('../controllers/ordercontroller');
 
-// Route untuk membuat order baru
+// Route: Buat order baru
 router.post('/', placeOrder);
 
-// Route untuk mendapatkan semua orders (admin) dengan pagination dan filter status
+// Route: Dapatkan semua orders (admin) dengan pagination dan filter status
 // Contoh: GET /orders?page=1&limit=10&status=completed
 router.get('/', getAllOrders);
 
-// Route untuk mendapatkan semua orders berdasarkan user_id
+// Route: Dapatkan semua orders berdasarkan user_id
 router.get('/user/:userId', getOrdersByUser);
 
-// Route baru untuk mendapatkan ringkasan pesanan
+// Route: Dapatkan ringkasan pesanan untuk dashboard admin
 router.get('/summary', getOrderSummary);
 
-// Route untuk mendapatkan detail order berdasarkan ID order
+// Route: Dapatkan detail order berdasarkan ID (HARUS ditaruh setelah '/summary' untuk menghindari konflik)
 router.get('/:id', getOrderDetail);
 
-// Route untuk mengupdate status order berdasarkan ID order
+// Route: Update status order berdasarkan ID
 router.patch('/:id/status', updateOrderStatus);
 
 module.exports = router;
