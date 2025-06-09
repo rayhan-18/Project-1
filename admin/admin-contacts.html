@@ -1,131 +1,37 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin - Pesan Kontak</title>
-  <link rel="stylesheet" href="/assets/style.css">
+  <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      padding: 20px;
-      background: #f9f9f9;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #333;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    header nav a {
-      color: white;
-      margin-left: 15px;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    h2 {
-      margin-top: 30px;
-      font-size: 20px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-      vertical-align: top;
-    }
-
-    th {
-      background-color: #f4f4f4;
-    }
-
-    /* Style untuk pesan yang sudah dibaca */
-    tr.read {
-      background-color: #e0f7e9;
-      color: #555;
-    }
-
-    button {
-      padding: 5px 10px;
-      margin: 2px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-weight: 600;
-    }
-
-    button.read-btn {
-      background-color: #4caf50;
-      color: white;
-    }
-
-    button.delete-btn {
-      background-color: #f44336;
-      color: white;
-    }
-
-    /* Pagination */
-    #pagination {
-      margin-top: 20px;
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    #pagination button {
-      padding: 8px 16px;
-      background-color: #333;
-      color: white;
-    }
-
-    #pagination button:disabled {
-      background-color: #999;
-      cursor: not-allowed;
-    }
-  </style>
 </head>
-<body>
+<body class="bg-gray-100 font-sans text-gray-800">
 
   <!-- Header -->
-  <header>
-    <h1>Admin Toko Rayhan</h1>
-    <nav>
-      <a href="admin-dashboard.html">Dashboard</a>
-      <a href="admin-orders.html">Pesanan</a>
-      <a href="admin-contacts.html">Pesan Kontak</a>
-      <a href="#" onclick="logoutAdmin()">Logout</a>
+  <header class="bg-gray-800 text-white px-6 py-4 flex justify-between items-center shadow-md">
+    <h1 class="text-xl font-bold">Admin Toko Rayhan</h1>
+    <nav class="space-x-4">
+      <a href="admin-dashboard.html" class="hover:underline">Dashboard</a>
+      <a href="admin-orders.html" class="hover:underline">Pesanan</a>
+      <a href="admin-contacts.html" class="underline font-semibold">Pesan Kontak</a>
+      <a href="#" onclick="logoutAdmin()" class="text-red-400 hover:underline">Logout</a>
     </nav>
   </header>
 
   <!-- Main Content -->
-  <main>
-    <h2>Daftar Pesan Kontak</h2>
-    <div id="messageList">
+  <main class="max-w-7xl mx-auto mt-8 px-4">
+    <h2 class="text-2xl font-semibold mb-4">Daftar Pesan Kontak</h2>
+
+    <div id="messageList" class="bg-white rounded-lg shadow p-4">
       <p>Memuat pesan...</p>
     </div>
-    <div id="pagination">
-      <button id="prevBtn" disabled>Prev</button>
-      <button id="nextBtn" disabled>Next</button>
+
+    <!-- Pagination -->
+    <div id="pagination" class="flex justify-center mt-6 space-x-4">
+      <button id="prevBtn" disabled class="bg-gray-400 text-white px-4 py-2 rounded disabled:opacity-50">Prev</button>
+      <button id="nextBtn" disabled class="bg-gray-800 text-white px-4 py-2 rounded disabled:opacity-50">Next</button>
     </div>
   </main>
 
@@ -146,12 +52,7 @@
       try {
         const res = await fetch(`http://localhost:3000/api/contact?page=${page}&limit=${limit}`);
         const data = await res.json();
-
-        // Asumsi backend mengembalikan object { data: [], total: number }
-        // Jika backend belum, kita harus update Contact.getAll agar return total count dan data
-        if (!data || !Array.isArray(data.data)) {
-          throw new Error('Format data tidak sesuai');
-        }
+        if (!data || !Array.isArray(data.data)) throw new Error('Format data tidak sesuai');
 
         totalMessages = data.total || 0;
         currentPage = page;
@@ -165,70 +66,64 @@
 
     function renderMessages(messages) {
       const container = document.getElementById('messageList');
-
       if (messages.length === 0) {
-        container.innerHTML = '<p>Tidak ada pesan masuk.</p>';
+        container.innerHTML = '<p class="text-center text-gray-600">Tidak ada pesan masuk.</p>';
         return;
       }
 
       let html = `
-        <table>
-          <thead>
+        <div class="overflow-x-auto">
+        <table class="min-w-full text-sm text-left">
+          <thead class="bg-gray-200 text-gray-700 font-semibold">
             <tr>
-              <th>Nama</th>
-              <th>Email</th>
-              <th>Subjek</th>
-              <th>Pesan</th>
-              <th>Waktu</th>
-              <th>Status</th>
-              <th>Aksi</th>
+              <th class="px-4 py-2">Nama</th>
+              <th class="px-4 py-2">Email</th>
+              <th class="px-4 py-2">Subjek</th>
+              <th class="px-4 py-2">Pesan</th>
+              <th class="px-4 py-2">Waktu</th>
+              <th class="px-4 py-2">Status</th>
+              <th class="px-4 py-2">Aksi</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-gray-200">
       `;
 
       messages.forEach(msg => {
-        const readClass = msg.read ? 'read' : '';
-        const readText = msg.read ? 'Sudah dibaca' : 'Belum dibaca';
+        const readBadge = msg.read
+          ? `<span class="bg-green-100 text-green-700 px-2 py-1 text-xs rounded-full">Sudah dibaca</span>`
+          : `<span class="bg-yellow-100 text-yellow-700 px-2 py-1 text-xs rounded-full">Belum dibaca</span>`;
 
         html += `
-          <tr class="${readClass}">
-            <td>${msg.name}</td>
-            <td>${msg.email}</td>
-            <td>${msg.subject}</td>
-            <td>${msg.message}</td>
-            <td>${new Date(msg.created_at).toLocaleString('id-ID')}</td>
-            <td>${readText}</td>
-            <td>
-              ${!msg.read ? `<button class="read-btn" onclick="markAsRead(${msg.id})">Tandai sudah dibaca</button>` : ''}
-              <button class="delete-btn" onclick="deleteMessage(${msg.id})">Hapus</button>
+          <tr class="${msg.read ? 'bg-green-50' : 'bg-white'}">
+            <td class="px-4 py-3">${msg.name}</td>
+            <td class="px-4 py-3">${msg.email}</td>
+            <td class="px-4 py-3">${msg.subject}</td>
+            <td class="px-4 py-3">${msg.message}</td>
+            <td class="px-4 py-3">${new Date(msg.created_at).toLocaleString('id-ID')}</td>
+            <td class="px-4 py-3">${readBadge}</td>
+            <td class="px-4 py-3 space-x-2">
+              ${!msg.read ? `<button onclick="markAsRead(${msg.id})" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">Tandai</button>` : ''}
+              <button onclick="deleteMessage(${msg.id})" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm">Hapus</button>
             </td>
           </tr>
         `;
       });
 
-      html += `</tbody></table>`;
+      html += `</tbody></table></div>`;
       container.innerHTML = html;
     }
 
     function updatePagination() {
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-
-      prevBtn.disabled = currentPage <= 1;
-      nextBtn.disabled = currentPage * limit >= totalMessages;
+      document.getElementById('prevBtn').disabled = currentPage <= 1;
+      document.getElementById('nextBtn').disabled = currentPage * limit >= totalMessages;
     }
 
     document.getElementById('prevBtn').addEventListener('click', () => {
-      if (currentPage > 1) {
-        fetchMessages(currentPage - 1);
-      }
+      if (currentPage > 1) fetchMessages(currentPage - 1);
     });
 
     document.getElementById('nextBtn').addEventListener('click', () => {
-      if (currentPage * limit < totalMessages) {
-        fetchMessages(currentPage + 1);
-      }
+      if (currentPage * limit < totalMessages) fetchMessages(currentPage + 1);
     });
 
     async function markAsRead(id) {
@@ -238,46 +133,40 @@
           headers: { 'Content-Type': 'application/json' }
         });
         const result = await res.json();
-
         if (res.ok) {
-          Swal.fire('Berhasil', 'Pesan berhasil ditandai sudah dibaca.', 'success');
+          Swal.fire('Berhasil', 'Pesan ditandai sudah dibaca.', 'success');
           fetchMessages(currentPage);
         } else {
-          throw new Error(result.message || 'Gagal update status pesan');
+          throw new Error(result.message || 'Gagal update status');
         }
       } catch (error) {
-        console.error('Gagal update status pesan:', error);
-        Swal.fire('Error', 'Gagal update status pesan.', 'error');
+        Swal.fire('Error', 'Gagal menandai pesan.', 'error');
       }
     }
 
     async function deleteMessage(id) {
+      const confirmed = await Swal.fire({
+        title: 'Hapus pesan?',
+        text: 'Pesan yang dihapus tidak dapat dikembalikan!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, hapus',
+        cancelButtonText: 'Batal'
+      });
+
+      if (!confirmed.isConfirmed) return;
+
       try {
-        const confirmed = await Swal.fire({
-          title: 'Hapus pesan?',
-          text: 'Pesan yang dihapus tidak dapat dikembalikan!',
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Ya, hapus',
-          cancelButtonText: 'Batal'
-        });
-
-        if (!confirmed.isConfirmed) return;
-
-        const res = await fetch(`http://localhost:3000/api/contact/${id}`, {
-          method: 'DELETE'
-        });
+        const res = await fetch(`http://localhost:3000/api/contact/${id}`, { method: 'DELETE' });
         const result = await res.json();
-
         if (res.ok) {
           Swal.fire('Terhapus', 'Pesan berhasil dihapus.', 'success');
           fetchMessages(currentPage);
         } else {
-          throw new Error(result.message || 'Gagal hapus pesan');
+          throw new Error(result.message || 'Gagal hapus');
         }
       } catch (error) {
-        console.error('Gagal hapus pesan:', error);
-        Swal.fire('Error', 'Gagal hapus pesan.', 'error');
+        Swal.fire('Error', 'Gagal menghapus pesan.', 'error');
       }
     }
 
@@ -294,5 +183,6 @@
       fetchMessages();
     });
   </script>
+
 </body>
 </html>
