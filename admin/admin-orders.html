@@ -2,308 +2,206 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin - Daftar Pesanan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="/assets/style.css" />
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      padding: 20px;
-      background: #f9f9f9;
-    }
-
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #333;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-    }
-
-    header h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-
-    header nav a {
-      color: white;
-      margin-left: 15px;
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    main {
-      margin-top: 30px;
-    }
-
-    .btn {
-      padding: 6px 12px;
-      border: none;
-      background: #4a7c59;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-right: 5px;
-    }
-
-    .btn:hover {
-      background: #3b6449;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      background: white;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-
-    th, td {
-      border: 1px solid #ccc;
-      padding: 10px;
-      text-align: left;
-      vertical-align: middle;
-    }
-
-    th {
-      background-color: #f4f4f4;
-    }
-
-    .filter-export {
-      margin-bottom: 20px;
-    }
-
-    .filter-export input,
-    .filter-export select,
-    .filter-export button {
-      margin-right: 10px;
-      padding: 6px;
-    }
-
-    .status-pending {
-      color: orange;
-      font-weight: 600;
-    }
-
-    .status-confirmed {
-      color: blue;
-      font-weight: 600;
-    }
-
-    .status-shipped {
-      color: green;
-      font-weight: 600;
-    }
-
-    .status-cancelled {
-      color: red;
-      font-weight: 600;
-    }
-
-    .pagination button {
-        margin: 0 3px;
-        padding: 4px 8px;
-    }
-    .pagination button.active {
-        background-color: #333;
-        color: #fff;
-        font-weight: bold;
-    }
-  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-<body>
-
-  <!-- Header -->
-  <header>
-    <h1>Admin Toko Rayhan</h1>
-    <nav>
-      <a href="admin-dashboard.html">Dashboard</a>
-      <a href="admin-orders.html">Pesanan</a>
-      <a href="admin-contacts.html">Pesan Kontak</a>
-      <a href="#" onclick="logoutAdmin()">Logout</a>
+<body class="bg-gray-100 font-sans text-gray-800">
+  <header class="bg-gray-800 text-white flex items-center justify-between p-4 shadow-md sticky top-0 z-50">
+    <h1 class="text-xl font-bold">Admin Toko Rayhan</h1>
+    <nav class="space-x-4 text-sm">
+      <a href="admin-dashboard.html" class="hover:underline">Dashboard</a>
+      <a href="admin-orders.html" class="underline font-semibold">Pesanan</a>
+      <a href="admin-contacts.html" class="hover:underline">Pesan Kontak</a>
+      <a href="#" onclick="logoutAdmin()" class="hover:underline text-red-400">Logout</a>
     </nav>
   </header>
 
-  <!-- Main Content -->
-  <main>
-    <section class="admin-section">
-      <h2>Daftar Pesanan</h2>
+  <main class="max-w-7xl mx-auto mt-8 px-4 mb-16">
+    <h2 class="text-3xl font-bold mb-6 text-gray-700">Daftar Pesanan</h2>
 
-      <!-- Filter -->
-      <div class="filter-export">
-        <label>Filter Tanggal:</label>
-        <input type="date" id="startDate" />
-        <input type="date" id="endDate" />
-
-        <label>Status:</label>
-        <select id="statusFilter">
-          <option value="">Semua</option>
-          <option value="Pending">Pending</option>
-          <option value="Confirmed">Confirmed</option>
-          <option value="Shipped">Shipped</option>
-          <option value="Cancelled">Cancelled</option>
-        </select>
-
-        <button class="btn" onclick="applyFilter()">Terapkan</button>
-      </div>
-        <table id="ordersTable">
-            <thead>
-                <tr>
-                <th>ID</th>
-                <th>User</th>
-                <th>Tanggal</th>
-                <th>Total</th>
-                <th>Status</th>
-                <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr><td colspan="6" style="text-align:center;">Memuat data...</td></tr>
-            </tbody>
-        </table>
-
-        <div id="pagination" class="pagination" style="margin-top:15px; text-align:center;"></div>
-
+    <section class="bg-white p-6 rounded-xl shadow mb-6 flex flex-wrap items-center gap-4">
+      <input type="text" id="searchInput" oninput="applyFilter()" placeholder="Cari ID/Nama User" class="border px-3 py-2 text-sm rounded focus:outline-none" />
+      <input type="date" id="startDate" class="border rounded px-3 py-2 text-sm focus:outline-none" />
+      <input type="date" id="endDate" class="border rounded px-3 py-2 text-sm focus:outline-none" />
+      <select id="statusFilter" class="border rounded px-3 py-2 text-sm focus:outline-none">
+        <option value="">Semua</option>
+        <option value="Pending">Pending</option>
+        <option value="Confirmed">Confirmed</option>
+        <option value="Shipped">Shipped</option>
+        <option value="Cancelled">Cancelled</option>
+      </select>
+      <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Terapkan</button>
+      <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">Export Excel</button>
     </section>
+
+    <section class="bg-white rounded-xl shadow overflow-x-auto relative">
+      <div id="loading" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center hidden">
+        <span class="text-gray-500 text-sm">Memuat data...</span>
+      </div>
+      <table id="orders-table" class="min-w-full text-sm table-auto">
+        <thead class="bg-gray-100 text-gray-700 cursor-pointer">
+          <tr>
+            <th onclick="sortTable('id')" class="px-4 py-3 border">ID</th>
+            <th onclick="sortTable('user_name')" class="px-4 py-3 border">User</th>
+            <th onclick="sortTable('created_at')" class="px-4 py-3 border">Tanggal</th>
+            <th onclick="sortTable('total')" class="px-4 py-3 border">Total</th>
+            <th onclick="sortTable('status')" class="px-4 py-3 border">Status</th>
+            <th class="px-4 py-3 border">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="ordersBody" class="divide-y"></tbody>
+      </table>
+    </section>
+
+    <div id="pagination" class="mt-6 flex justify-center flex-wrap gap-2"></div>
   </main>
 
-<script>
-    let currentPage = 1;
-    const limitPerPage = 10;
+  <script>
+    let currentPage = 1, limitPerPage = 10, sortBy = '', sortDir = 'asc';
 
     function logoutAdmin() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('cart');
-    localStorage.removeItem('wishlist');
-    location.href = '/publik/index.html';
+      localStorage.clear();
+      location.href = '/publik/index.html';
     }
 
     function getFilterQuery() {
-    const start = document.getElementById('startDate').value;
-    const end = document.getElementById('endDate').value;
-    const status = document.getElementById('statusFilter').value;
-
-    const query = [];
-    if (start) query.push(`start=${start}`);
-    if (end) query.push(`end=${end}`);
-    if (status) query.push(`status=${status}`);
-    return query.join('&');
-    }
-
-    async function loadOrders(page = 1) {
-    try {
-        currentPage = page;
-        const filterQuery = getFilterQuery();
-        const queryParams = [`page=${page}`, `limit=${limitPerPage}`];
-        if (filterQuery) queryParams.push(filterQuery);
-        const fullQuery = queryParams.length ? `?${queryParams.join('&')}` : '';
-
-        const res = await fetch(`http://localhost:3000/api/orders${fullQuery}`);
-        if (!res.ok) throw new Error('Gagal mengambil data pesanan');
-
-        const data = await res.json();
-        const orders = Array.isArray(data.orders) ? data.orders : [];
-        const total = data.total || 0;
-
-        const tbody = document.querySelector('#ordersTable tbody');
-        tbody.innerHTML = '';
-
-        if (orders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Tidak ada pesanan</td></tr>`;
-        } else {
-        orders.forEach(order => {
-            const tr = document.createElement('tr');
-            let statusClass = '';
-            switch ((order.status || '').toLowerCase()) {
-            case 'pending': statusClass = 'status-pending'; break;
-            case 'confirmed': statusClass = 'status-confirmed'; break;
-            case 'shipped': statusClass = 'status-shipped'; break;
-            case 'cancelled': statusClass = 'status-cancelled'; break;
-            }
-
-            tr.innerHTML = `
-            <td>${order.id}</td>
-            <td>${order.user_name || 'User #' + order.user_id}</td>
-            <td>${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
-            <td>Rp ${order.total.toLocaleString()}</td>
-            <td class="${statusClass}">${order.status || 'Pending'}</td>
-            <td>
-                <button class="btn" onclick="updateStatus(${order.id}, 'Confirmed')">Konfirmasi</button>
-                <button class="btn" onclick="updateStatus(${order.id}, 'Shipped')">Kirim</button>
-                <button class="btn" onclick="updateStatus(${order.id}, 'Cancelled')">Batalkan</button>
-            </td>
-            `;
-            tbody.appendChild(tr);
-        });
-        }
-
-        renderPagination(total, page);
-    } catch (error) {
-        console.error(error);
-        alert('Terjadi kesalahan saat memuat data pesanan.');
-        const tbody = document.querySelector('#ordersTable tbody');
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:red;">Gagal memuat data</td></tr>`;
-    }
-    }
-
-    function renderPagination(totalItems, currentPage) {
-    const pagination = document.getElementById('pagination');
-    if (!pagination) return;
-
-    const totalPages = Math.ceil(totalItems / limitPerPage);
-    pagination.innerHTML = '';
-
-    for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.textContent = i;
-        btn.className = i === currentPage ? 'active' : '';
-        btn.addEventListener('click', () => loadOrders(i));
-        pagination.appendChild(btn);
-    }
-    }
-
-    async function updateStatus(orderId, newStatus) {
-    if (!confirm(`Apakah Anda yakin ingin mengubah status pesanan #${orderId} menjadi "${newStatus}"?`)) {
-        return;
-    }
-    try {
-        const res = await fetch(`http://localhost:3000/api/orders/${orderId}/status`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: newStatus })
-        });
-        if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Gagal update status');
-        }
-        alert(`Status pesanan #${orderId} berhasil diubah menjadi "${newStatus}"`);
-        loadOrders(currentPage);
-    } catch (error) {
-        console.error(error);
-        alert('Gagal mengubah status pesanan');
-    }
+      const search = document.getElementById('searchInput').value.trim();
+      const start = document.getElementById('startDate').value;
+      const end = document.getElementById('endDate').value;
+      const status = document.getElementById('statusFilter').value;
+      const query = [];
+      if (search) query.push(`search=${encodeURIComponent(search)}`);
+      if (start) query.push(`start=${start}`);
+      if (end) query.push(`end=${end}`);
+      if (status) query.push(`status=${status}`);
+      if (sortBy) query.push(`sort=${sortBy}`);
+      if (sortDir) query.push(`dir=${sortDir}`);
+      return query.join('&');
     }
 
     function applyFilter() {
-    loadOrders(1);
+      loadOrders(1);
+    }
+
+    function sortTable(field) {
+      if (sortBy === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      else {
+        sortBy = field;
+        sortDir = 'asc';
+      }
+      loadOrders(1);
+    }
+
+    async function loadOrders(page = 1) {
+      currentPage = page;
+      const loading = document.getElementById('loading');
+      loading.classList.remove('hidden');
+
+      try {
+        const query = getFilterQuery();
+        const res = await fetch(`http://localhost:3000/api/orders?page=${page}&limit=${limitPerPage}&${query}`);
+        const data = await res.json();
+        const tbody = document.getElementById('ordersBody');
+        tbody.innerHTML = '';
+
+        (data.orders || []).forEach(order => {
+          let badge = '<span class="px-2 py-1 text-xs rounded bg-gray-200 text-gray-700">-</span>';
+          const s = (order.status || '').toLowerCase();
+          if (s === 'pending') badge = '<span class="px-2 py-1 text-xs rounded bg-orange-100 text-orange-600">Pending</span>';
+          else if (s === 'confirmed') badge = '<span class="px-2 py-1 text-xs rounded bg-blue-100 text-blue-700">Confirmed</span>';
+          else if (s === 'shipped') badge = '<span class="px-2 py-1 text-xs rounded bg-green-100 text-green-700">Shipped</span>';
+          else if (s === 'cancelled') badge = '<span class="px-2 py-1 text-xs rounded bg-red-100 text-red-700">Cancelled</span>';
+
+          tbody.innerHTML += `
+            <tr class="hover:bg-gray-50">
+              <td class="border px-4 py-3">${order.id}</td>
+              <td class="border px-4 py-3">${order.user_name || 'User #' + order.user_id}</td>
+              <td class="border px-4 py-3">${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
+              <td class="border px-4 py-3">Rp ${order.total.toLocaleString()}</td>
+              <td class="border px-4 py-3">${badge}</td>
+              <td class="border px-4 py-3 space-x-1">
+                <button onclick="updateStatus(${order.id}, 'Confirmed')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded">Konfirmasi</button>
+                <button onclick="updateStatus(${order.id}, 'Shipped')" class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded">Kirim</button>
+                <button onclick="updateStatus(${order.id}, 'Cancelled')" class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">Batalkan</button>
+              </td>
+            </tr>`;
+        });
+
+        renderPagination(data.total || 0);
+      } catch (err) {
+        document.getElementById('ordersBody').innerHTML = '<tr><td colspan="6" class="text-center py-6 text-red-500">Gagal memuat data</td></tr>';
+        console.error(err);
+      } finally {
+        loading.classList.add('hidden');
+      }
+    }
+
+    function renderPagination(totalItems) {
+      const pagination = document.getElementById('pagination');
+      const totalPages = Math.ceil(totalItems / limitPerPage);
+      pagination.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = `px-3 py-1 rounded border text-sm ${i === currentPage ? 'bg-gray-800 text-white font-semibold' : 'bg-white hover:bg-gray-100'}`;
+        btn.onclick = () => loadOrders(i);
+        pagination.appendChild(btn);
+      }
+    }
+
+    async function updateStatus(id, status) {
+      if (!confirm(`Yakin ubah status ke ${status}?`)) return;
+      try {
+        const res = await fetch(`http://localhost:3000/api/orders/${id}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status })
+        });
+        if (!res.ok) throw new Error();
+        alert('Status diperbarui.');
+        loadOrders(currentPage);
+      } catch {
+        alert('Gagal update status');
+      }
+    }
+
+    function exportToExcel() {
+      const table = document.getElementById("orders-table");
+      const wb = XLSX.utils.book_new();
+      const ws_data = [];
+      const rows = table.querySelectorAll("tbody tr");
+
+      // Header manual tanpa kolom "Aksi"
+      ws_data.push(["ID", "User", "Tanggal", "Total", "Status"]);
+
+      rows.forEach(row => {
+        const cells = row.querySelectorAll("td");
+
+        // Ambil hanya kolom: ID, User, Tanggal, Total, Status
+        ws_data.push([
+          cells[0].textContent, // ID
+          cells[1].textContent, // User
+          cells[2].textContent, // Tanggal
+          cells[3].textContent, // Total
+          cells[4].textContent  // Status
+          // cells[5] = kolom Aksi → dilewati
+        ]);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, "Orders");
+      XLSX.writeFile(wb, "orders-export.xlsx");
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return location.href = '/publik/index.html';
-
-    const user = JSON.parse(userStr);
-    if (!user.is_admin) {
-        alert('Halaman ini hanya untuk admin.');
-        location.href = '/publik/index.html';
-        return;
-    }
-
-    loadOrders();
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.is_admin) return location.href = '/publik/index.html';
+      loadOrders();
     });
-</script>
-
+  </script>
 </body>
 </html>
