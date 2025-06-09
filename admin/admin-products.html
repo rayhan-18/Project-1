@@ -2,447 +2,269 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Produk - Toko Rayhan</title>
-  <link rel="stylesheet" href="/assets/style.css" />
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      padding: 20px;
-      background: #f9f9f9;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #333;
-      color: white;
-      padding: 15px 20px;
-      border-radius: 8px;
-      margin-bottom: 20px;
-    }
-    header h1 {
-      margin: 0;
-      font-size: 22px;
-    }
-    header nav a {
-      color: white;
-      margin-left: 15px;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    main {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-      table-layout: fixed;
-      word-wrap: break-word;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: left;
-      vertical-align: middle;
-    }
-    th {
-      background: #f4f4f4;
-    }
-    .btn {
-      padding: 6px 12px;
-      border: none;
-      background: #4a7c59;
-      color: white;
-      border-radius: 4px;
-      cursor: pointer;
-      margin-right: 5px;
-      transition: background-color 0.3s;
-      font-size: 14px;
-    }
-    .btn:hover {
-      background: #3b6449;
-    }
-    .btn-danger {
-      background: #c0392b;
-    }
-    .btn-danger:hover {
-      background: #922b21;
-    }
-    form > div {
-      margin-bottom: 12px;
-    }
-    label {
-      display: block;
-      margin-bottom: 4px;
-      font-weight: 600;
-    }
-    input[type="text"],
-    input[type="number"],
-    input[type="url"],
-    select {
-      width: 100%;
-      padding: 8px;
-      box-sizing: border-box;
-      border: 1px solid #ccc;
-      border-radius: 4px;
-      font-size: 14px;
-      transition: border-color 0.3s;
-    }
-    input[type="text"]:focus,
-    input[type="number"]:focus,
-    input[type="url"]:focus,
-    select:focus {
-      border-color: #4a7c59;
-      outline: none;
-    }
-    .form-actions {
-      margin-top: 10px;
-    }
-    .message {
-      margin-top: 10px;
-      font-weight: 600;
-    }
-    /* Loading spinner */
-    #loadingSpinner {
-      display: none;
-      margin-top: 10px;
-      font-size: 14px;
-      color: #4a7c59;
-    }
-    /* Responsive table */
-    @media (max-width: 600px) {
-      table, thead, tbody, th, td, tr {
-        display: block;
-      }
-      thead tr {
-        display: none;
-      }
-      tr {
-        margin-bottom: 15px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        padding: 10px;
-      }
-      td {
-        border: none;
-        position: relative;
-        padding-left: 50%;
-        text-align: right;
-      }
-      td::before {
-        position: absolute;
-        left: 15px;
-        width: 45%;
-        white-space: nowrap;
-        font-weight: 600;
-        text-align: left;
-      }
-      td:nth-of-type(1)::before { content: "ID"; }
-      td:nth-of-type(2)::before { content: "Nama Produk"; }
-      td:nth-of-type(3)::before { content: "Kategori"; }
-      td:nth-of-type(4)::before { content: "Stok"; }
-      td:nth-of-type(5)::before { content: "Harga"; }
-      td:nth-of-type(6)::before { content: "Gambar"; }
-      td:nth-of-type(7)::before { content: "Aksi"; }
-      img {
-        max-width: 100%;
-        height: auto !important;
-      }
-    }
-  </style>
+  <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-gray-100 p-6 font-sans text-gray-800">
 
-<header>
-  <h1>Admin Produk - Toko Rayhan</h1>
-  <nav>
-    <a href="admin-orders.html">Pesanan</a>
-    <a href="admin-contacts.html">Pesan Kontak</a>
-    <a href="admin-dashboard.html">Dashboard</a>
-    <a href="#" onclick="logoutAdmin()">Logout</a>
-  </nav>
-</header>
+  <!-- Header -->
+  <header class="flex items-center justify-between bg-gray-800 text-white px-6 py-4 rounded-lg mb-6 shadow">
+    <h1 class="text-xl font-bold">Admin Produk - Toko Rayhan</h1>
+    <nav class="space-x-4">
+      <a href="admin-orders.html" class="hover:underline">Pesanan</a>
+      <a href="admin-contacts.html" class="hover:underline">Pesan Kontak</a>
+      <a href="admin-dashboard.html" class="hover:underline">Dashboard</a>
+      <a href="#" onclick="logoutAdmin()" class="hover:underline">Logout</a>
+    </nav>
+  </header>
 
-<main>
-  <section>
-    <h2>Tambah / Edit Produk</h2>
-    <form id="productForm" novalidate>
-      <input type="hidden" id="productId" />
-      <div>
-        <label for="productName">Nama Produk</label>
-        <input type="text" id="productName" required minlength="3" />
+  <!-- Form & Table -->
+  <main class="bg-white p-6 rounded-lg shadow">
+    <!-- Form -->
+    <section class="mb-8">
+      <h2 class="text-2xl font-semibold mb-4">Tambah / Edit Produk</h2>
+      <form id="productForm" novalidate class="space-y-4">
+        <input type="hidden" id="productId" />
+
+        <div>
+          <label for="productName" class="block font-medium mb-1">Nama Produk</label>
+          <input type="text" id="productName" required minlength="3" 
+                 class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600" />
+        </div>
+        <div>
+          <label for="productCategory" class="block font-medium mb-1">Kategori</label>
+          <select id="productCategory" required
+                  class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600">
+            <option value="" disabled selected>Pilih kategori</option>
+            <option value="Dapur">Dapur</option>
+            <option value="Kamar Mandi">Kamar Mandi</option>
+            <option value="Kamar Tidur">Kamar Tidur</option>
+            <option value="Ruang Tamu">Ruang Tamu</option>
+          </select>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="productStock" class="block font-medium mb-1">Stok</label>
+            <input type="number" id="productStock" min="0" required
+                   class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600" />
+          </div>
+          <div>
+            <label for="productPrice" class="block font-medium mb-1">Harga (Rp)</label>
+            <input type="number" id="productPrice" min="0" step="100" required
+                   class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600" />
+          </div>
+        </div>
+        <div>
+          <label for="productImage" class="block font-medium mb-1">URL Gambar</label>
+          <input type="url" id="productImage" placeholder="https://example.com/img.jpg" required
+                 class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600" />
+        </div>
+
+        <div class="flex gap-3 mt-4">
+          <button type="submit" id="saveBtn"
+                  class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded transition">
+            Simpan Produk
+          </button>
+          <button type="button" id="cancelEditBtn" class="hidden bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded transition">
+            Batal Edit
+          </button>
+        </div>
+
+        <div id="formMessage" class="text-sm font-medium mt-2"></div>
+        <div id="loadingSpinner" class="text-green-600 text-sm hidden mt-2">Loading...</div>
+      </form>
+    </section>
+
+    <!-- Table -->
+    <section>
+      <h2 class="text-2xl font-semibold mb-4">Daftar Produk</h2>
+      <div class="overflow-x-auto">
+        <table id="productsTable" class="min-w-full table-auto border border-gray-300">
+          <thead class="bg-gray-200">
+            <tr>
+              <th class="p-3 border">ID</th>
+              <th class="p-3 border">Nama Produk</th>
+              <th class="p-3 border">Kategori</th>
+              <th class="p-3 border">Stok</th>
+              <th class="p-3 border">Harga (Rp)</th>
+              <th class="p-3 border">Gambar</th>
+              <th class="p-3 border">Aksi</th>
+            </tr>
+          </thead>
+          <tbody class="text-gray-700">
+            <tr><td colspan="7" class="text-center p-4">Memuat data...</td></tr>
+          </tbody>
+        </table>
       </div>
-      <div>
-        <label for="productCategory">Kategori</label>
-        <select id="productCategory" required>
-          <option value="" disabled selected>Pilih kategori</option>
-          <option value="Dapur">Dapur</option>
-          <option value="Kamar Mandi">Kamar Mandi</option>
-          <option value="Kamar Tidur">Kamar Tidur</option>
-          <option value="Ruang Tamu">Ruang Tamu</option>
-        </select>
-      </div>
-      <div>
-        <label for="productStock">Stok</label>
-        <input type="number" id="productStock" min="0" required />
-      </div>
-      <div>
-        <label for="productPrice">Harga (Rp)</label>
-        <input type="number" id="productPrice" min="0" step="100" required />
-      </div>
-      <div>
-        <label for="productImage">URL Gambar</label>
-        <input type="url" id="productImage" placeholder="https://example.com/image.jpg" required />
-      </div>
-      <div class="form-actions">
-        <button type="submit" class="btn" id="saveBtn">Simpan Produk</button>
-        <button type="button" class="btn btn-danger" id="cancelEditBtn" style="display:none;">Batal Edit</button>
-      </div>
-    </form>
-    <div class="message" id="formMessage"></div>
-    <div id="loadingSpinner">Loading...</div>
-  </section>
+    </section>
+  </main>
 
-  <section>
-    <h2>Daftar Produk</h2>
-    <table id="productsTable" aria-describedby="productsDesc">
-      <caption id="productsDesc" class="sr-only">Daftar produk yang tersedia di toko</caption>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nama Produk</th>
-          <th>Kategori</th>
-          <th>Stok</th>
-          <th>Harga (Rp)</th>
-          <th>Gambar</th>
-          <th>Aksi</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>
-      </tbody>
-    </table>
-  </section>
-</main>
+  <!-- Script: backend logic tetap sama -->
+  <script>
+    const apiBase = 'http://localhost:3000/api/products';
 
-<script>
-  const apiBase = 'http://localhost:3000/api/products';
+    function logoutAdmin(){
+      localStorage.removeItem('user');
+      localStorage.removeItem('cart');
+      localStorage.removeItem('wishlist');
+      location.href='/publik/index.html';
+    }
 
-  function logoutAdmin() {
-    localStorage.removeItem('user');
-    localStorage.removeItem('cart');
-    localStorage.removeItem('wishlist');
-    location.href = '/publik/index.html';
-  }
+    function sanitizeHTML(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
 
-  function sanitizeHTML(str) {
-    const temp = document.createElement('div');
-    temp.textContent = str;
-    return temp.innerHTML;
-  }
+    const productForm = document.getElementById('productForm');
+    const productId = document.getElementById('productId');
+    const nameIn = document.getElementById('productName');
+    const categoryIn = document.getElementById('productCategory');
+    const stockIn = document.getElementById('productStock');
+    const priceIn = document.getElementById('productPrice');
+    const imageIn = document.getElementById('productImage');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelEditBtn');
+    const msgEl = document.getElementById('formMessage');
+    const spinner = document.getElementById('loadingSpinner');
+    const tbody = document.querySelector('#productsTable tbody');
 
-  const productForm = document.getElementById('productForm');
-  const productIdInput = document.getElementById('productId');
-  const productNameInput = document.getElementById('productName');
-  const productCategorySelect = document.getElementById('productCategory');
-  const productStockInput = document.getElementById('productStock');
-  const productPriceInput = document.getElementById('productPrice');
-  const productImageInput = document.getElementById('productImage');
-  const saveBtn = document.getElementById('saveBtn');
-  const cancelEditBtn = document.getElementById('cancelEditBtn');
-  const formMessage = document.getElementById('formMessage');
-  const productsTableBody = document.querySelector('#productsTable tbody');
-  const loadingSpinner = document.getElementById('loadingSpinner');
+    function showLoading(on){
+      spinner.classList.toggle('hidden', !on);
+    }
 
-  function showLoading(show) {
-    loadingSpinner.style.display = show ? 'block' : 'none';
-  }
+    async function loadProducts(){
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Memuat data...</td></tr>';
+      showLoading(true);
+      try {
+        const res = await fetch(apiBase);
+        if(!res.ok) throw new Error('Gagal memuat produk');
+        const arr = await res.json();
+        if(!arr.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tidak ada produk</td></tr>';
+        } else {
+          tbody.innerHTML = '';
+          arr.forEach(p => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+              <td class="p-2 border">${p.product_id}</td>
+              <td class="p-2 border">${sanitizeHTML(p.product_name)}</td>
+              <td class="p-2 border">${sanitizeHTML(p.category||'')}</td>
+              <td class="p-2 border">${p.stock}</td>
+              <td class="p-2 border">Rp ${Number(p.price).toLocaleString('id-ID')}</td>
+              <td class="p-2 border"><img src="${sanitizeHTML(p.image_url)}" alt="" class="h-10 rounded"/></td>
+              <td class="p-2 border">
+                <div class="inline-flex gap-2">
+                  <button onclick="startEdit(${p.product_id})" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded text-sm">Edit</button>
+                  <button onclick="deleteProduct(${p.product_id})" class="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded text-sm">Hapus</button>
+                </div>
+              </td>`;
+            tbody.appendChild(tr);
+          });
+        }
+      } catch(err){
+        tbody.innerHTML = `<tr><td colspan="7" class="text-red-500 text-center p-4">${sanitizeHTML(err.message)}</td></tr>`;
+      } finally {
+        showLoading(false);
+      }
+    }
 
-  async function loadProducts() {
-    productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Memuat data...</td></tr>`;
-    showLoading(true);
-    try {
-      const res = await fetch(apiBase);
-      if (!res.ok) throw new Error('Gagal memuat data produk');
-      const products = await res.json();
+    function clearForm(){
+      productId.value = '';
+      nameIn.value = '';
+      categoryIn.value = '';
+      stockIn.value = '';
+      priceIn.value = '';
+      imageIn.value = '';
+      msgEl.textContent = '';
+      cancelBtn.classList.add('hidden');
+      saveBtn.textContent = 'Simpan Produk';
+    }
 
-      if (!products.length) {
-        productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Tidak ada produk</td></tr>`;
+    async function startEdit(id){
+      showLoading(true);
+      try {
+        const res = await fetch(`${apiBase}/${id}`);
+        if(!res.ok) throw new Error('Gagal memuat produk');
+        const p = await res.json();
+        productId.value = p.product_id;
+        nameIn.value = p.product_name;
+        categoryIn.value = p.category;
+        stockIn.value = p.stock;
+        priceIn.value = p.price;
+        imageIn.value = p.image_url;
+        saveBtn.textContent = 'Update Produk';
+        cancelBtn.classList.remove('hidden');
+        msgEl.textContent = '';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch(e){
+        alert(e.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function deleteProduct(id){
+      if(!confirm('Yakin hapus produk ini?')) return;
+      showLoading(true);
+      try {
+        const res = await fetch(`${apiBase}/${id}`, { method:'DELETE' });
+        if(!res.ok) throw new Error('Gagal hapus produk');
+        loadProducts();
+        if(productId.value==id) clearForm();
+      } catch(e){
+        alert(e.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    productForm.addEventListener('submit', async e=>{
+      e.preventDefault();
+      msgEl.textContent = '';
+      const data = {
+        product_name: nameIn.value.trim(),
+        category: categoryIn.value,
+        stock: Number(stockIn.value),
+        price: Number(priceIn.value),
+        image_url: imageIn.value.trim(),
+      };
+      if(data.product_name.length<3){
+        msgEl.textContent = 'Nama minimal 3 karakter'; msgEl.className='text-red-600';
         return;
       }
-
-      productsTableBody.innerHTML = '';
-      products.forEach(p => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${p.product_id}</td>
-          <td>${sanitizeHTML(p.product_name)}</td>
-          <td>${sanitizeHTML(p.category || '')}</td>
-          <td>${p.stock}</td>
-          <td>Rp ${Number(p.price).toLocaleString('id-ID')}</td>
-          <td><img src="${sanitizeHTML(p.image_url)}" alt="${sanitizeHTML(p.product_name)}" style="height:40px;object-fit:cover;border-radius:4px;"></td>
-          <td>
-            <button class="btn" onclick="startEdit(${p.product_id})" aria-label="Edit produk ${sanitizeHTML(p.product_name)}">Edit</button>
-            <button class="btn btn-danger" onclick="deleteProduct(${p.product_id})" aria-label="Hapus produk ${sanitizeHTML(p.product_name)}">Hapus</button>
-          </td>
-        `;
-        productsTableBody.appendChild(tr);
-      });
-    } catch (err) {
-      productsTableBody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:red;">${sanitizeHTML(err.message)}</td></tr>`;
-    } finally {
-      showLoading(false);
-    }
-  }
-
-  function clearForm() {
-    productIdInput.value = '';
-    productNameInput.value = '';
-    productCategorySelect.value = '';
-    productStockInput.value = '';
-    productPriceInput.value = '';
-    productImageInput.value = '';
-    formMessage.textContent = '';
-    formMessage.style.color = '';
-    cancelEditBtn.style.display = 'none';
-    saveBtn.textContent = 'Simpan Produk';
-  }
-
-  async function startEdit(id) {
-    showLoading(true);
-    try {
-      const res = await fetch(`${apiBase}/${id}`);
-      if (!res.ok) throw new Error('Gagal memuat data produk');
-      const product = await res.json();
-      productIdInput.value = product.product_id;
-      productNameInput.value = product.product_name;
-      productCategorySelect.value = product.category || '';
-      productStockInput.value = product.stock;
-      productPriceInput.value = product.price;
-      productImageInput.value = product.image_url;
-      saveBtn.textContent = 'Update Produk';
-      cancelEditBtn.style.display = 'inline-block';
-      formMessage.textContent = '';
-    } catch (err) {
-      alert('Error: ' + err.message);
-    } finally {
-      showLoading(false);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  }
-
-  async function deleteProduct(id) {
-    if (!confirm('Yakin ingin menghapus produk ini?')) return;
-    showLoading(true);
-    try {
-      const res = await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Gagal menghapus produk');
-      alert('Produk berhasil dihapus');
-      loadProducts();
-      if (productIdInput.value == id) clearForm();
-    } catch (err) {
-      alert('Error: ' + err.message);
-    } finally {
-      showLoading(false);
-    }
-  }
-
-  productForm.addEventListener('submit', async e => {
-    e.preventDefault();
-    formMessage.textContent = '';
-    formMessage.style.color = '';
-
-    if (productNameInput.value.trim().length < 3) {
-      formMessage.style.color = 'red';
-      formMessage.textContent = 'Nama produk minimal 3 karakter.';
-      productNameInput.focus();
-      return;
-    }
-
-    if (!productCategorySelect.value) {
-      formMessage.style.color = 'red';
-      formMessage.textContent = 'Kategori harus dipilih.';
-      productCategorySelect.focus();
-      return;
-    }
-
-    const stockVal = Number(productStockInput.value);
-    if (isNaN(stockVal) || stockVal < 0) {
-      formMessage.style.color = 'red';
-      formMessage.textContent = 'Stok harus berupa angka 0 atau lebih.';
-      productStockInput.focus();
-      return;
-    }
-
-    const priceVal = Number(productPriceInput.value);
-    if (isNaN(priceVal) || priceVal < 0) {
-      formMessage.style.color = 'red';
-      formMessage.textContent = 'Harga harus berupa angka 0 atau lebih.';
-      productPriceInput.focus();
-      return;
-    }
-
-    if (!productImageInput.value.trim()) {
-      formMessage.style.color = 'red';
-      formMessage.textContent = 'URL gambar harus diisi.';
-      productImageInput.focus();
-      return;
-    }
-
-    const productData = {
-      product_name: productNameInput.value.trim(),
-      category: productCategorySelect.value,
-      stock: stockVal,
-      price: priceVal,
-      image_url: productImageInput.value.trim(),
-    };
-
-    showLoading(true);
-    try {
-      let res;
-      if (productIdInput.value) {
-        // Update produk
-        res = await fetch(`${apiBase}/${productIdInput.value}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(productData),
-        });
-      } else {
-        // Tambah produk baru
-        res = await fetch(apiBase, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(productData),
-        });
+      if(!data.category){
+        msgEl.textContent = 'Kategori wajib dipilih'; msgEl.className='text-red-600';
+        return;
       }
-
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.message || 'Gagal menyimpan produk');
+      showLoading(true);
+      try {
+        const method = productId.value?'PUT':'POST';
+        const url = productId.value?`${apiBase}/${productId.value}`:apiBase;
+        const res = await fetch(url, {
+          method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)
+        });
+        if(!res.ok){
+          const body = await res.json();
+          throw new Error(body.message||'Gagal menyimpan');
+        }
+        msgEl.textContent = productId.value?'Produk diperbarui':'Produk ditambahkan';
+        msgEl.className = 'text-green-600';
+        clearForm();
+        loadProducts();
+      } catch(err){
+        msgEl.textContent = err.message;
+        msgEl.className = 'text-red-600';
+      } finally {
+        showLoading(false);
       }
+    });
 
-      formMessage.style.color = 'green';
-      formMessage.textContent = productIdInput.value ? 'Produk berhasil diupdate.' : 'Produk berhasil ditambahkan.';
-      clearForm();
-      loadProducts();
-    } catch (err) {
-      formMessage.style.color = 'red';
-      formMessage.textContent = err.message;
-    } finally {
-      showLoading(false);
-    }
-  });
+    cancelBtn.addEventListener('click', clearForm);
 
-  cancelEditBtn.addEventListener('click', () => {
-    clearForm();
-  });
-
-  // Inisialisasi halaman
-  loadProducts();
-</script>
+    loadProducts();
+  </script>
 
 </body>
 </html>
