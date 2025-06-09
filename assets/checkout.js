@@ -397,7 +397,7 @@ async function validateStep(step) {
   return true;
 }
 
-// Di fungsi placeOrder di checkout.js
+// Place order function
 async function placeOrder() {
   const nextBtn = document.querySelector('.btn-next');
   try {
@@ -477,22 +477,27 @@ async function placeOrder() {
     // Generate payment details
     const payment_details = generatePaymentDetails(paymentMethod, totalAmount);
 
-    // Create order payload
+    // Prepare order data
     const orderData = {
       user_id: user.id,
+      customer_name: name,
+      customer_phone: phone,
+      customer_address: address,
+      shipping_method: shippingMethod,
+      shipping_cost: shippingCost,
+      payment_method: paymentMethod,
+      subtotal: subtotal,
+      tax: tax,
+      total: totalAmount,
+      items: cart,
+      payment_details: payment_details,
       shipping: {
-        name,
-        phone,
-        address,
+        name: name,
+        phone: phone,
+        address: address,
         method: shippingMethod,
         cost: shippingCost
-      },
-      payment_method: paymentMethod,
-      payment_details: payment_details,
-      subtotal,
-      tax,
-      total: totalAmount,
-      items: cart
+      }
     };
 
     // Submit order
@@ -552,10 +557,10 @@ async function placeOrder() {
   }
 }
 
-// Di fungsi generatePaymentDetails
+// Generate payment details based on method
 function generatePaymentDetails(method, total) {
   const now = new Date();
-  const expiryDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+  const expiryDate = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours
 
   if (method === 'transfer') {
     const selectedBank = document.querySelector('.bank-option.active')?.dataset.bank || 'bca';
@@ -567,10 +572,10 @@ function generatePaymentDetails(method, total) {
     }[selectedBank] || 'BCA';
     
     return {
-      bank: bankName,
+      bank_name: bankName,
       virtual_account: '812' + Math.floor(100000000 + Math.random() * 900000000).toString().substring(0, 10),
       amount: total,
-      expiry: expiryDate.toISOString()
+      expiry_time: expiryDate.toISOString()
     };
   } else if (method === 'ewallet') {
     const selectedWallet = document.querySelector('.ewallet-option.active')?.dataset.wallet || 'ovo';
@@ -582,10 +587,10 @@ function generatePaymentDetails(method, total) {
     const phoneNumber = '08' + Math.floor(1000000000 + Math.random() * 9000000000);
     
     return {
-      wallet: walletName,
+      wallet_name: walletName,
       phone_number: phoneNumber,
       amount: total,
-      expiry: expiryDate.toISOString()
+      expiry_time: expiryDate.toISOString()
     };
   } else if (method === 'cod') {
     return {
@@ -604,16 +609,16 @@ function showPaymentInstructions(method, details, orderId) {
     title = 'Virtual Account Pembayaran';
     html = `
       <div style="text-align: center;">
-        <h3>${details.bank} Virtual Account</h3>
+        <h3>${details.bank_name} Virtual Account</h3>
         <p style="font-size: 24px; font-weight: bold; margin: 15px 0;">${details.virtual_account}</p>
         <p>Jumlah yang harus dibayar:</p>
         <p style="font-size: 20px; font-weight: bold; color: #4a7c59;">${formatRupiah(details.amount)}</p>
-        <p style="color: #e74c3c;">Batas waktu pembayaran: ${new Date(details.expiry).toLocaleString()}</p>
+        <p style="color: #e74c3c;">Batas waktu pembayaran: ${new Date(details.expiry_time).toLocaleString('id-ID')}</p>
       </div>
       <div style="margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
         <h4 style="margin-top: 0;">Cara Pembayaran:</h4>
         <ol style="text-align: left; padding-left: 20px;">
-          <li>Buka aplikasi mobile banking ${details.bank} Anda</li>
+          <li>Buka aplikasi mobile banking ${details.bank_name} Anda</li>
           <li>Pilih menu "Transfer" lalu "Virtual Account"</li>
           <li>Masukkan nomor virtual account di atas</li>
           <li>Konfirmasi nominal pembayaran</li>
@@ -625,16 +630,16 @@ function showPaymentInstructions(method, details, orderId) {
     title = 'Pembayaran E-Wallet';
     html = `
       <div style="text-align: center;">
-        <h3>${details.wallet}</h3>
+        <h3>${details.wallet_name}</h3>
         <p style="font-size: 24px; font-weight: bold; margin: 15px 0;">${details.phone_number}</p>
         <p>Jumlah yang harus dibayar:</p>
         <p style="font-size: 20px; font-weight: bold; color: #4a7c59;">${formatRupiah(details.amount)}</p>
-        <p style="color: #e74c3c;">Batas waktu pembayaran: ${new Date(details.expiry).toLocaleString()}</p>
+        <p style="color: #e74c3c;">Batas waktu pembayaran: ${new Date(details.expiry_time).toLocaleString('id-ID')}</p>
       </div>
       <div style="margin-top: 20px; background: #f8f9fa; padding: 15px; border-radius: 8px;">
         <h4 style="margin-top: 0;">Cara Pembayaran:</h4>
         <ol style="text-align: left; padding-left: 20px;">
-          <li>Buka aplikasi ${details.wallet} Anda</li>
+          <li>Buka aplikasi ${details.wallet_name} Anda</li>
           <li>Pilih menu "Transfer" atau "Bayar"</li>
           <li>Masukkan nomor ${details.phone_number}</li>
           <li>Masukkan nominal ${formatRupiah(details.amount)}</li>

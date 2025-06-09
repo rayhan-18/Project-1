@@ -26,23 +26,19 @@ const createOrder = async (orderData) => {
 
     const orderId = orderResult.insertId;
 
+    // Insert order items
     for (const item of orderData.items) {
       await conn.query(
-        `INSERT INTO order_items (order_id, product_id, quantity, price)
-         VALUES (?, ?, ?, ?)`,
-        [orderId, item.product_id, item.quantity, item.price]
+        `INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
+        VALUES (?, ?, ?, ?, ?)`,
+        [orderId, item.product_id, item.product_name, item.quantity, item.price]
       );
     }
 
     const pd = orderData.payment_details || {};
-    let expiry_time = null;
+    let expiry_time = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 jam ke depan
 
-    if (orderData.payment_method === 'transfer' || orderData.payment_method === 'ewallet') {
-      expiry_time = new Date(Date.now() + 60 * 60 * 1000); // 1 jam ke depan
-    } else {
-      expiry_time = new Date(); // Untuk COD
-    }
-
+    // Insert payment details
     await conn.query(
       `INSERT INTO payment_details 
       (order_id, payment_method, bank_name, virtual_account, wallet_name, phone_number, amount, expiry_time, created_at)
@@ -50,10 +46,10 @@ const createOrder = async (orderData) => {
       [
         orderId,
         orderData.payment_method,
-        pd.bank_name || null,
-        pd.virtual_account || null,
-        pd.wallet_name || null,
-        pd.phone_number || null,
+        orderData.payment_method === 'transfer' ? pd.bank_name : null,
+        orderData.payment_method === 'transfer' ? pd.virtual_account : null,
+        orderData.payment_method === 'ewallet' ? pd.wallet_name : null,
+        orderData.payment_method === 'ewallet' ? pd.phone_number : null,
         pd.amount || orderData.total,
         expiry_time
       ]
@@ -86,7 +82,15 @@ const getOrderById = async (orderId) => {
   const conn = await db.getConnection();
   try {
     const [orders] = await conn.query(
-      `SELECT * FROM orders WHERE id = ?`,
+      `SELECT 
+          o.*, 
+          pd.bank_name, 
+          pd.virtual_account, 
+          pd.wallet_name, 
+          pd.phone_number 
+       FROM orders o
+       LEFT JOIN payment_details pd ON o.id = pd.order_id
+       WHERE o.id = ?`,
       [orderId]
     );
 
@@ -99,28 +103,29 @@ const getOrderById = async (orderId) => {
       [orderId]
     );
 
-    const [paymentDetails] = await conn.query(
-      `SELECT 
-        bank_name AS bank, 
-        virtual_account, 
-        wallet_name AS wallet, 
-        phone_number, 
-        amount, 
-        expiry_time AS expiry
-      FROM payment_details 
-      WHERE order_id = ?`,
-      [orderId]
-    );
+    const {
+      bank_name,
+      virtual_account,
+      wallet_name,
+      phone_number,
+      ...rest
+    } = order;
 
     return {
-      ...order,
+      ...rest,
       items,
-      payment_details: paymentDetails[0] || null
+      payment_details: {
+        bank_name,
+        virtual_account,
+        wallet_name,
+        phone_number
+      }
     };
   } finally {
     conn.release();
   }
 };
+
 
 const getAllOrders = async (limit = 10, offset = 0, status = null) => {
   const conn = await db.getConnection();
@@ -165,10 +170,34 @@ const getOrdersByUserId = async (userId) => {
   const conn = await db.getConnection();
   try {
     const [orders] = await conn.query(
-      `SELECT * FROM orders WHERE user_id = ? ORDER BY created_at DESC`,
+      `SELECT 
+          o.*, 
+          pd.bank_name, 
+          pd.virtual_account, 
+          pd.wallet_name, 
+          pd.phone_number 
+       FROM orders o
+       LEFT JOIN payment_details pd ON o.id = pd.order_id
+       WHERE o.user_id = ? 
+       ORDER BY o.created_at DESC`,
       [userId]
     );
-    return orders;
+
+    // Mapping hasil query supaya payment_details jadi object tersendiri
+    const parsedOrders = orders.map(order => {
+      const { bank_name, virtual_account, wallet_name, phone_number, ...rest } = order;
+      return {
+        ...rest,
+        payment_details: {
+          bank_name,
+          virtual_account,
+          wallet_name,
+          phone_number
+        }
+      };
+    });
+
+    return parsedOrders;
   } finally {
     conn.release();
   }
