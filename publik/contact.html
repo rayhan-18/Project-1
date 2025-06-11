@@ -11,7 +11,7 @@
 </head>
 <body>
 
-  <!-- Header / Navbar -->
+  <!-- Header -->
   <header>
     <div class="container">
       <nav>
@@ -40,65 +40,59 @@
     </div>
   </header>
 
-<!-- Main Content -->
-<main>
-  <section class="contact-section">
-    <div class="container">
-      <h2 class="section-title">Hubungi Kami</h2>
-      <p class="section-subtitle" style="text-align: center; margin-bottom: 2rem;">
-        Kami siap membantu Anda. Silakan isi formulir di bawah ini.
-      </p>
-      <form id="contactForm" class="contact-form">
-        <div class="form-group">
-          <input type="text" id="contactName" placeholder="Nama Lengkap" required>
-        </div>
-        <div class="form-group">
-          <input type="email" id="contactEmail" placeholder="Email" required>
-        </div>
-        <div class="form-group">
-          <input type="text" id="contactSubject" placeholder="Subjek" required>
-        </div>
-        <div class="form-group">
-          <textarea id="contactMessage" rows="5" placeholder="Pesan Anda..." required></textarea>
-        </div>
-        <button type="submit" class="btn-primary">Kirim Pesan</button>
-      </form>
-    </div>
-  </section>
+  <!-- Main -->
+  <main>
+    <section class="contact-section">
+      <div class="container">
+        <h2 class="section-title">Hubungi Kami</h2>
+        <p class="section-subtitle" style="text-align: center; margin-bottom: 2rem;">
+          Kami siap membantu Anda. Silakan isi formulir di bawah ini.
+        </p>
+        <form id="contactForm" class="contact-form">
+          <div class="form-group">
+            <input type="text" id="contactName" placeholder="Nama Lengkap" required>
+          </div>
+          <div class="form-group">
+            <input type="email" id="contactEmail" placeholder="Email" required>
+          </div>
+          <div class="form-group">
+            <input type="text" id="contactSubject" placeholder="Subjek" required>
+          </div>
+          <div class="form-group">
+            <textarea id="contactMessage" rows="5" placeholder="Pesan Anda..." required></textarea>
+          </div>
+          <button type="submit" class="btn-primary">Kirim Pesan</button>
+        </form>
+      </div>
+    </section>
 
-  <section class="contact-info">
-    <div class="container">
-      <div class="contact-method">
-        <div class="contact-icon">
-          <i class="fas fa-map-marker-alt"></i>
+    <section class="contact-info">
+      <div class="container">
+        <div class="contact-method">
+          <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <h3>Alamat Kami</h3>
+          <p>Jl. Contoh No. 123, Kota Bandung, Indonesia</p>
         </div>
-        <h3>Alamat Kami</h3>
-        <p>Jl. Contoh No. 123, Kota Bandung, Indonesia</p>
-      </div>
-      <div class="contact-method">
-        <div class="contact-icon">
-          <i class="fas fa-phone-alt"></i>
+        <div class="contact-method">
+          <div class="contact-icon"><i class="fas fa-phone-alt"></i></div>
+          <h3>Telepon</h3>
+          <p><a href="tel:+622112345678">+62 21 1234 5678</a></p>
         </div>
-        <h3>Telepon</h3>
-        <p><a href="tel:+622112345678">+62 21 1234 5678</a></p>
-      </div>
-      <div class="contact-method">
-        <div class="contact-icon">
-          <i class="fas fa-envelope"></i>
+        <div class="contact-method">
+          <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+          <h3>Email</h3>
+          <p><a href="mailto:info@tokorayhan.com">info@tokorayhan.com</a></p>
         </div>
-        <h3>Email</h3>
-        <p><a href="mailto:info@tokorayhan.com">info@tokorayhan.com</a></p>
       </div>
-    </div>
-  </section>
-</main>
+    </section>
+  </main>
 
-<!-- Modal for Login -->
+  <!-- Modal Login -->
   <div id="loginModal" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="toggleModal('loginModal')">&times;</span>
       <h2>Login</h2>
-      <form id="loginForm" method="post">
+      <form id="loginForm">
         <div class="form-group">
           <input type="email" id="loginEmail" placeholder="Email" required>
         </div>
@@ -111,12 +105,12 @@
     </div>
   </div>
 
-  <!-- Modal for Register -->
+  <!-- Modal Register -->
   <div id="registerModal" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="toggleModal('registerModal')">&times;</span>
       <h2>Register</h2>
-      <form id="registerForm" method="post">
+      <form id="registerForm">
         <div class="form-group">
           <input type="text" id="registerName" placeholder="Nama Lengkap" required>
         </div>
@@ -138,50 +132,35 @@
     </div>
   </div>
 
-    <!-- Wishlist Popup -->
-<div id="wishlistPopup" class="popup">
-  <div class="popup-header">
-    <h2>Your Wishlist</h2>
-    <button class="close-btn" onclick="toggleWishlistPopup()">×</button>
-  </div>
-  <div class="popup-content" id="wishlistItems"></div>
-  <hr>
-  <button class="continue-btn" onclick="window.location.href='products.html'">Continue Shopping</button>
-</div>
-
-<!-- Cart Popup -->
-<div id="cartPopup" class="popup">
-  <div class="popup-header">
-    <h2>Your Shopping Cart</h2>
-    <button class="close-btn" onclick="toggleCartPopup()">×</button>
+  <!-- Wishlist Popup -->
+  <div id="wishlistPopup" class="popup">
+    <div class="popup-header">
+      <h2>Wishlist Anda</h2>
+      <button class="close-btn" onclick="toggleWishlistPopup()">×</button>
+    </div>
+    <div class="popup-content" id="wishlistItems"></div>
+    <hr>
+    <button class="continue-btn" onclick="window.location.href='products.html'">Lanjut Belanja</button>
   </div>
 
-  <!-- Cart Items will be inserted here -->
-  <div class="popup-content" id="cartItems"></div>
-
-  <!-- Cart Summary -->
-  <div class="cart-summary">
-    <div class="summary-line">
-      <span>Subtotal:</span>
-      <span id="subtotalAmount">Rp0.00</span>
+  <!-- Cart Popup -->
+  <div id="cartPopup" class="popup">
+    <div class="popup-header">
+      <h2>Keranjang Belanja</h2>
+      <button class="close-btn" onclick="toggleCartPopup()">×</button>
     </div>
-    <div class="summary-line">
-      <span>Shipping:</span>
-      <span id="shippingAmount">Rp0.00</span>
+    <div class="popup-content" id="cartItems"></div>
+    <div class="cart-summary">
+      <div class="summary-line"><span>Subtotal:</span><span id="subtotalAmount">Rp0.00</span></div>
+      <div class="summary-line"><span>Ongkir:</span><span id="shippingAmount">Rp0.00</span></div>
+      <div class="summary-line"><span>Pajak:</span><span id="taxAmount">Rp0.00</span></div>
+      <hr />
+      <div class="summary-line total"><strong>Total:</strong><strong id="totalAmount">Rp0.00</strong></div>
+      <button class="continue-btn" onclick="window.location.href='checkout.html'">Checkout Sekarang</button>
     </div>
-    <div class="summary-line">
-      <span>Tax:</span>
-      <span id="taxAmount">Rp0.00</span>
-    </div>
-    <hr />
-    <div class="summary-line total">
-      <strong>Total:</strong>
-      <strong id="totalAmount">Rp0.00</strong>
-    </div>
-    <button class="continue-btn" onclick="window.location.href='checkout.html'">Proceed to Checkout</button>
   </div>
-</div>
 
+  <!-- Script -->
   <script src="/assets/script.js"></script>
   <script>
     document.getElementById('contactForm').addEventListener('submit', async function (e) {
@@ -197,7 +176,7 @@
       }
 
       try {
-        const res = await fetch('http://localhost:3000/api/contact', {
+        const res = await fetch('http://localhost:3000/api/contacts', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name, email, subject, message })
@@ -206,7 +185,6 @@
         if (!res.ok) throw new Error('Gagal mengirim pesan.');
 
         Swal.fire('Terkirim!', 'Pesan Anda telah dikirim.', 'success');
-
         document.getElementById('contactForm').reset();
 
       } catch (error) {

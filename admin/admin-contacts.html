@@ -2,187 +2,223 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin - Pesan Kontak</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
+<body class="bg-gray-900 text-white min-h-screen">
+
+  <!-- Spinner Overlay -->
+  <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="flex flex-col items-center">
+      <svg class="w-10 h-10 animate-spin text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor"
+          d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8z" />
+      </svg>
+      <p class="text-white text-sm">Memuat data...</p>
+    </div>
+  </div>
 
   <!-- Header -->
-  <header class="bg-gray-800 text-white px-6 py-4 flex justify-between items-center shadow-md">
-    <h1 class="text-xl font-bold">Admin Toko Rayhan</h1>
-    <nav class="space-x-4">
-      <a href="admin-dashboard.html" class="hover:underline">Dashboard</a>
-      <a href="admin-orders.html" class="hover:underline">Pesanan</a>
+  <header class="bg-gray-800 p-4 flex flex-col md:flex-row md:justify-between items-center gap-4 shadow">
+    <h1 class="text-2xl font-bold text-blue-400">📩 Admin Toko Rayhan</h1>
+    <nav class="space-x-4 text-sm">
+      <a href="admin-dashboard.html" class="hover:text-blue-400">Dashboard</a>
+      <a href="admin-orders.html" class="hover:text-blue-400">Pesanan</a>
       <a href="admin-products.html" class="hover:text-blue-400">Produk</a>
-      <a href="admin-contacts.html" class="underline font-semibold">Pesan Kontak</a>
-      <a href="#" onclick="logoutAdmin()" class="text-red-400 hover:underline">Logout</a>
+      <a href="admin-contacts.html" class="text-blue-400 font-semibold">Pesan Kontak</a>
+      <a href="#" onclick="logoutAdmin()" class="hover:text-red-400">Logout</a>
     </nav>
   </header>
 
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto mt-8 px-4">
-    <h2 class="text-2xl font-semibold mb-4">Daftar Pesan Kontak</h2>
+  <!-- Main -->
+  <main class="max-w-6xl mx-auto px-4 py-6">
 
-    <div id="messageList" class="bg-white rounded-lg shadow p-4">
-      <p>Memuat pesan...</p>
+    <h2 class="text-xl font-semibold mb-4">Daftar Pesan Kontak</h2>
+
+    <!-- Filter Bar -->
+    <div class="mb-4 flex flex-col md:flex-row gap-2">
+      <input type="text" id="searchInput" placeholder="Cari nama/email/subjek..." class="px-3 py-2 rounded bg-gray-800 border border-gray-600 w-full md:w-1/3" />
+      <input type="date" id="startDate" class="px-3 py-2 rounded bg-gray-800 border border-gray-600" />
+      <input type="date" id="endDate" class="px-3 py-2 rounded bg-gray-800 border border-gray-600" />
+      <button id="filterBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded">Filter</button>
+    </div>
+
+      <!-- Tabel Kontak -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full text-base bg-gray-800 rounded">
+        <thead class="bg-gray-700 text-left text-white">
+          <tr>
+            <th class="px-5 py-3">Nama</th>
+            <th class="px-5 py-3">Email</th>
+            <th class="px-5 py-3">Subjek</th>
+            <th class="px-5 py-3">Status</th>
+            <th class="px-5 py-3">Tanggal</th>
+            <th class="px-5 py-3">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="contactsBody" class="divide-y divide-gray-700 text-white text-[15px]"></tbody>
+      </table>
     </div>
 
     <!-- Pagination -->
-    <div id="pagination" class="flex justify-center mt-6 space-x-4">
-      <button id="prevBtn" disabled class="bg-gray-400 text-white px-4 py-2 rounded disabled:opacity-50">Prev</button>
-      <button id="nextBtn" disabled class="bg-gray-800 text-white px-4 py-2 rounded disabled:opacity-50">Next</button>
-    </div>
+    <div id="pagination" class="flex justify-center gap-2 mt-6"></div>
   </main>
 
-  <!-- Script -->
   <script>
+    const spinner = document.getElementById('spinnerOverlay');
+    const tbody = document.getElementById('contactsBody');
+    const pagination = document.getElementById('pagination');
+    const searchInput = document.getElementById('searchInput');
+    const startDateInput = document.getElementById('startDate');
+    const endDateInput = document.getElementById('endDate');
+    const filterBtn = document.getElementById('filterBtn');
+
     let currentPage = 1;
     const limit = 10;
-    let totalMessages = 0;
 
-    function logoutAdmin() {
-      localStorage.removeItem('user');
-      localStorage.removeItem('cart');
-      localStorage.removeItem('wishlist');
-      location.href = '/publik/index.html';
-    }
+    async function fetchContacts(page = 1) {
+      spinnerOverlay.classList.remove('hidden');
+      tbody.innerHTML = '';
+      pagination.innerHTML = '';
+      currentPage = page;
 
-    async function fetchMessages(page = 1) {
+      const q = searchInput.value.trim();
+      const start = startDateInput.value;
+      const end = endDateInput.value;
+
+      let url = `http://localhost:3000/api/contacts?page=${page}&limit=${limit}`;
+      if (q) url += `&search=${encodeURIComponent(q)}`;
+      if (start) url += `&start=${start}`;
+      if (end) url += `&end=${end}`;
+
       try {
-        const res = await fetch(`http://localhost:3000/api/contact?page=${page}&limit=${limit}`);
-        const data = await res.json();
-        if (!data || !Array.isArray(data.data)) throw new Error('Format data tidak sesuai');
+        const res = await fetch(url);
+        if (!res.ok) throw new Error('Gagal mengambil data');
 
-        totalMessages = data.total || 0;
-        currentPage = page;
-        renderMessages(data.data);
-        updatePagination();
-      } catch (error) {
-        console.error('Gagal memuat pesan:', error);
-        Swal.fire('Error', 'Tidak bisa mengambil data pesan.', 'error');
+        const json = await res.json();
+        const data = json.contacts;
+        const pageInfo = {
+          page: json.page,
+          totalPages: json.totalPages,
+          totalItems: json.total
+        };
+
+        if (!Array.isArray(data) || data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4">Tidak ada data ditemukan.</td></tr>';
+        } else {
+          data.forEach(msg => {
+            const row = document.createElement('tr');
+            row.className = msg.read ? 'text-gray-400' : 'text-white';
+
+            row.innerHTML = `
+              <td class="p-3">${msg.name}</td>
+              <td class="p-3">${msg.email}</td>
+              <td class="p-3">${msg.subject}</td>
+              <td class="p-3">${msg.read ? 'Dibaca' : 'Baru'}</td>
+              <td class="p-3">${new Date(msg.created_at).toLocaleString()}</td>
+              <td class="p-3 flex gap-2 flex-wrap">
+                <button class="bg-blue-600 hover:bg-blue-700 px-2 py-1 rounded text-sm" onclick='showDetail(${JSON.stringify(msg)})'>Lihat</button>
+                ${!msg.read ? `<button class="bg-green-600 hover:bg-green-700 px-2 py-1 rounded text-sm" onclick="markAsRead(${msg.id})">Tandai</button>` : ''}
+                <button class="bg-red-600 hover:bg-red-700 px-2 py-1 rounded text-sm" onclick="deleteContact(${msg.id})">Hapus</button>
+              </td>
+            `;
+            tbody.appendChild(row);
+          });
+        }
+
+        // Render pagination
+        for (let i = 1; i <= pageInfo.totalPages; i++) {
+          const btn = document.createElement('button');
+          btn.textContent = i;
+          btn.className = `px-3 py-1 rounded ${i === pageInfo.page ? 'bg-blue-600' : 'bg-gray-700 hover:bg-gray-600'}`;
+          btn.onclick = () => fetchContacts(i);
+          pagination.appendChild(btn);
+        }
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center text-red-400 py-4">${err.message}</td></tr>`;
+      } finally {
+        // Tambahkan delay agar spinner terlihat
+        setTimeout(() => {
+          spinnerOverlay.classList.add('hidden');
+        }, 400); // tampil minimal 400ms
       }
     }
 
-    function renderMessages(messages) {
-      const container = document.getElementById('messageList');
-      if (messages.length === 0) {
-        container.innerHTML = '<p class="text-center text-gray-600">Tidak ada pesan masuk.</p>';
-        return;
-      }
-
-      let html = `
-        <div class="overflow-x-auto">
-        <table class="min-w-full text-sm text-left">
-          <thead class="bg-gray-200 text-gray-700 font-semibold">
-            <tr>
-              <th class="px-4 py-2">Nama</th>
-              <th class="px-4 py-2">Email</th>
-              <th class="px-4 py-2">Subjek</th>
-              <th class="px-4 py-2">Pesan</th>
-              <th class="px-4 py-2">Waktu</th>
-              <th class="px-4 py-2">Status</th>
-              <th class="px-4 py-2">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-200">
-      `;
-
-      messages.forEach(msg => {
-        const readBadge = msg.read
-          ? `<span class="bg-green-100 text-green-700 px-2 py-1 text-xs rounded-full">Sudah dibaca</span>`
-          : `<span class="bg-yellow-100 text-yellow-700 px-2 py-1 text-xs rounded-full">Belum dibaca</span>`;
-
-        html += `
-          <tr class="${msg.read ? 'bg-green-50' : 'bg-white'}">
-            <td class="px-4 py-3">${msg.name}</td>
-            <td class="px-4 py-3">${msg.email}</td>
-            <td class="px-4 py-3">${msg.subject}</td>
-            <td class="px-4 py-3">${msg.message}</td>
-            <td class="px-4 py-3">${new Date(msg.created_at).toLocaleString('id-ID')}</td>
-            <td class="px-4 py-3">${readBadge}</td>
-            <td class="px-4 py-3 space-x-2">
-              ${!msg.read ? `<button onclick="markAsRead(${msg.id})" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 text-sm">Tandai</button>` : ''}
-              <button onclick="deleteMessage(${msg.id})" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm">Hapus</button>
-            </td>
-          </tr>
-        `;
+    function showDetail(msg) {
+      Swal.fire({
+        title: msg.subject,
+        html: `
+          <p><strong>Nama:</strong> ${msg.name}</p>
+          <p><strong>Email:</strong> ${msg.email}</p>
+          <p><strong>Pesan:</strong></p>
+          <p class="text-left mt-2 bg-gray-100 text-gray-800 p-2 rounded">${msg.message}</p>
+          <p class="mt-4 text-sm text-gray-500">Dikirim: ${new Date(msg.created_at).toLocaleString()}</p>
+        `,
+        confirmButtonText: 'Tutup',
+        background: '#1f2937',
+        color: '#fff'
       });
-
-      html += `</tbody></table></div>`;
-      container.innerHTML = html;
     }
-
-    function updatePagination() {
-      document.getElementById('prevBtn').disabled = currentPage <= 1;
-      document.getElementById('nextBtn').disabled = currentPage * limit >= totalMessages;
-    }
-
-    document.getElementById('prevBtn').addEventListener('click', () => {
-      if (currentPage > 1) fetchMessages(currentPage - 1);
-    });
-
-    document.getElementById('nextBtn').addEventListener('click', () => {
-      if (currentPage * limit < totalMessages) fetchMessages(currentPage + 1);
-    });
 
     async function markAsRead(id) {
       try {
-        const res = await fetch(`http://localhost:3000/api/contact/${id}/read`, {
+        const res = await fetch(`http://localhost:3000/api/contacts/${id}/read`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' }
         });
-        const result = await res.json();
-        if (res.ok) {
-          Swal.fire('Berhasil', 'Pesan ditandai sudah dibaca.', 'success');
-          fetchMessages(currentPage);
-        } else {
-          throw new Error(result.message || 'Gagal update status');
-        }
-      } catch (error) {
-        Swal.fire('Error', 'Gagal menandai pesan.', 'error');
+
+        if (!res.ok) throw new Error('Gagal menandai sebagai dibaca');
+        await fetchContacts(currentPage);
+        Swal.fire('Sukses', 'Pesan berhasil ditandai sebagai dibaca', 'success');
+      } catch (err) {
+        Swal.fire('Gagal', err.message, 'error');
       }
     }
 
-    async function deleteMessage(id) {
-      const confirmed = await Swal.fire({
-        title: 'Hapus pesan?',
-        text: 'Pesan yang dihapus tidak dapat dikembalikan!',
+    async function deleteContact(id) {
+      const confirm = await Swal.fire({
+        title: 'Hapus Pesan?',
+        text: 'Pesan yang dihapus tidak bisa dikembalikan.',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonText: 'Ya, hapus',
-        cancelButtonText: 'Batal'
+        cancelButtonText: 'Batal',
+        background: '#1f2937',
+        color: '#fff'
       });
 
-      if (!confirmed.isConfirmed) return;
-
-      try {
-        const res = await fetch(`http://localhost:3000/api/contact/${id}`, { method: 'DELETE' });
-        const result = await res.json();
-        if (res.ok) {
-          Swal.fire('Terhapus', 'Pesan berhasil dihapus.', 'success');
-          fetchMessages(currentPage);
-        } else {
-          throw new Error(result.message || 'Gagal hapus');
+      if (confirm.isConfirmed) {
+        try {
+          const res = await fetch(`http://localhost:3000/api/contacts/${id}`, {
+            method: 'DELETE'
+          });
+          if (!res.ok) throw new Error('Gagal menghapus pesan');
+          await fetchContacts(currentPage);
+          Swal.fire('Berhasil', 'Pesan dihapus.', 'success');
+        } catch (err) {
+          Swal.fire('Gagal', err.message, 'error');
         }
-      } catch (error) {
-        Swal.fire('Error', 'Gagal menghapus pesan.', 'error');
       }
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const userStr = localStorage.getItem('user');
-      if (!userStr) return location.href = '/publik/index.html';
-      const user = JSON.parse(userStr);
-      if (!user.is_admin) {
-        alert('Halaman hanya untuk admin.');
-        location.href = '/publik/index.html';
-        return;
-      }
+    function logoutAdmin() {
+      // Placeholder logout logic
+      Swal.fire('Logout', 'Anda telah keluar.', 'info').then(() => {
+        window.location.href = 'login.html';
+      });
+    }
 
-      fetchMessages();
+    // Event handlers
+    filterBtn.addEventListener('click', () => fetchContacts(1));
+    searchInput.addEventListener('keyup', e => {
+      if (e.key === 'Enter') fetchContacts(1);
     });
+
+    fetchContacts();
   </script>
 
 </body>

@@ -1,66 +1,82 @@
-// server.js
+// ============================
+// 🌐 ENVIRONMENT SETUP
+// ============================
+require('dotenv').config();
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
-require('dotenv').config();
 
 const app = express();
 
 // ============================
-// 🌐 MIDDLEWARE GLOBAL
+// ⚙️ GLOBAL MIDDLEWARE
 // ============================
 
-// Izinkan permintaan dari domain berbeda (e.g. frontend dev server)
+// Aktifkan CORS agar frontend bisa akses API
 app.use(cors());
 
-// Middleware untuk parsing JSON dari body
+// Middleware parsing JSON dari body request
 app.use(express.json());
 
 // ============================
-// 🗂️ SERVE STATIC FILES
+// 🗂️ STATIC FILES
 // ============================
 
-// Public folder untuk HTML statis
+// Folder publik untuk HTML dan favicon
 app.use(express.static(path.join(__dirname, 'publik')));
 
-// Folder untuk file statis seperti gambar, CSS, JS
+// Folder aset frontend (JS, CSS, Gambar)
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // ============================
-// 🔗 ROUTES
+// 🔗 API ROUTES (Modular)
 // ============================
 
-// Import semua route
-const authRoutes = require('./routes/authroutes');
-const cartRoutes = require('./routes/cartroutes');
-const wishlistRoutes = require('./routes/wishlistroutes');
-const productRoutes = require('./routes/productroutes');
-const orderRoutes = require('./routes/orderroutes');
-const reportRoutes = require('./routes/reportroutes');
-const contactRoutes = require('./routes/contactroutes');
+// Import routes modular
+const authRoutes     = require('./routes/authroutes');     // 🔐 Login, Register, OTP
+const cartRoutes     = require('./routes/cartroutes');     // 🛒 Keranjang
+const wishlistRoutes = require('./routes/wishlistroutes'); // ❤️ Wishlist
+const productRoutes  = require('./routes/productroutes');  // 📦 Produk
+const orderRoutes    = require('./routes/orderroutes');    // 🧾 Pesanan
+const reportRoutes   = require('./routes/reportroutes');   // 📤 Export data
+const contactRoutes  = require('./routes/contactroutes');  // 📩 Kontak/pesan
 
-// Register API routes
+// Daftarkan prefix routes
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/products', productRoutes);     // 💡 Termasuk search/filter/export Excel
-app.use('/api/orders', orderRoutes);          // 💡 Termasuk summary dan chart
-app.use('/api/export', reportRoutes);         // 💡 Ekspor laporan PDF/Excel
-app.use('/api/contact', contactRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/export', reportRoutes);
+app.use('/api/contacts', contactRoutes);
 
 // ============================
-// ❌ 404 HANDLER (Fallback)
+// ❌ 404 HANDLER
 // ============================
+app.use((req, res, next) => {
+  res.status(404).json({
+    message: 'Endpoint tidak ditemukan.',
+    path: req.originalUrl
+  });
+});
 
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route tidak ditemukan' });
+// ============================
+// 💥 GLOBAL ERROR HANDLER
+// ============================
+app.use((err, req, res, next) => {
+  console.error('❌ Error Server:', err.stack);
+  res.status(500).json({
+    message: 'Terjadi kesalahan pada server.',
+    ...(process.env.NODE_ENV === 'development' && { error: err.message })
+  });
 });
 
 // ============================
 // 🚀 START SERVER
 // ============================
-
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
-  console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
+  console.log(`🚀 Server aktif di http://localhost:${PORT}`);
 });

@@ -1,77 +1,109 @@
 const db = require('../config/db');
 
 const Contact = {
-  // Simpan pesan baru dari form kontak
+  // ✅ Simpan pesan kontak baru
   async save({ name, email, subject, message }) {
     if (!name || !email || !subject || !message) {
       throw new Error('Semua field harus diisi');
     }
 
     const [result] = await db.query(
-      'INSERT INTO contact_messages (name, email, subject, message, status) VALUES (?, ?, ?, ?, ?)',
-      [name, email, subject, message, 'unread'] // status default 'unread'
+      `
+      INSERT INTO contact_messages (name, email, subject, message, status)
+      VALUES (?, ?, ?, ?, 'unread')
+      `,
+      [name, email, subject, message]
     );
 
-    return result;
+    return result.insertId;
   },
 
-  // Ambil pesan kontak dengan pagination (page mulai dari 1)
-  async getAll(page = 1, limit = 10) {
+  // ✅ Ambil daftar pesan dengan filter, pencarian, dan pagination
+  async getFilteredContacts({ page = 1, limit = 10, search = '', start = '', end = '' }) {
     const offset = (page - 1) * limit;
+    const conditions = [];
+    const values = [];
 
-    const [rows] = await db.query(
-      'SELECT id, name, email, subject, message, status, created_at FROM contact_messages ORDER BY created_at DESC LIMIT ? OFFSET ?',
-      [limit, offset]
-    );
+    if (search) {
+      const keyword = `%${search}%`;
+      conditions.push(`(name LIKE ? OR email LIKE ? OR subject LIKE ? OR message LIKE ?)`);
+      values.push(keyword, keyword, keyword, keyword);
+    }
 
-    const [[{ total }]] = await db.query(
-      'SELECT COUNT(*) as total FROM contact_messages'
-    );
+    if (start) {
+      conditions.push('DATE(created_at) >= ?');
+      values.push(start);
+    }
 
-    // Tambahkan field read sebagai boolean
-    const mappedRows = rows.map(row => ({
-      ...row,
+    if (end) {
+      conditions.push('DATE(created_at) <= ?');
+      values.push(end);
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : '';
+
+    const dataQuery = `
+      SELECT id, name, email, subject, message, status, created_at
+      FROM contact_messages
+      ${whereClause}
+      ORDER BY created_at DESC
+      LIMIT ? OFFSET ?
+    `;
+
+    const countQuery = `
+      SELECT COUNT(*) AS total
+      FROM contact_messages
+      ${whereClause}
+    `;
+
+    const [rows] = await db.query(dataQuery, [...values, parseInt(limit), parseInt(offset)]);
+    const [[{ total }]] = await db.query(countQuery, values);
+
+    const contacts = rows.map(row => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      subject: row.subject,
+      message: row.message,
+      status: row.status,
+      created_at: row.created_at,
       read: row.status === 'read'
     }));
 
     return {
-      data: mappedRows,
-      pagination: {
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      },
+      contacts,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
     };
   },
 
-  // Ambil satu pesan berdasarkan ID
+  // ✅ Ambil satu pesan berdasarkan ID
   async getById(id) {
     const [rows] = await db.query(
-      'SELECT * FROM contact_messages WHERE id = ?',
+      `SELECT * FROM contact_messages WHERE id = ?`,
       [id]
     );
-    return rows[0]; // kembalikan satu objek
+    return rows.length > 0 ? rows[0] : null;
   },
 
-  // Hapus pesan berdasarkan ID
+  // ✅ Hapus pesan berdasarkan ID
   async delete(id) {
-    if (!id) throw new Error('ID tidak valid');
     const [result] = await db.query(
-      'DELETE FROM contact_messages WHERE id = ?',
+      `DELETE FROM contact_messages WHERE id = ?`,
       [id]
     );
-    return result.affectedRows > 0; // true jika berhasil hapus
+    return result.affectedRows > 0;
   },
 
-  // Tandai pesan sebagai sudah dibaca
+  // ✅ Tandai pesan sebagai dibaca
   async markAsRead(id) {
-    if (!id) throw new Error('ID tidak valid');
     const [result] = await db.query(
-      'UPDATE contact_messages SET status = ? WHERE id = ?',
-      ['read', id]
+      `UPDATE contact_messages SET status = 'read' WHERE id = ?`,
+      [id]
     );
-    return result.affectedRows > 0; // true jika berhasil update
+    return result.affectedRows > 0;
   }
 };
 
