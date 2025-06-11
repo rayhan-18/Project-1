@@ -1,6 +1,6 @@
 const db = require('../config/db');
 
-// Get all products
+// ✅ Ambil semua produk dengan field yang terstruktur
 async function getAllProducts() {
   const [rows] = await db.query(`
     SELECT 
@@ -17,7 +17,7 @@ async function getAllProducts() {
   return rows;
 }
 
-// Get product by ID
+// ✅ Ambil satu produk berdasarkan ID
 async function getProductById(id) {
   const [rows] = await db.query(`
     SELECT 
@@ -34,20 +34,26 @@ async function getProductById(id) {
   return rows[0];
 }
 
-// Create new product
-async function createProduct(productData) {
-  const { product_name, price, image_url, stock, category, description } = productData;
+// ✅ Tambah produk baru
+async function createProduct({ product_name, price, image_url, stock, category = '', description = '' }) {
   const [result] = await db.query(`
-    INSERT INTO products 
-    (name, price, image_url, category, description, stock)
+    INSERT INTO products (name, price, image_url, category, description, stock)
     VALUES (?, ?, ?, ?, ?, ?)
-  `, [product_name, price, image_url, category || '', description || '', stock]);
-  return { product_id: result.insertId, ...productData };
+  `, [product_name, price, image_url, category, description, stock]);
+
+  return {
+    product_id: result.insertId,
+    product_name,
+    price,
+    image_url,
+    stock,
+    category,
+    description
+  };
 }
 
-// Update product
-async function updateProduct(id, productData) {
-  const { product_name, price, image_url, stock, category, description } = productData;
+// ✅ Update produk berdasarkan ID
+async function updateProduct(id, { product_name, price, image_url, stock, category = '', description = '' }) {
   await db.query(`
     UPDATE products SET
       name = ?,
@@ -57,11 +63,20 @@ async function updateProduct(id, productData) {
       description = ?,
       stock = ?
     WHERE id = ?
-  `, [product_name, price, image_url, category || '', description || '', stock, id]);
-  return { product_id: id, ...productData };
+  `, [product_name, price, image_url, category, description, stock, id]);
+
+  return {
+    product_id: id,
+    product_name,
+    price,
+    image_url,
+    stock,
+    category,
+    description
+  };
 }
 
-// Delete product
+// ✅ Hapus produk berdasarkan ID
 async function deleteProduct(id) {
   await db.query('DELETE FROM products WHERE id = ?', [id]);
   return true;

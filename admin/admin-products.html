@@ -6,15 +6,14 @@
   <title>Admin Produk - Toko Rayhan</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 p-6 font-sans text-gray-800">
+<body class="bg-gray-900 text-gray-100 p-6 font-sans">
 
   <!-- Spinner Global -->
   <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
     <div class="text-white text-sm text-center">
       <svg class="w-8 h-8 animate-spin text-green-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor"
-          d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8z" />
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8z" />
       </svg>
       Memuat data...
     </div>
@@ -31,22 +30,22 @@
     </nav>
   </header>
 
-  <!-- Form & Table -->
-  <main class="bg-white p-6 rounded-lg shadow">
-    <!-- Form -->
+  <!-- Main -->
+  <main class="bg-gray-800 p-6 rounded-lg shadow">
+    <!-- Form Produk -->
     <section class="mb-8">
       <h2 class="text-2xl font-semibold mb-4">Tambah / Edit Produk</h2>
-      <form id="productForm" novalidate class="space-y-4">
+      <form id="productForm" class="space-y-4" novalidate>
         <input type="hidden" id="productId" />
 
         <div>
           <label for="productName" class="block font-medium mb-1">Nama Produk</label>
-          <input type="text" id="productName" required minlength="3" class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600" />
+          <input type="text" id="productName" required minlength="3" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" />
         </div>
 
         <div>
           <label for="productCategory" class="block font-medium mb-1">Kategori</label>
-          <select id="productCategory" required class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600">
+          <select id="productCategory" required class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white">
             <option value="" disabled selected>Pilih kategori</option>
             <option value="Dapur">Dapur</option>
             <option value="Kamar Mandi">Kamar Mandi</option>
@@ -58,46 +57,62 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label for="productStock" class="block font-medium mb-1">Stok</label>
-            <input type="number" id="productStock" min="0" required class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600" />
+            <input type="number" id="productStock" min="0" required class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" />
           </div>
           <div>
             <label for="productPrice" class="block font-medium mb-1">Harga (Rp)</label>
-            <input type="number" id="productPrice" min="0" step="100" required class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600" />
+            <input type="number" id="productPrice" min="0" step="100" required class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" />
           </div>
         </div>
 
         <div>
           <label for="productImage" class="block font-medium mb-1">URL Gambar</label>
-          <input type="url" id="productImage" placeholder="https://example.com/img.jpg" required class="w-full border rounded px-3 py-2 focus:ring focus:border-green-600" />
+          <input type="url" id="productImage" required placeholder="https://example.com/gambar.jpg" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" />
         </div>
 
         <div class="flex gap-3 mt-4">
-          <button type="submit" id="saveBtn" class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-6 rounded transition">Simpan Produk</button>
-          <button type="button" id="cancelEditBtn" class="hidden bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-6 rounded transition">Batal Edit</button>
+          <button type="submit" id="saveBtn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded">Simpan Produk</button>
+          <button type="button" id="cancelEditBtn" class="hidden bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded">Batal Edit</button>
         </div>
 
-        <div id="formMessage" class="text-sm font-medium mt-2"></div>
-        <div id="loadingSpinner" class="text-green-600 text-sm hidden mt-2">Loading...</div>
+        <div id="formMessage" class="text-sm mt-2 font-medium"></div>
       </form>
     </section>
 
-    <!-- Table -->
+    <!-- Filter & Table Produk -->
     <section>
       <h2 class="text-2xl font-semibold mb-4">Daftar Produk</h2>
+      <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+        <div class="flex gap-2">
+          <input type="text" id="searchInput" placeholder="Cari produk..." class="bg-gray-700 text-white border border-gray-600 rounded px-3 py-2 w-60" />
+          <select id="filterCategory" class="bg-gray-700 text-white border border-gray-600 rounded px-3 py-2">
+            <option value="">Semua Kategori</option>
+            <option value="Dapur">Dapur</option>
+            <option value="Kamar Mandi">Kamar Mandi</option>
+            <option value="Kamar Tidur">Kamar Tidur</option>
+            <option value="Ruang Tamu">Ruang Tamu</option>
+          </select>
+          <button onclick="loadProducts()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Terapkan</button>
+        </div>
+        <div>
+          <button onclick="exportProductsExcel()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Export Excel</button>
+        </div>
+      </div>
+
       <div class="overflow-x-auto">
-        <table id="productsTable" class="min-w-full table-auto border border-gray-300">
-          <thead class="bg-gray-200">
+        <table id="productsTable" class="min-w-full table-auto border border-gray-600">
+          <thead class="bg-gray-700 text-white">
             <tr>
-              <th class="p-3 border">ID</th>
-              <th class="p-3 border">Nama Produk</th>
-              <th class="p-3 border">Kategori</th>
-              <th class="p-3 border">Stok</th>
-              <th class="p-3 border">Harga (Rp)</th>
-              <th class="p-3 border">Gambar</th>
-              <th class="p-3 border">Aksi</th>
+              <th class="p-3 border text-center">ID</th>
+              <th class="p-3 border border-gray-600">Nama Produk</th>
+              <th class="p-3 border border-gray-600">Kategori</th>
+              <th class="p-3 border border-gray-600">Stok</th>
+              <th class="p-3 border border-gray-600">Harga</th>
+              <th class="p-3 border border-gray-600">Gambar</th>
+              <th class="p-3 border border-gray-600">Aksi</th>
             </tr>
           </thead>
-          <tbody class="text-gray-700">
+          <tbody class="text-gray-100">
             <tr><td colspan="7" class="text-center p-4">Memuat data...</td></tr>
           </tbody>
         </table>
@@ -107,25 +122,6 @@
 
   <script>
     const apiBase = 'http://localhost:3000/api/products';
-
-    function logoutAdmin() {
-      localStorage.removeItem('user');
-      localStorage.removeItem('cart');
-      localStorage.removeItem('wishlist');
-      location.href = '/publik/index.html';
-    }
-
-    function sanitizeHTML(str) {
-      const div = document.createElement('div');
-      div.textContent = str;
-      return div.innerHTML;
-    }
-
-    function showLoading(on) {
-      document.getElementById('loadingSpinner').classList.toggle('hidden', !on);
-      document.getElementById('spinnerOverlay').classList.toggle('hidden', !on);
-    }
-
     const productForm = document.getElementById('productForm');
     const productId = document.getElementById('productId');
     const nameIn = document.getElementById('productName');
@@ -133,10 +129,29 @@
     const stockIn = document.getElementById('productStock');
     const priceIn = document.getElementById('productPrice');
     const imageIn = document.getElementById('productImage');
-    const saveBtn = document.getElementById('saveBtn');
     const cancelBtn = document.getElementById('cancelEditBtn');
     const msgEl = document.getElementById('formMessage');
     const tbody = document.querySelector('#productsTable tbody');
+
+    const getFilterQuery = () => {
+      const search = document.getElementById('searchInput').value.trim();
+      const category = document.getElementById('filterCategory').value;
+      const params = [];
+      if (search) params.push(`search=${encodeURIComponent(search)}`);
+      if (category) params.push(`category=${encodeURIComponent(category)}`);
+      return params.length ? '?' + params.join('&') : '';
+    };
+
+    function showLoading(on) {
+      document.getElementById('spinnerOverlay').classList.toggle('hidden', !on);
+    }
+
+    function logoutAdmin() {
+      localStorage.removeItem('user');
+      localStorage.removeItem('cart');
+      localStorage.removeItem('wishlist');
+      location.href = '/publik/index.html';
+    }
 
     function clearForm() {
       productId.value = '';
@@ -147,40 +162,33 @@
       imageIn.value = '';
       msgEl.textContent = '';
       cancelBtn.classList.add('hidden');
-      saveBtn.textContent = 'Simpan Produk';
+      document.getElementById('saveBtn').textContent = 'Simpan Produk';
     }
 
     async function loadProducts() {
-      tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Memuat data...</td></tr>';
       showLoading(true);
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Memuat data...</td></tr>';
       try {
-        const res = await fetch(apiBase);
-        if (!res.ok) throw new Error('Gagal memuat produk');
-        const arr = await res.json();
-        if (!arr.length) {
-          tbody.innerHTML = '<tr><td colspan="7" class="text-center p-4">Tidak ada produk</td></tr>';
-        } else {
-          tbody.innerHTML = '';
-          arr.forEach(p => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-              <td class="p-2 border">${p.product_id}</td>
-              <td class="p-2 border">${sanitizeHTML(p.product_name)}</td>
-              <td class="p-2 border">${sanitizeHTML(p.category || '')}</td>
-              <td class="p-2 border">${p.stock}</td>
-              <td class="p-2 border">${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(p.price)}</td>
-              <td class="p-2 border"><img src="${sanitizeHTML(p.image_url)}" alt="" class="h-10 rounded"/></td>
-              <td class="p-2 border">
-                <div class="inline-flex gap-2">
-                  <button onclick="startEdit(${p.product_id})" class="bg-blue-600 hover:bg-blue-700 text-white py-1 px-3 rounded text-sm">Edit</button>
-                  <button onclick="deleteProduct(${p.product_id})" class="bg-red-600 hover:bg-red-700 text-white py-1 px-3 rounded text-sm">Hapus</button>
-                </div>
-              </td>`;
-            tbody.appendChild(tr);
-          });
-        }
+        const res = await fetch(`${apiBase}${getFilterQuery()}`);
+        const data = await res.json();
+        tbody.innerHTML = data.length ? '' : '<tr><td colspan="7" class="text-center p-4">Tidak ada produk</td></tr>';
+        data.forEach(p => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="p-2 border text-center">${p.product_id}</td>
+            <td class="p-2 border">${p.product_name}</td>
+            <td class="p-2 border">${p.category}</td>
+            <td class="p-2 border">${p.stock}</td>
+            <td class="p-2 border">Rp ${p.price.toLocaleString('id-ID')}</td>
+            <td class="p-2 border"><img src="${p.image_url}" alt="" class="h-10 rounded" /></td>
+            <td class="p-2 border">
+              <button onclick="startEdit(${p.product_id})" class="bg-blue-600 text-white px-2 py-1 rounded">Edit</button>
+              <button onclick="deleteProduct(${p.product_id})" class="bg-red-600 text-white px-2 py-1 rounded">Hapus</button>
+            </td>`;
+          tbody.appendChild(tr);
+        });
       } catch (err) {
-        tbody.innerHTML = `<tr><td colspan="7" class="text-red-500 text-center p-4">${sanitizeHTML(err.message)}</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center text-red-600 p-4">${err.message}</td></tr>`;
       } finally {
         showLoading(false);
       }
@@ -190,7 +198,6 @@
       showLoading(true);
       try {
         const res = await fetch(`${apiBase}/${id}`);
-        if (!res.ok) throw new Error('Gagal memuat produk');
         const p = await res.json();
         productId.value = p.product_id;
         nameIn.value = p.product_name;
@@ -198,27 +205,44 @@
         stockIn.value = p.stock;
         priceIn.value = p.price;
         imageIn.value = p.image_url;
-        saveBtn.textContent = 'Update Produk';
+        document.getElementById('saveBtn').textContent = 'Update Produk';
         cancelBtn.classList.remove('hidden');
-        msgEl.textContent = '';
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      } catch (e) {
-        alert(e.message);
+      } catch (err) {
+        alert(err.message);
       } finally {
         showLoading(false);
       }
     }
 
     async function deleteProduct(id) {
-      if (!confirm('Yakin hapus produk ini?')) return;
+      if (!confirm('Yakin ingin menghapus produk ini?')) return;
       showLoading(true);
       try {
-        const res = await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
-        if (!res.ok) throw new Error('Gagal hapus produk');
+        await fetch(`${apiBase}/${id}`, { method: 'DELETE' });
         loadProducts();
         if (productId.value == id) clearForm();
-      } catch (e) {
-        alert(e.message);
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function exportProductsExcel() {
+      showLoading(true);
+      try {
+        const res = await fetch(`${apiBase}/export${getFilterQuery()}`);
+        if (!res.ok) throw new Error('Gagal mengekspor Excel');
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'produk_toko_rayhan.xlsx';
+        a.click();
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        alert(err.message);
       } finally {
         showLoading(false);
       }
@@ -227,29 +251,16 @@
     productForm.addEventListener('submit', async e => {
       e.preventDefault();
       msgEl.textContent = '';
-
       const data = {
         product_name: nameIn.value.trim(),
         category: categoryIn.value,
         stock: Number(stockIn.value),
         price: Number(priceIn.value),
-        image_url: imageIn.value.trim(),
+        image_url: imageIn.value.trim()
       };
 
-      if (data.product_name.length < 3) {
-        msgEl.textContent = 'Nama minimal 3 karakter';
-        msgEl.className = 'text-red-600';
-        return;
-      }
-
-      if (!data.category) {
-        msgEl.textContent = 'Kategori wajib dipilih';
-        msgEl.className = 'text-red-600';
-        return;
-      }
-
-      if (!data.image_url.startsWith('http')) {
-        msgEl.textContent = 'URL gambar tidak valid';
+      if (!data.product_name || !data.category || !data.image_url.startsWith('http')) {
+        msgEl.textContent = 'Lengkapi semua field dengan benar';
         msgEl.className = 'text-red-600';
         return;
       }
@@ -263,10 +274,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(data)
         });
-        if (!res.ok) {
-          const body = await res.json();
-          throw new Error(body.message || 'Gagal menyimpan');
-        }
+        if (!res.ok) throw new Error('Gagal menyimpan data');
         msgEl.textContent = productId.value ? 'Produk diperbarui' : 'Produk ditambahkan';
         msgEl.className = 'text-green-600';
         clearForm();
@@ -293,6 +301,5 @@
       loadProducts();
     });
   </script>
-
 </body>
 </html>

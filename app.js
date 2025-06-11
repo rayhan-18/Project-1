@@ -1,3 +1,4 @@
+// server.js
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -6,29 +7,30 @@ require('dotenv').config();
 const app = express();
 
 // ============================
-// ✅ MIDDLEWARE GLOBAL
+// 🌐 MIDDLEWARE GLOBAL
 // ============================
 
-// Aktifkan CORS agar frontend bisa akses backend meskipun beda origin (misal port 5500 ↔ 3000)
+// Izinkan permintaan dari domain berbeda (e.g. frontend dev server)
 app.use(cors());
 
-// Parsing body JSON (wajib untuk POST, PUT, PATCH)
+// Middleware untuk parsing JSON dari body
 app.use(express.json());
 
 // ============================
-// ✅ STATIC FILES
+// 🗂️ SERVE STATIC FILES
 // ============================
 
-// Folder frontend publik (HTML, CSS, JS static)
+// Public folder untuk HTML statis
 app.use(express.static(path.join(__dirname, 'publik')));
 
-// Folder untuk file asset (gambar, CSS, JS)
+// Folder untuk file statis seperti gambar, CSS, JS
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
 // ============================
-// ✅ IMPORT DAN PASANG ROUTES
+// 🔗 ROUTES
 // ============================
 
+// Import semua route
 const authRoutes = require('./routes/authroutes');
 const cartRoutes = require('./routes/cartroutes');
 const wishlistRoutes = require('./routes/wishlistroutes');
@@ -37,27 +39,28 @@ const orderRoutes = require('./routes/orderroutes');
 const reportRoutes = require('./routes/reportroutes');
 const contactRoutes = require('./routes/contactroutes');
 
-// Semua endpoint API
+// Register API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/orders', orderRoutes);
-app.use('/api/export', reportRoutes);
+app.use('/api/products', productRoutes);     // 💡 Termasuk search/filter/export Excel
+app.use('/api/orders', orderRoutes);          // 💡 Termasuk summary dan chart
+app.use('/api/export', reportRoutes);         // 💡 Ekspor laporan PDF/Excel
 app.use('/api/contact', contactRoutes);
 
 // ============================
-// ✅ 404 HANDLER (jika route tidak ditemukan)
+// ❌ 404 HANDLER (Fallback)
 // ============================
+
 app.use((req, res) => {
   res.status(404).json({ message: 'Route tidak ditemukan' });
 });
 
 // ============================
-// ✅ JALANKAN SERVER
+// 🚀 START SERVER
 // ============================
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`🚀 Server running at http://localhost:${port}`);
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`🚀 Server berjalan di http://localhost:${PORT}`);
 });
