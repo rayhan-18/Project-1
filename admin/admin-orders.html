@@ -13,6 +13,7 @@
     <nav class="space-x-4 text-sm">
       <a href="admin-dashboard.html" class="hover:underline">Dashboard</a>
       <a href="admin-orders.html" class="underline font-semibold">Pesanan</a>
+      <a href="admin-products.html" class="hover:text-blue-400">Produk</a>
       <a href="admin-contacts.html" class="hover:underline">Pesan Kontak</a>
       <a href="#" onclick="logoutAdmin()" class="hover:underline text-red-400">Logout</a>
     </nav>
@@ -122,6 +123,7 @@
               <td class="border px-4 py-3">Rp ${order.total.toLocaleString()}</td>
               <td class="border px-4 py-3">${badge}</td>
               <td class="border px-4 py-3 space-x-1">
+                <a href="admin-order-detail.html?id=${order.id}" class="bg-gray-300 hover:bg-gray-400 text-xs px-3 py-1 rounded inline-block">Lihat Detail</a>
                 <button onclick="updateStatus(${order.id}, 'Confirmed')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded">Konfirmasi</button>
                 <button onclick="updateStatus(${order.id}, 'Shipped')" class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded">Kirim</button>
                 <button onclick="updateStatus(${order.id}, 'Cancelled')" class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">Batalkan</button>
