@@ -259,7 +259,10 @@
         image_url: imageIn.value.trim()
       };
 
-      if (!data.product_name || !data.category || !data.image_url.startsWith('http')) {
+
+      const isValidURL = url => /^https?:\/\/.+|^\/.+/.test(url);
+
+      if (!data.product_name || !data.category || !isValidURL(data.image_url)) {
         msgEl.textContent = 'Lengkapi semua field dengan benar';
         msgEl.className = 'text-red-600';
         return;
