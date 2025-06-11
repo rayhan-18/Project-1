@@ -9,7 +9,17 @@
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans">
 
-  <!-- Header -->
+  <!-- Spinner Overlay -->
+  <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999] hidden">
+    <div class="flex flex-col items-center">
+      <svg class="w-10 h-10 animate-spin text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8z" />
+      </svg>
+      <p class="text-white text-sm">Memuat data...</p>
+    </div>
+  </div>
+
   <header class="bg-gray-800 p-4 flex justify-between items-center sticky top-0 z-50 shadow">
     <h1 class="text-xl font-bold">Admin Toko Rayhan</h1>
     <nav class="space-x-4 text-sm">
@@ -21,7 +31,6 @@
     </nav>
   </header>
 
-  <!-- Main -->
   <main class="max-w-7xl mx-auto mt-8 px-4 mb-16">
     <h2 class="text-3xl font-bold mb-6">Daftar Pesanan</h2>
 
@@ -45,9 +54,6 @@
 
     <!-- Table -->
     <section class="bg-gray-800 rounded-xl shadow overflow-x-auto relative">
-      <div id="loading" class="absolute inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
-        <span class="text-sm text-gray-300">Memuat data...</span>
-      </div>
       <table id="ordersTable" class="min-w-full text-sm table-auto">
         <thead class="bg-gray-700 text-gray-100">
           <tr>
@@ -68,7 +74,6 @@
     <div id="pagination" class="mt-6 flex justify-center flex-wrap gap-2"></div>
   </main>
 
-  <!-- Script -->
   <script>
     const statusColors = {
       pending: 'bg-orange-500',
@@ -115,7 +120,7 @@
 
     async function loadOrders(page = 1) {
       currentPage = page;
-      document.getElementById('loading').classList.remove('hidden');
+      document.getElementById('spinnerOverlay').classList.remove('hidden');
       try {
         const query = getQueryParams();
         const res = await fetch(`http://localhost:3000/api/orders?page=${page}&limit=${limitPerPage}&${query}`);
@@ -146,7 +151,7 @@
         console.error(err);
         document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="text-center py-6 text-red-400">Gagal memuat data</td></tr>';
       } finally {
-        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('spinnerOverlay').classList.add('hidden');
       }
     }
 
