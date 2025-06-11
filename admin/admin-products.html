@@ -103,7 +103,7 @@
         <table id="productsTable" class="min-w-full table-auto border border-gray-600">
           <thead class="bg-gray-700 text-white">
             <tr>
-              <th class="p-3 border text-center">ID</th>
+              <th class="p-3 border border-gray-600 text-center">ID</th>
               <th class="p-3 border border-gray-600">Nama Produk</th>
               <th class="p-3 border border-gray-600">Kategori</th>
               <th class="p-3 border border-gray-600">Stok</th>
@@ -178,8 +178,8 @@
             <td class="p-2 border text-center">${p.product_id}</td>
             <td class="p-2 border">${p.product_name}</td>
             <td class="p-2 border">${p.category}</td>
-            <td class="p-2 border">${p.stock}</td>
-            <td class="p-2 border">Rp ${p.price.toLocaleString('id-ID')}</td>
+            <td class="p-2 border text-center">${p.stock}</td>
+            <td class="p-2 border text-center">Rp ${p.price.toLocaleString('id-ID')}</td>
             <td class="p-2 border"><img src="${p.image_url}" alt="" class="h-10 rounded" /></td>
             <td class="p-2 border">
               <button onclick="startEdit(${p.product_id})" class="bg-blue-600 text-white px-2 py-1 rounded">Edit</button>
