@@ -7,26 +7,30 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
-<body class="bg-gray-100 font-sans text-gray-800">
-  <header class="bg-gray-800 text-white flex items-center justify-between p-4 shadow-md sticky top-0 z-50">
+<body class="bg-gray-900 text-gray-100 font-sans">
+
+  <!-- Header -->
+  <header class="bg-gray-800 p-4 flex justify-between items-center sticky top-0 z-50 shadow">
     <h1 class="text-xl font-bold">Admin Toko Rayhan</h1>
     <nav class="space-x-4 text-sm">
       <a href="admin-dashboard.html" class="hover:underline">Dashboard</a>
       <a href="admin-orders.html" class="underline font-semibold">Pesanan</a>
-      <a href="admin-products.html" class="hover:text-blue-400">Produk</a>
+      <a href="admin-products.html" class="hover:underline">Produk</a>
       <a href="admin-contacts.html" class="hover:underline">Pesan Kontak</a>
       <a href="#" onclick="logoutAdmin()" class="hover:underline text-red-400">Logout</a>
     </nav>
   </header>
 
+  <!-- Main -->
   <main class="max-w-7xl mx-auto mt-8 px-4 mb-16">
-    <h2 class="text-3xl font-bold mb-6 text-gray-700">Daftar Pesanan</h2>
+    <h2 class="text-3xl font-bold mb-6">Daftar Pesanan</h2>
 
-    <section class="bg-white p-6 rounded-xl shadow mb-6 flex flex-wrap items-center gap-4">
-      <input type="text" id="searchInput" oninput="applyFilter()" placeholder="Cari ID/Nama User" class="border px-3 py-2 text-sm rounded focus:outline-none" />
-      <input type="date" id="startDate" class="border rounded px-3 py-2 text-sm focus:outline-none" />
-      <input type="date" id="endDate" class="border rounded px-3 py-2 text-sm focus:outline-none" />
-      <select id="statusFilter" class="border rounded px-3 py-2 text-sm focus:outline-none">
+    <!-- Filters -->
+    <section class="bg-gray-800 p-6 rounded-xl shadow mb-6 flex flex-wrap gap-4 items-center">
+      <input id="searchInput" type="text" placeholder="Cari ID/Nama User" oninput="applyFilter()" class="bg-gray-700 border rounded px-3 py-2 text-sm focus:outline-none">
+      <input id="startDate" type="date" class="bg-gray-700 border rounded px-3 py-2 text-sm focus:outline-none">
+      <input id="endDate" type="date" class="bg-gray-700 border rounded px-3 py-2 text-sm focus:outline-none">
+      <select id="statusFilter" class="bg-gray-700 border rounded px-3 py-2 text-sm focus:outline-none">
         <option value="">Semua</option>
         <option value="Pending">Pending</option>
         <option value="Confirmed">Confirmed</option>
@@ -35,62 +39,68 @@
         <option value="Completed">Completed</option>
         <option value="Cancelled">Cancelled</option>
       </select>
-      <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm">Terapkan</button>
-      <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded text-sm">Export Excel</button>
+      <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm">Terapkan</button>
+      <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm">Export Excel</button>
     </section>
 
-    <section class="bg-white rounded-xl shadow overflow-x-auto relative">
-      <div id="loading" class="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center hidden">
-        <span class="text-gray-500 text-sm">Memuat data...</span>
+    <!-- Table -->
+    <section class="bg-gray-800 rounded-xl shadow overflow-x-auto relative">
+      <div id="loading" class="absolute inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden">
+        <span class="text-sm text-gray-300">Memuat data...</span>
       </div>
-      <table id="orders-table" class="min-w-full text-sm table-auto">
-        <thead class="bg-gray-100 text-gray-700 cursor-pointer">
+      <table id="ordersTable" class="min-w-full text-sm table-auto">
+        <thead class="bg-gray-700 text-gray-100">
           <tr>
-            <th onclick="sortTable('id')" class="px-4 py-3 border">ID</th>
-            <th onclick="sortTable('user_name')" class="px-4 py-3 border">User</th>
-            <th onclick="sortTable('created_at')" class="px-4 py-3 border">Tanggal</th>
-            <th onclick="sortTable('total')" class="px-4 py-3 border">Total</th>
-            <th onclick="sortTable('status')" class="px-4 py-3 border">Status</th>
+            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('id')">ID</th>
+            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('user_name')">User</th>
+            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('recipient_name')">Nama</th>
+            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('created_at')">Tanggal</th>
+            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('total')">Total</th>
+            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('status')">Status</th>
             <th class="px-4 py-3 border">Aksi</th>
           </tr>
         </thead>
-        <tbody id="ordersBody" class="divide-y"></tbody>
+        <tbody id="ordersBody" class="divide-y divide-gray-700"></tbody>
       </table>
     </section>
 
+    <!-- Pagination -->
     <div id="pagination" class="mt-6 flex justify-center flex-wrap gap-2"></div>
   </main>
 
+  <!-- Script -->
   <script>
-    let currentPage = 1, limitPerPage = 10, sortBy = '', sortDir = 'asc';
-
-    const statusBadge = {
-      pending: 'bg-orange-100 text-orange-600',
-      confirmed: 'bg-blue-100 text-blue-700',
-      processing: 'bg-yellow-100 text-yellow-700',
-      shipped: 'bg-green-100 text-green-700',
-      completed: 'bg-green-100 text-green-800',
-      cancelled: 'bg-red-100 text-red-700'
+    const statusColors = {
+      pending: 'bg-orange-500',
+      confirmed: 'bg-blue-500',
+      processing: 'bg-yellow-500',
+      shipped: 'bg-green-500',
+      completed: 'bg-emerald-600',
+      cancelled: 'bg-red-500',
     };
+
+    let currentPage = 1;
+    const limitPerPage = 10;
+    let sortBy = '';
+    let sortDir = 'asc';
 
     function logoutAdmin() {
       localStorage.clear();
-      location.href = '/publik/index.html';
+      window.location.href = '/publik/index.html';
     }
 
-    function getFilterQuery() {
+    function getQueryParams() {
       const search = document.getElementById('searchInput').value.trim();
       const start = document.getElementById('startDate').value;
       const end = document.getElementById('endDate').value;
       const status = document.getElementById('statusFilter').value;
-      const query = [];
-      if (search) query.push(`search=${encodeURIComponent(search)}`);
-      if (start) query.push(`start=${start}`);
-      if (end) query.push(`end=${end}`);
-      if (status) query.push(`status=${status}`);
-      if (sortBy) query.push(`sort=${sortBy}`);
-      if (sortDir) query.push(`dir=${sortDir}`);
-      return query.join('&');
+      const params = [];
+      if (search) params.push(`search=${encodeURIComponent(search)}`);
+      if (start) params.push(`start=${start}`);
+      if (end) params.push(`end=${end}`);
+      if (status) params.push(`status=${status}`);
+      if (sortBy) params.push(`sort=${sortBy}&dir=${sortDir}`);
+      return params.join('&');
     }
 
     function applyFilter() {
@@ -98,11 +108,8 @@
     }
 
     function sortTable(field) {
-      if (sortBy === field) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
-      else {
-        sortBy = field;
-        sortDir = 'asc';
-      }
+      sortDir = (sortBy === field && sortDir === 'asc') ? 'desc' : 'asc';
+      sortBy = field;
       loadOrders(1);
     }
 
@@ -110,67 +117,53 @@
       currentPage = page;
       document.getElementById('loading').classList.remove('hidden');
       try {
-        const query = getFilterQuery();
+        const query = getQueryParams();
         const res = await fetch(`http://localhost:3000/api/orders?page=${page}&limit=${limitPerPage}&${query}`);
-        const data = await res.json();
+        const { orders = [], total = 0 } = await res.json();
         const tbody = document.getElementById('ordersBody');
         tbody.innerHTML = '';
 
-        (data.orders || []).forEach(order => {
-          const s = (order.status || '').toLowerCase();
-          const badgeClass = statusBadge[s] || 'bg-gray-200 text-gray-700';
-
-          let actions = `
-            <a href="admin-order-detail.html?id=${order.id}" class="bg-gray-300 hover:bg-gray-400 text-xs px-3 py-1 rounded inline-block">Lihat Detail</a>
-          `;
-
-          if (s === 'pending') {
-            actions += `<button onclick="updateStatus(${order.id}, 'Confirmed')" class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded">Konfirmasi</button>`;
-          } else if (s === 'confirmed' || s === 'processing') {
-            actions += `<button onclick="updateStatus(${order.id}, 'Shipped')" class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1 rounded">Kirim</button>`;
-          } else if (s === 'shipped') {
-            actions += `<button onclick="updateStatus(${order.id}, 'Completed')" class="bg-green-700 hover:bg-green-800 text-white text-xs px-3 py-1 rounded">Selesai</button>`;
-          }
-
-          if (s !== 'completed' && s !== 'cancelled') {
-            actions += `<button onclick="updateStatus(${order.id}, 'Cancelled')" class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded">Batalkan</button>`;
-          }
+        for (const order of orders) {
+          const statusKey = (order.status || '').toLowerCase();
+          const badge = statusColors[statusKey] || 'bg-gray-500';
+          const userName = order.user_name || `User #${order.user_id}`;
+          const actions = generateActions(order.id, statusKey);
 
           tbody.innerHTML += `
-            <tr class="hover:bg-gray-50">
+            <tr class="hover:bg-gray-700">
               <td class="border px-4 py-3">${order.id}</td>
-              <td class="border px-4 py-3">${order.user_name || 'User #' + order.user_id}</td>
+              <td class="border px-4 py-3">${userName}</td>
+              <td class="border px-4 py-3">${order.customer_name || '-'}</td>
               <td class="border px-4 py-3">${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
               <td class="border px-4 py-3">Rp ${order.total.toLocaleString()}</td>
-              <td class="border px-4 py-3"><span class="px-2 py-1 text-xs rounded ${badgeClass}">${order.status}</span></td>
+              <td class="border px-4 py-3"><span class="px-2 py-1 text-xs rounded ${badge} text-white">${order.status}</span></td>
               <td class="border px-4 py-3 space-x-1">${actions}</td>
             </tr>`;
-        });
+        }
 
-        renderPagination(data.total || 0);
+        renderPagination(total);
       } catch (err) {
-        document.getElementById('ordersBody').innerHTML = '<tr><td colspan="6" class="text-center py-6 text-red-500">Gagal memuat data</td></tr>';
         console.error(err);
+        document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="text-center py-6 text-red-400">Gagal memuat data</td></tr>';
       } finally {
         document.getElementById('loading').classList.add('hidden');
       }
     }
 
-    function renderPagination(totalItems) {
-      const pagination = document.getElementById('pagination');
-      const totalPages = Math.ceil(totalItems / limitPerPage);
-      pagination.innerHTML = '';
-      for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.textContent = i;
-        btn.className = `px-3 py-1 rounded border text-sm ${i === currentPage ? 'bg-gray-800 text-white font-semibold' : 'bg-white hover:bg-gray-100'}`;
-        btn.onclick = () => loadOrders(i);
-        pagination.appendChild(btn);
-      }
+    function generateActions(orderId, status) {
+      const btn = (label, color, nextStatus) =>
+        `<button onclick="updateStatus(${orderId}, '${nextStatus}')" class="${color} hover:opacity-90 text-xs px-3 py-1 rounded text-white">${label}</button>`;
+
+      let html = `<a href="admin-order-detail.html?id=${orderId}" class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1 rounded inline-block">Lihat</a>`;
+      if (status === 'pending') html += btn('Konfirmasi', 'bg-blue-500', 'Confirmed');
+      if (status === 'confirmed' || status === 'processing') html += btn('Kirim', 'bg-green-500', 'Shipped');
+      if (status === 'shipped') html += btn('Selesai', 'bg-emerald-600', 'Completed');
+      if (!['completed', 'cancelled'].includes(status)) html += btn('Batalkan', 'bg-red-500', 'Cancelled');
+      return html;
     }
 
     async function updateStatus(id, status) {
-      if (!confirm(`Yakin ubah status ke ${status}?`)) return;
+      if (!confirm(`Yakin ubah status ke "${status}"?`)) return;
       try {
         const res = await fetch(`http://localhost:3000/api/orders/${id}/status`, {
           method: 'PATCH',
@@ -178,37 +171,50 @@
           body: JSON.stringify({ status })
         });
         if (!res.ok) throw new Error();
-        alert('Status diperbarui.');
+        alert('Status berhasil diperbarui.');
         loadOrders(currentPage);
       } catch {
-        alert('Gagal update status');
+        alert('Gagal memperbarui status.');
+      }
+    }
+
+    function renderPagination(totalItems) {
+      const totalPages = Math.ceil(totalItems / limitPerPage);
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+
+      for (let i = 1; i <= totalPages; i++) {
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = `px-3 py-1 text-sm rounded border ${i === currentPage ? 'bg-gray-700 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`;
+        btn.onclick = () => loadOrders(i);
+        pagination.appendChild(btn);
       }
     }
 
     function exportToExcel() {
-      const table = document.getElementById("orders-table");
-      const wb = XLSX.utils.book_new();
-      const ws_data = [["ID", "User", "Tanggal", "Total", "Status"]];
-
+      const table = document.getElementById("ordersTable");
+      const rows = [["ID", "User", "Nama", "Tanggal", "Total", "Status"]];
       table.querySelectorAll("tbody tr").forEach(row => {
         const cells = row.querySelectorAll("td");
-        ws_data.push([
-          cells[0].textContent,
-          cells[1].textContent,
-          cells[2].textContent,
-          cells[3].textContent,
-          cells[4].textContent
+        rows.push([
+          cells[0].textContent.trim(),
+          cells[1].textContent.trim(),
+          cells[2].textContent.trim(),
+          cells[3].textContent.trim(),
+          cells[4].textContent.trim(),
+          cells[5].textContent.trim()
         ]);
       });
-
-      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      const ws = XLSX.utils.aoa_to_sheet(rows);
+      const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Orders");
       XLSX.writeFile(wb, "orders-export.xlsx");
     }
 
     document.addEventListener('DOMContentLoaded', () => {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (!user.is_admin) return location.href = '/publik/index.html';
+      if (!user.is_admin) return window.location.href = '/publik/index.html';
       loadOrders();
     });
   </script>

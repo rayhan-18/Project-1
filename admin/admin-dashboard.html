@@ -173,6 +173,12 @@
     }
 
     function applyFilter() {
+      const start = new Date(document.getElementById('startDate').value);
+      const end = new Date(document.getElementById('endDate').value);
+      if (start && end && start > end) {
+        alert('Tanggal akhir tidak boleh lebih awal dari tanggal mulai.');
+        return;
+      }
       loadSummary();
     }
 

@@ -188,6 +188,7 @@ const getAllOrdersHandler = async (req, res) => {
     const status = req.query.status || null;
     const startDate = req.query.start;
     const endDate = req.query.end;
+    const search = req.query.search || null;
     const offset = (page - 1) * limit;
 
     let countQuery = 'SELECT COUNT(*) as total FROM orders';
@@ -208,6 +209,12 @@ const getAllOrdersHandler = async (req, res) => {
     if (endDate) {
       whereClauses.push('DATE(CONVERT_TZ(created_at, "+00:00", "+07:00")) <= ?');
       values.push(endDate);
+    }
+
+    if (search) {
+      const cleanSearch = search.replace('User #', '').trim();
+      whereClauses.push('(id LIKE ? OR customer_name LIKE ? OR user_id LIKE ?)');
+      values.push(`%${search}%`, `%${search}%`, `%${cleanSearch}%`);
     }
 
     if (whereClauses.length > 0) {
