@@ -475,8 +475,8 @@ body {
 }
 
 .bank-option img, .ewallet-option img {
-  width: 40px;
-  height: 40px;
+  width: 60px;
+  height: 60px;
   object-fit: contain;
   margin-bottom: 8px;
 }
@@ -557,11 +557,12 @@ body {
   background: rgba(74, 124, 89, 0.1);
 }
 
-.bank-option img, .ewallet-option img {
-  width: 40px;
-  height: 40px;
+.ewallet-option img {
+  width: 60px;
+  height: 60px;
   object-fit: contain;
   margin-bottom: 8px;
+  transition: transform 0.3s ease;
 }
 
 .bank-option span, .ewallet-option span {

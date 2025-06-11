@@ -741,19 +741,19 @@ document.getElementById('paymentMethod').addEventListener('change', function() {
       <div class="bank-options">
         <h4>Pilih Bank:</h4>
         <div class="bank-option active" data-bank="bca">
-          <img src="/assets/bca-logo.png" alt="BCA">
+          <img src="/images/bca.png" alt="BCA">
           <span>BCA Virtual Account</span>
         </div>
         <div class="bank-option" data-bank="mandiri">
-          <img src="/assets/mandiri-logo.png" alt="Mandiri">
+          <img src="/images/mandiri.png" alt="Mandiri">
           <span>Mandiri Virtual Account</span>
         </div>
         <div class="bank-option" data-bank="bri">
-          <img src="/assets/bri-logo.png" alt="BRI">
+          <img src="/images/bri.png" alt="BRI">
           <span>BRI Virtual Account</span>
         </div>
         <div class="bank-option" data-bank="btn">
-          <img src="/assets/btn-logo.png" alt="BTN">
+          <img src="/images/btn.png" alt="BTN">
           <span>BTN Virtual Account</span>
         </div>
       </div>
@@ -772,15 +772,15 @@ document.getElementById('paymentMethod').addEventListener('change', function() {
       <div class="ewallet-options">
         <h4>Pilih E-Wallet:</h4>
         <div class="ewallet-option active" data-wallet="ovo">
-          <img src="/assets/ovo-logo.png" alt="OVO">
+          <img src="/images/ovo.png" alt="OVO">
           <span>OVO</span>
         </div>
         <div class="ewallet-option" data-wallet="gopay">
-          <img src="/assets/gopay-logo.png" alt="Gopay">
+          <img src="/images/gopay.png" alt="Gopay">
           <span>Gopay</span>
         </div>
         <div class="ewallet-option" data-wallet="dana">
-          <img src="/assets/dana-logo.png" alt="Dana">
+          <img src="/images/dana.png" alt="Dana">
           <span>Dana</span>
         </div>
       </div>
