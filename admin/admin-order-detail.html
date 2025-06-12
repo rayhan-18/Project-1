@@ -157,11 +157,11 @@
         `;
       });
 
-      const tax = order.subtotal * 0.12;
+      const tax = order.subtotal * 0.10;
       const total = order.subtotal + tax + order.shipping_cost;
       document.getElementById('summary').innerHTML = `
         <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal)}</p>
-        <p><strong>Tax (12%):</strong> ${formatRupiah(tax)}</p>
+        <p><strong>Tax (10%):</strong> ${formatRupiah(tax)}</p>
         <p><strong>Biaya Pengiriman:</strong> ${formatRupiah(order.shipping_cost)}</p>
         <p><strong>Total:</strong> <span class="font-bold text-green-400">${formatRupiah(total)}</span></p>
       `;
