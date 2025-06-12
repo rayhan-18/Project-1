@@ -53,14 +53,14 @@
       <p id="last-login-info" class="text-sm text-gray-500"></p>
 
       <div class="flex items-center gap-4 mt-4">
-        <img id="profile-photo-preview" src="https://dummyimage.com/100x100/ccc/000&text=Foto" class="w-24 h-24 rounded-full object-cover border" />
-        <input type="file" id="photo" accept="image/*" class="text-sm" />
+        <img id="profile-photo-preview" class="w-24 aspect-square rounded-full object-cover object-center border" />
+        <input type="file" id="photo" accept="image/*" />
       </div>
 
       <form id="edit-form" class="grid md:grid-cols-2 gap-4 mt-4">
         <div>
           <label class="block text-sm">Nama</label>
-          <input type="text" id="name" class="w-full border px-3 py-2 rounded" />
+          <input type="text" id="name" class="w-full border px-3 py-2 rounded" required />
         </div>
         <div>
           <label class="block text-sm">Email</label>
@@ -123,52 +123,71 @@
 
   <!-- Script -->
   <script>
-    let user = JSON.parse(localStorage.getItem('user') || '{}');
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
     const apiUrl = "http://localhost:3000/api/auth";
 
-    if (!user || !user.id) {
-      window.location.href = 'index.html';
-    }
+    if (!user || !user.id) window.location.href = "index.html";
 
     function logout() {
       localStorage.clear();
       Swal.fire("Logout Berhasil", "Anda telah keluar dari akun.", "success").then(() => {
-        window.location.href = 'index.html';
+        window.location.href = "index.html";
       });
     }
 
     function populateProfile() {
-      document.getElementById("account-info").innerHTML = `
-        Selamat datang, <strong>${user.name}</strong><br>Email: ${user.email}
-      `;
-      document.getElementById("last-login-info").textContent = user.last_login ? `Login terakhir: ${new Date(user.last_login).toLocaleString('id-ID')}` : '';
-      document.getElementById("name").value = user.name || "";
-      document.getElementById("email").value = user.email || "";
-      document.getElementById("input-phone").value = user.phone || "";
-      document.getElementById("input-address").value = user.address || "";
-      document.getElementById("profile-photo-preview").src = user.photo || "https://dummyimage.com/100x100/ccc/000&text=Foto";
+      const userData = localStorage.getItem("user");
+      if (!userData) return;
+
+      try {
+        const user = JSON.parse(userData);
+
+        // Menampilkan informasi akun
+        const accountInfo = document.getElementById("account-info");
+        const lastLoginInfo = document.getElementById("last-login-info");
+
+        accountInfo.innerHTML = `
+          Selamat datang, <strong>${user.name || "Pengguna"}</strong><br>
+          Email: ${user.email || "-"}
+        `;
+
+        lastLoginInfo.textContent = user.last_login
+          ? `Login terakhir: ${new Date(user.last_login).toLocaleString("id-ID")}`
+          : "";
+
+        // Mengisi input form
+        document.getElementById("name").value = user.name || "";
+        document.getElementById("email").value = user.email || "";
+        document.getElementById("input-phone").value = user.phone || "";
+        document.getElementById("input-address").value = user.address || "";
+
+        // Menampilkan foto profil
+        const profileImg = document.getElementById("profile-photo-preview");
+        if (user.photo && user.photo !== "") {
+          profileImg.src = `http://localhost:3000${user.photo}`;
+        } else {
+          profileImg.src = "https://dummyimage.com/100x100/ccc/000&text=Foto";
+        }
+
+      } catch (err) {
+        console.error("Gagal memuat data profil:", err);
+      }
     }
 
     document.getElementById("edit-form").addEventListener("submit", async (e) => {
       e.preventDefault();
-
       const updatedUser = {
         name: document.getElementById("name").value,
         phone: document.getElementById("input-phone").value,
         address: document.getElementById("input-address").value,
       };
-
       try {
         const res = await fetch(`${apiUrl}/users/${user.id}`, {
           method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(updatedUser),
         });
-
         const result = await res.json();
-
         if (res.ok) {
           Object.assign(user, updatedUser);
           localStorage.setItem("user", JSON.stringify(user));
@@ -181,33 +200,32 @@
       }
     });
 
-    document.getElementById("photo").addEventListener("change", async function () {
-      const file = this.files[0];
-      if (!file) return;
+   document.getElementById("photo").addEventListener("change", async function () {
+    const file = this.files[0];
+    if (!file) return;
 
-      const formData = new FormData();
-      formData.append("photo", file);
+    const formData = new FormData();
+    formData.append("photo", file);
 
-      try {
-        const res = await fetch(`${apiUrl}/users/${user.id}/photo`, {
-          method: "POST",
-          body: formData,
-        });
+    try {
+      const res = await fetch(`${apiUrl}/users/${user.id}/photo`, {
+        method: "POST",
+        body: formData,
+      });
 
-        const result = await res.json();
-
-        if (res.ok) {
-          user.photo = result.photoUrl;
-          localStorage.setItem("user", JSON.stringify(user));
-          document.getElementById("profile-photo-preview").src = result.photoUrl;
-          Swal.fire("Berhasil", "Foto profil diperbarui", "success");
-        } else {
-          Swal.fire("Gagal", result.message || "Upload gagal", "error");
-        }
-      } catch (err) {
-        Swal.fire("Error", "Tidak dapat mengunggah foto", "error");
+      const result = await res.json();
+      if (res.ok) {
+        user.photo = result.photo; // Simpan path ke user
+        localStorage.setItem("user", JSON.stringify(user));
+        document.getElementById("profile-photo-preview").src = `http://localhost:3000${result.photo}`;
+        Swal.fire("Berhasil", "Foto profil diperbarui", "success");
+      } else {
+        Swal.fire("Gagal", result.message || "Upload gagal", "error");
       }
-    });
+    } catch (err) {
+      Swal.fire("Error", "Tidak dapat mengunggah foto", "error");
+    }
+  });
 
     document.addEventListener("DOMContentLoaded", populateProfile);
   </script>
