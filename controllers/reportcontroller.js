@@ -54,7 +54,7 @@ exports.exportOrdersPDF = async (req, res) => {
 
     // Header
     doc.fontSize(18).text('Toko Rayhan', { align: 'center' });
-    doc.fontSize(12).text('Jl. Contoh Alamat No.123, Jakarta', { align: 'center' });
+    doc.fontSize(12).text('Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan', { align: 'center' });
     doc.moveDown();
     doc.fontSize(14).text('Laporan Data Pesanan', { align: 'center' });
     doc.fontSize(10).text(`Tanggal Cetak: ${moment().format('DD-MM-YYYY')}`, { align: 'center' });
@@ -127,7 +127,7 @@ exports.exportOrdersExcel = async (req, res) => {
     worksheet.getCell('A1').alignment = { horizontal: 'center' };
 
     worksheet.mergeCells('A2:E2');
-    worksheet.getCell('A2').value = 'Jl. Contoh Alamat No.123, Jakarta';
+    worksheet.getCell('A2').value = 'Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan';
     worksheet.getCell('A2').alignment = { horizontal: 'center' };
 
     worksheet.mergeCells('A3:E3');

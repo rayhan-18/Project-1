@@ -4,291 +4,198 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Detail Pesanan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#4a7c59',
+            'primary-dark': '#3b6448',
+            graybg: '#f9f9f9',
+          },
+          fontFamily: {
+            poppins: ['Poppins', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      max-width: 900px;
-      margin-left: auto;
-      margin-right: auto;
-      background: #f9f9f9;
-      color: #333;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #2c3e50;
-    }
-
-    .order-info, .items-table, .summary {
-      background: #fff;
-      padding: 20px;
-      margin-bottom: 25px;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.05);
-    }
-
-    table {
-      border-collapse: collapse;
-      width: 100%;
-    }
-
-    th, td {
-      padding: 10px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-
-    .status {
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 20px;
-      display: inline-block;
-      text-transform: capitalize;
-      font-size: 0.9rem;
-    }
-
-    .status-selesai {
-      background-color: #d4edda;
-      color: #155724;
-    }
-
-    .status-batal {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-
-    .status-proses {
-      background-color: #fff3cd;
-      color: #856404;
-    }
-
-    .back-links {
-      margin-top: 20px;
-      text-align: center;
-    }
-
-    .back-links a {
-      display: inline-block;
-      margin: 0 10px;
-      text-decoration: none;
-      color: #4CAF50;
-      font-weight: 600;
-      border: 1px solid #4CAF50;
-      padding: 8px 15px;
-      border-radius: 25px;
-      transition: background-color 0.3s, color 0.3s;
-    }
-
-    .back-links a:hover {
-      background-color: #45a049;
-      color: white;
-    }
-
-    #loading {
-      font-style: italic;
-      text-align: center;
-      margin-bottom: 25px;
-      color: #555;
-    }
-
-    /* Responsive */
-    @media (max-width: 600px) {
+    @media print {
       body {
-        margin: 10px;
+        background: white !important;
+        padding: 0;
+        margin: 0;
       }
-      th, td {
-        font-size: 14px;
-        padding: 8px;
+      .print\:hidden {
+        display: none !important;
       }
-      .status {
-        font-size: 0.8rem;
-        padding: 4px 10px;
+      .print\:block {
+        display: block !important;
+      }
+      .print\:text-center {
+        text-align: center !important;
+      }
+      .print\:text-lg {
+        font-size: 1.125rem !important;
       }
     }
   </style>
 </head>
-<body class="detail-pesanan">
+<body class="bg-graybg font-poppins text-gray-800 py-6 px-4 md:px-8">
 
-  <h1>Detail Pesanan</h1>
+  <div class="max-w-4xl mx-auto">
+    <h1 class="text-3xl font-bold text-center text-primary mb-2">Detail Pesanan</h1>
+    <h2 class="hidden print:block print:text-center print:text-lg font-semibold mb-1">INVOICE PESANAN</h2>
+    <div id="invoiceMeta" class="hidden print:block print:text-center text-sm text-gray-700 mb-4"></div>
 
-  <div id="loading" style="display:none;">Memuat data pesanan...</div>
+    <div id="loading" class="text-center italic text-gray-600 mb-6 hidden">Memuat data pesanan...</div>
 
-  <div id="orderInfo" class="order-info"></div>
+    <div id="orderInfo" class="bg-white shadow-md rounded-lg p-6 mb-6 space-y-2"></div>
 
-  <table class="items-table" id="itemsTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>Nama Produk</th>
-        <th>Jumlah</th>
-        <th>Harga</th>
-        <th>Subtotal</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6 hidden" id="itemsWrapper">
+      <table class="w-full table-auto text-sm md:text-base">
+        <thead class="bg-gray-100">
+          <tr>
+            <th class="px-4 py-2 text-left">Nama Produk</th>
+            <th class="px-4 py-2">Jumlah</th>
+            <th class="px-4 py-2">Harga</th>
+            <th class="px-4 py-2">Subtotal</th>
+          </tr>
+        </thead>
+        <tbody id="itemsTable"></tbody>
+      </table>
+    </div>
 
-  <div id="summary" class="summary"></div>
+    <div id="summary" class="bg-white shadow-md rounded-lg p-6 mb-4"></div>
 
-  <div class="back-links">
-    <a href="orders.html">← Kembali ke Daftar Pesanan</a>
-    <a href="index.html">🏠 Kembali ke Beranda</a>
+    <div class="text-center mt-4 print:hidden">
+      <button onclick="window.print()" class="bg-white border border-primary text-primary hover:bg-primary hover:text-white font-semibold px-5 py-2 rounded-full transition">
+        🧾 Cetak Invoice
+      </button>
+    </div>
+
+    <div class="text-center mt-4 space-x-4 print:hidden">
+      <a href="orders.html" class="inline-block bg-white border border-primary text-primary hover:bg-primary hover:text-white font-semibold px-5 py-2 rounded-full transition">← Kembali ke Pesanan</a>
+      <a href="index.html" class="inline-block bg-primary text-white hover:bg-primary-dark font-semibold px-5 py-2 rounded-full transition">🏠 Kembali ke Beranda</a>
+    </div>
   </div>
 
   <script>
     const apiBaseUrl = 'http://localhost:3000/api/orders';
-
-    // Format angka ke Rupiah
-    function formatRupiah(value) {
-      if (typeof value !== 'number' || isNaN(value)) return 'Rp 0';
-      return 'Rp ' + value.toLocaleString('id-ID');
-    }
-
-    // Buat elemen dari string HTML
-    function createElement(html) {
-      const template = document.createElement('template');
-      template.innerHTML = html.trim();
-      return template.content.firstChild;
-    }
-
-    // Ambil orderId dari URL ?id=
-    const urlParams = new URLSearchParams(window.location.search);
-    const orderId = urlParams.get('id');
+    const orderId = new URLSearchParams(window.location.search).get('id');
 
     if (!orderId) {
       document.body.innerHTML = `
-        <p style="color: red; text-align:center;">
-          Order ID tidak ditemukan di URL.<br>Harap tambahkan parameter <code>?id=</code> di URL.
-        </p>
-        <div class="back-links">
-          <a href="orders.html">← Kembali ke Daftar Pesanan</a>
-          <a href="index.html">🏠 Kembali ke Beranda</a>
+        <div class="text-center text-red-600 font-semibold mt-10">
+          Order ID tidak ditemukan. Harap gunakan URL dengan parameter <code>?id=</code>.
+          <div class="mt-4 space-x-4">
+            <a href="orders.html" class="text-primary font-semibold underline">Kembali ke Pesanan</a>
+            <a href="index.html" class="text-primary font-semibold underline">Beranda</a>
+          </div>
         </div>
       `;
     } else {
       fetchOrderDetail(orderId);
     }
 
-    async function fetchOrderDetail(orderId) {
-      const loadingEl = document.getElementById('loading');
-      const itemsTable = document.getElementById('itemsTable');
-      loadingEl.style.display = 'block';
+    function formatRupiah(value) {
+      return 'Rp ' + (value || 0).toLocaleString('id-ID');
+    }
+
+    function getStatusBadge(status) {
+      const s = (status || '').toLowerCase();
+      let color = 'bg-yellow-100 text-yellow-800';
+      if (s.includes('selesai')) color = 'bg-green-100 text-green-800';
+      if (s.includes('batal')) color = 'bg-red-100 text-red-800';
+      return `<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${color}">${status}</span>`;
+    }
+
+    async function fetchOrderDetail(id) {
+      const loading = document.getElementById('loading');
+      const itemsWrapper = document.getElementById('itemsWrapper');
+      const invoiceMeta = document.getElementById('invoiceMeta');
+      loading.classList.remove('hidden');
 
       try {
-        const res = await fetch(`${apiBaseUrl}/${orderId}`);
-        loadingEl.style.display = 'none';
-
-        if (!res.ok) {
-          document.body.innerHTML = `
-            <p style="color: red; text-align:center;">
-              Order dengan ID ${orderId} tidak ditemukan.
-            </p>
-            <div class="back-links">
-              <a href="orders.html">← Kembali ke Daftar Pesanan</a>
-              <a href="index.html">🏠 Kembali ke Beranda</a>
-            </div>
-          `;
-          return;
-        }
-
+        const res = await fetch(`${apiBaseUrl}/${id}`);
+        if (!res.ok) throw new Error('Pesanan tidak ditemukan.');
         const order = await res.json();
-        renderOrderDetail(order);
-        itemsTable.style.display = '';
-      } catch (error) {
-        loadingEl.style.display = 'none';
-        document.body.innerHTML = `
-          <p style="color: red; text-align:center;">
-            Terjadi kesalahan: ${error.message}
-          </p>
-          <div class="back-links">
-            <a href="orders.html">← Kembali ke Daftar Pesanan</a>
-            <a href="index.html">🏠 Kembali ke Beranda</a>
-          </div>
+
+        loading.classList.add('hidden');
+        renderOrder(order);
+        itemsWrapper.classList.remove('hidden');
+
+        const tanggal = new Date(order.created_at || Date.now()).toLocaleDateString('id-ID', {
+          year: 'numeric', month: 'long', day: 'numeric'
+        });
+        invoiceMeta.innerHTML = `No. Invoice: INV-${order.id || id} | Tanggal: ${tanggal}`;
+        invoiceMeta.classList.remove('hidden');
+
+      } catch (err) {
+        loading.classList.add('hidden');
+        document.body.innerHTML = `<div class='text-center text-red-600 font-semibold mt-10'>${err.message}</div>`;
+      }
+    }
+
+    function renderOrder(order) {
+      const orderInfo = document.getElementById('orderInfo');
+      const itemsTable = document.getElementById('itemsTable');
+      const summary = document.getElementById('summary');
+
+      orderInfo.innerHTML = `
+        <p><strong>Nama:</strong> ${order.customer_name}</p>
+        <p><strong>Telepon:</strong> ${order.customer_phone}</p>
+        <p><strong>Alamat:</strong> ${order.customer_address}</p>
+        <p><strong>Pengiriman:</strong> ${order.shipping_method} (${formatRupiah(order.shipping_cost)})</p>
+        <p><strong>Pembayaran:</strong> ${order.payment_method}</p>
+        ${renderPaymentDetails(order)}
+        <p><strong>Status:</strong> ${getStatusBadge(order.status)}</p>
+      `;
+
+      itemsTable.innerHTML = '';
+      (order.items || []).forEach(item => {
+        const row = document.createElement('tr');
+        row.className = 'border-t';
+        row.innerHTML = `
+          <td class="px-4 py-2">${item.product_name}</td>
+          <td class="text-center">${item.quantity}</td>
+          <td class="text-center">${formatRupiah(item.price)}</td>
+          <td class="text-center">${formatRupiah(item.quantity * item.price)}</td>
+        `;
+        itemsTable.appendChild(row);
+      });
+
+      summary.innerHTML = `
+        <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal)}</p>
+        <p><strong>Pajak (10%):</strong> ${formatRupiah(order.tax)}</p>
+        <p><strong>Ongkir:</strong> ${formatRupiah(order.shipping_cost)}</p>
+        <p class="font-bold text-lg mt-2"><strong>Total:</strong> ${formatRupiah(order.total)}</p>
+      `;
+    }
+
+    function renderPaymentDetails(order) {
+      const method = (order.payment_method || '').toLowerCase();
+      const details = order.payment_details || {};
+      let html = '';
+      if (method === 'transfer') {
+        html = `
+          <p><strong>Bank:</strong> ${details.bank_name || '-'}</p>
+          <p><strong>VA:</strong> ${details.virtual_account || '-'}</p>
+        `;
+      } else if (method === 'ewallet') {
+        html = `
+          <p><strong>Dompet Digital:</strong> ${details.wallet_name || '-'}</p>
+          <p><strong>No. HP:</strong> ${details.phone_number || '-'}</p>
         `;
       }
-    }
-
-    function renderOrderDetail(order) {
-    console.log('Order data:', order); // Debugging
-
-    const orderInfoDiv = document.getElementById('orderInfo');
-    const statusClass = getStatusClass(order.status);
-
-    let paymentDetailsHtml = '';
-    const method = (order.payment_method || '').toLowerCase();
-
-    if (method === 'transfer') {
-      paymentDetailsHtml = `
-        <p><strong>Bank:</strong> ${order.payment_details?.bank_name || '-'}</p>
-        <p><strong>No. Virtual Account:</strong> ${order.payment_details?.virtual_account || '-'}</p>
-        <p><strong>Jumlah Pembayaran:</strong> ${formatRupiah(order.total || 0)}</p>
-      `;
-    } else if (method === 'ewallet') {
-      paymentDetailsHtml = `
-      <p><strong>E-Wallet:</strong> ${order.payment_details?.wallet_name || '-'}</p>
-      <p><strong>No. HP Tujuan:</strong> ${order.payment_details?.phone_number || '-'}</p>
-        <p><strong>Jumlah Pembayaran:</strong> ${formatRupiah(order.total || 0)}</p>
-      `;
-    } else if (method === 'cod') {
-      paymentDetailsHtml = `<p><strong>Metode Pembayaran:</strong> Cash on Delivery (COD)</p>`;
-    }
-
-    // Render info pesanan
-    orderInfoDiv.innerHTML = `
-      <p><strong>Nama Pelanggan:</strong> ${order.customer_name || '-'}</p>
-      <p><strong>Telepon:</strong> ${order.customer_phone || '-'}</p>
-      <p><strong>Alamat:</strong> ${order.customer_address || '-'}</p>
-      <p><strong>Metode Pengiriman:</strong> ${order.shipping_method || '-'} (${formatRupiah(order.shipping_cost || 0)})</p>
-      <p><strong>Metode Pembayaran:</strong> ${order.payment_method || '-'}</p>
-      ${paymentDetailsHtml}
-      <p><strong>Status Pesanan:</strong> <span class="status ${statusClass}">${order.status || '-'}</span></p>
-    `;
-
-      // Tabel item pesanan
-      const tbody = document.querySelector('#itemsTable tbody');
-      tbody.innerHTML = '';
-
-      const items = order.items || [];
-      if (items.length === 0) {
-        const emptyRow = document.createElement('tr');
-        emptyRow.innerHTML = `<td colspan="4" style="text-align: center;">Tidak ada item dalam pesanan.</td>`;
-        tbody.appendChild(emptyRow);
-      } else {
-        items.forEach(item => {
-          const subtotal = (item.price || 0) * (item.quantity || 0);
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td>${item.product_name || '-'}</td>
-            <td>${item.quantity || 0}</td>
-            <td>${formatRupiah(item.price)}</td>
-            <td>${formatRupiah(subtotal)}</td>
-          `;
-          tbody.appendChild(tr);
-        });
+      if (details.proof_image) {
+        html += `<div class="mt-2"><img src="http://localhost:3000${details.proof_image}" alt="Bukti Pembayaran" class="max-w-xs border rounded"></div>`;
       }
-
-      // Ringkasan
-      const summaryDiv = document.getElementById('summary');
-      summaryDiv.innerHTML = `
-        <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal || 0)}</p>
-        <p><strong>Pajak (10%):</strong> ${formatRupiah(order.tax || 0)}</p>
-        <p><strong>Biaya Pengiriman:</strong> ${formatRupiah(order.shipping_cost || 0)}</p>
-        <p><strong>Total:</strong> ${formatRupiah(order.total || 0)}</p>
-      `;
-    }
-
-    function getStatusClass(status) {
-      const lower = (status || '').toLowerCase();
-      if (lower.includes('selesai') || lower.includes('completed')) return 'status-selesai';
-      if (lower.includes('batal') || lower.includes('cancelled')) return 'status-batal';
-      return 'status-proses';
+      return html;
     }
   </script>
-
 </body>
 </html>
