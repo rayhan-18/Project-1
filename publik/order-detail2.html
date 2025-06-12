@@ -12,7 +12,7 @@
           colors: {
             primary: '#4a7c59',
             'primary-dark': '#3b6448',
-            graybg: '#f9f9f9',
+            graybg: '#eef5f0',
           },
           fontFamily: {
             poppins: ['Poppins', 'sans-serif'],
@@ -47,29 +47,31 @@
 <body class="bg-graybg font-poppins text-gray-800 py-6 px-4 md:px-8">
 
   <div class="max-w-4xl mx-auto">
-    <h1 class="text-3xl font-bold text-center text-primary mb-2">Detail Pesanan</h1>
-    <h2 class="hidden print:block print:text-center print:text-lg font-semibold mb-1">INVOICE PESANAN</h2>
-    <div id="invoiceMeta" class="hidden print:block print:text-center text-sm text-gray-700 mb-4"></div>
+    <div class="text-center mb-6">
+      <h1 class="text-3xl font-bold text-primary">Detail Pesanan</h1>
+      <h2 class="hidden print:block print:text-center print:text-lg font-semibold">INVOICE PESANAN</h2>
+      <div id="invoiceMeta" class="text-sm text-gray-700 mt-2 hidden print:block"></div>
+    </div>
 
     <div id="loading" class="text-center italic text-gray-600 mb-6 hidden">Memuat data pesanan...</div>
 
-    <div id="orderInfo" class="bg-white shadow-md rounded-lg p-6 mb-6 space-y-2"></div>
+    <div id="orderInfo" class="bg-white shadow-md rounded-lg p-6 mb-6"></div>
 
     <div class="bg-white shadow-md rounded-lg overflow-hidden mb-6 hidden" id="itemsWrapper">
-      <table class="w-full table-auto text-sm md:text-base">
-        <thead class="bg-gray-100">
+      <table class="w-full text-sm md:text-base">
+        <thead class="bg-gray-100 text-left">
           <tr>
-            <th class="px-4 py-2 text-left">Nama Produk</th>
-            <th class="px-4 py-2">Jumlah</th>
-            <th class="px-4 py-2">Harga</th>
-            <th class="px-4 py-2">Subtotal</th>
+            <th class="px-4 py-2">Produk</th>
+            <th class="px-4 py-2 text-center">Jumlah</th>
+            <th class="px-4 py-2 text-center">Harga</th>
+            <th class="px-4 py-2 text-center">Subtotal</th>
           </tr>
         </thead>
         <tbody id="itemsTable"></tbody>
       </table>
     </div>
 
-    <div id="summary" class="bg-white shadow-md rounded-lg p-6 mb-4"></div>
+    <div id="summary" class="bg-white shadow-md rounded-lg p-6 mb-6"></div>
 
     <div class="text-center mt-4 print:hidden">
       <button onclick="window.print()" class="bg-white border border-primary text-primary hover:bg-primary hover:text-white font-semibold px-5 py-2 rounded-full transition">
@@ -146,13 +148,19 @@
       const summary = document.getElementById('summary');
 
       orderInfo.innerHTML = `
-        <p><strong>Nama:</strong> ${order.customer_name}</p>
-        <p><strong>Telepon:</strong> ${order.customer_phone}</p>
-        <p><strong>Alamat:</strong> ${order.customer_address}</p>
-        <p><strong>Pengiriman:</strong> ${order.shipping_method} (${formatRupiah(order.shipping_cost)})</p>
-        <p><strong>Pembayaran:</strong> ${order.payment_method}</p>
-        ${renderPaymentDetails(order)}
-        <p><strong>Status:</strong> ${getStatusBadge(order.status)}</p>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div>
+            <p><strong>Nama:</strong> ${order.customer_name}</p>
+            <p><strong>Telepon:</strong> ${order.customer_phone}</p>
+            <p><strong>Alamat:</strong> ${order.customer_address}</p>
+          </div>
+          <div>
+            <p><strong>Pengiriman:</strong> ${order.shipping_method} (${formatRupiah(order.shipping_cost)})</p>
+            <p><strong>Pembayaran:</strong> ${order.payment_method}</p>
+            ${renderPaymentDetails(order)}
+            <p><strong>Status:</strong> ${getStatusBadge(order.status)}</p>
+          </div>
+        </div>
       `;
 
       itemsTable.innerHTML = '';
@@ -169,10 +177,12 @@
       });
 
       summary.innerHTML = `
-        <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal)}</p>
-        <p><strong>Pajak (10%):</strong> ${formatRupiah(order.tax)}</p>
-        <p><strong>Ongkir:</strong> ${formatRupiah(order.shipping_cost)}</p>
-        <p class="font-bold text-lg mt-2"><strong>Total:</strong> ${formatRupiah(order.total)}</p>
+        <div class="text-right space-y-1">
+          <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal)}</p>
+          <p><strong>Pajak (10%):</strong> ${formatRupiah(order.tax)}</p>
+          <p><strong>Ongkir:</strong> ${formatRupiah(order.shipping_cost)}</p>
+          <p class="font-bold text-lg mt-2"><strong>Total:</strong> ${formatRupiah(order.total)}</p>
+        </div>
       `;
     }
 
