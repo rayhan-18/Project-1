@@ -146,7 +146,7 @@ const updateOrderStatus = async (req, res) => {
 
     status = status.toLowerCase();
 
-    const validStatuses = ['pending', 'confirmed', 'shipped', 'completed', 'cancelled'];
+    const validStatuses = ['pending', 'confirmed', 'processing', 'shipped', 'completed', 'cancelled'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ message: 'Status tidak valid' });
     }

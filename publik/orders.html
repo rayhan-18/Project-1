@@ -4,149 +4,189 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Daftar Pesanan</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      max-width: 900px;
-      margin: 20px auto;
-      background: #f9f9f9;
-      color: #333;
+    .spinner {
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #3b82f6;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      animation: spin 0.8s linear infinite;
+      margin: auto;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #2c3e50;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 8px rgba(0,0,0,0.05);
-      overflow: hidden;
-    }
-    th, td {
-      padding: 12px;
-      border: 1px solid #ddd;
-      text-align: left;
-    }
-    th {
-      background-color: #f2f2f2;
-    }
-    a {
-      color: #3498db;
-      text-decoration: none;
-      font-weight: 600;
-    }
-    a:hover {
-      text-decoration: underline;
-    }
-    #loading {
-      text-align: center;
-      font-style: italic;
-      color: #555;
-      margin-bottom: 20px;
-    }
-    .status {
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 20px;
-      display: inline-block;
-      text-transform: capitalize;
-      font-size: 0.9rem;
-    }
-    .status-selesai {
-      background-color: #d4edda;
-      color: #155724;
-    }
-    .status-batal {
-      background-color: #f8d7da;
-      color: #721c24;
-    }
-    .status-proses {
-      background-color: #fff3cd;
-      color: #856404;
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
   </style>
 </head>
-<body>
-  <h1>Daftar Pesanan</h1>
-  <div id="loading">Memuat daftar pesanan...</div>
-  <table id="ordersTable" style="display:none;">
-    <thead>
-      <tr>
-        <th>ID Pesanan</th>
-        <th>Nama Pelanggan</th>
-        <th>Total</th>
-        <th>Status</th>
-        <th>Detail</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+<body class="bg-gray-50 text-gray-800 font-sans min-h-screen">
+
+  <div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-2">🧾 Daftar Pesanan</h1>
+    <p class="text-center text-gray-500 mb-6">Lihat histori pembelian Anda dengan mudah</p>
+
+    <div class="flex flex-col md:flex-row gap-4 justify-between items-center mb-6">
+      <input id="searchInput" type="text" placeholder="Cari nama pelanggan atau ID..." class="w-full md:w-1/2 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+      <select id="statusFilter" class="w-full md:w-1/3 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <option value="">Semua Status</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="processing">Processing</option>
+        <option value="shipped">Shipped</option>
+        <option value="cancelled">Cancelled</option>
+        <option value="completed">Completed</option>
+      </select>
+    </div>
+
+    <div id="loading" class="flex flex-col items-center justify-center mb-6 text-sm text-gray-600">
+      <div class="spinner mb-2"></div>
+      Memuat daftar pesanan...
+    </div>
+
+    <div id="ordersWrapper" class="overflow-x-auto hidden">
+      <table class="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
+        <thead class="bg-gray-100 text-gray-700 text-sm">
+          <tr>
+            <th class="px-4 py-3 text-left font-medium">ID Pesanan</th>
+            <th class="px-4 py-3 text-left font-medium">Nama Pelanggan</th>
+            <th class="px-4 py-3 text-left font-medium">Total</th>
+            <th class="px-4 py-3 text-left font-medium">Status</th>
+            <th class="px-4 py-3 text-left font-medium">Detail</th>
+          </tr>
+        </thead>
+        <tbody id="ordersTableBody" class="text-sm text-gray-700"></tbody>
+      </table>
+    </div>
+
+    <div id="pagination" class="flex justify-center mt-6 gap-2 hidden"></div>
+    <div id="emptyMessage" class="hidden text-center text-gray-500 mt-8">Belum ada pesanan.</div>
+  </div>
 
 <script>
   const apiBaseUrl = 'http://localhost:3000/api/orders';
+  let allOrders = [];
+  let currentPage = 1;
+  const pageSize = 5;
+
+  const loading = document.getElementById('loading');
+  const tableWrapper = document.getElementById('ordersWrapper');
+  const tableBody = document.getElementById('ordersTableBody');
+  const emptyMsg = document.getElementById('emptyMessage');
+  const searchInput = document.getElementById('searchInput');
+  const statusFilter = document.getElementById('statusFilter');
+  const pagination = document.getElementById('pagination');
 
   function formatRupiah(value) {
-    if (typeof value !== 'number') return 'Rp 0';
-    return 'Rp ' + value.toLocaleString('id-ID');
+    return typeof value === 'number' ? 'Rp ' + value.toLocaleString('id-ID') : 'Rp 0';
   }
 
-  function getStatusClass(status) {
-    const lower = (status || '').toLowerCase();
-    if (lower.includes('selesai') || lower.includes('completed')) return 'status-selesai';
-    if (lower.includes('batal') || lower.includes('cancelled')) return 'status-batal';
-    return 'status-proses';
+  function getStatusBadge(status) {
+    const s = (status || '').toLowerCase();
+    let colorClass = 'bg-gray-200 text-gray-800';
+    switch (s) {
+      case 'pending': colorClass = 'bg-yellow-100 text-yellow-800'; break;
+      case 'confirmed': colorClass = 'bg-blue-100 text-blue-800'; break;
+      case 'processing': colorClass = 'bg-indigo-100 text-indigo-800'; break;
+      case 'shipped': colorClass = 'bg-purple-100 text-purple-800'; break;
+      case 'cancelled': colorClass = 'bg-red-100 text-red-800'; break;
+      case 'completed': colorClass = 'bg-green-100 text-green-800'; break;
+    }
+    return `<span class="inline-block px-3 py-1 text-xs font-semibold rounded-full ${colorClass} capitalize">${status || '-'}</span>`;
   }
 
-  async function fetchOrders() {
-    const loadingEl = document.getElementById('loading');
-    const table = document.getElementById('ordersTable');
-    const tbody = table.querySelector('tbody');
+  function renderTable(orders) {
+    const start = (currentPage - 1) * pageSize;
+    const paginated = orders.slice(start, start + pageSize);
+    tableBody.innerHTML = '';
 
-    // Ambil data user dari localStorage
-    const userData = JSON.parse(localStorage.getItem('user'));
-    if (!userData || !userData.id) {
-      loadingEl.textContent = 'Silakan login untuk melihat pesanan Anda.';
+    paginated.forEach(order => {
+      const row = document.createElement('tr');
+      row.className = "hover:bg-gray-50 border-b";
+      row.innerHTML = `
+        <td class="px-4 py-3">${order.id}</td>
+        <td class="px-4 py-3">${order.customer_name || '-'}</td>
+        <td class="px-4 py-3">${formatRupiah(order.total)}</td>
+        <td class="px-4 py-3">${getStatusBadge(order.status)}</td>
+        <td class="px-4 py-3">
+          <a href="order-detail2.html?id=${order.id}" class="text-blue-600 hover:underline font-medium text-sm">Lihat Detail</a>
+        </td>`;
+      tableBody.appendChild(row);
+    });
+
+    renderPagination(orders.length);
+  }
+
+  function renderPagination(totalItems) {
+    const totalPages = Math.ceil(totalItems / pageSize);
+    pagination.innerHTML = '';
+
+    if (totalPages <= 1) {
+      pagination.classList.add('hidden');
       return;
     }
 
-    try {
-      const res = await fetch(`${apiBaseUrl}/user/${userData.id}`);
-      if (!res.ok) {
-        loadingEl.textContent = 'Gagal memuat daftar pesanan.';
-        return;
-      }
-
-      const orders = await res.json();
-
-      if (orders.length === 0) {
-        loadingEl.textContent = 'Belum ada pesanan.';
-        return;
-      }
-
-      loadingEl.style.display = 'none';
-      table.style.display = '';
-
-      orders.forEach(order => {
-        const tr = document.createElement('tr');
-
-        tr.innerHTML = `
-          <td>${order.id}</td>
-          <td>${order.customer_name || '-'}</td>
-          <td>${formatRupiah(order.total)}</td>
-          <td><span class="status ${getStatusClass(order.status)}">${order.status || '-'}</span></td>
-          <td><a href="order-detail2.html?id=${order.id}">Lihat Detail</a></td>
-        `;
-
-        tbody.appendChild(tr);
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      btn.className = `px-3 py-1 rounded text-sm ${i === currentPage ? 'bg-blue-500 text-white' : 'bg-white border border-gray-300 text-gray-700'} hover:bg-blue-100`;
+      btn.addEventListener('click', () => {
+        currentPage = i;
+        applyFilters();
       });
-    } catch (error) {
-      loadingEl.textContent = 'Terjadi kesalahan saat memuat data pesanan.';
-      console.error(error);
+      pagination.appendChild(btn);
+    }
+    pagination.classList.remove('hidden');
+  }
+
+  function applyFilters() {
+    const keyword = searchInput.value.toLowerCase();
+    const status = statusFilter.value;
+
+    const filtered = allOrders.filter(order => {
+      const matchKeyword = order.customer_name?.toLowerCase().includes(keyword) || String(order.id).includes(keyword);
+      const matchStatus = !status || order.status?.toLowerCase() === status;
+      return matchKeyword && matchStatus;
+    });
+
+    if (filtered.length === 0) {
+      tableWrapper.classList.add('hidden');
+      emptyMsg.classList.remove('hidden');
+      pagination.classList.add('hidden');
+    } else {
+      emptyMsg.classList.add('hidden');
+      tableWrapper.classList.remove('hidden');
+      renderTable(filtered);
     }
   }
+
+  async function fetchOrders() {
+    const userData = JSON.parse(localStorage.getItem('user'));
+    if (!userData || !userData.id) {
+      loading.innerHTML = 'Silakan login untuk melihat pesanan Anda.';
+      return;
+    }
+    try {
+      const res = await fetch(`${apiBaseUrl}/user/${userData.id}`);
+      if (!res.ok) throw new Error('Gagal fetch');
+      allOrders = await res.json();
+      loading.classList.add('hidden');
+      applyFilters();
+    } catch (err) {
+      console.error(err);
+      loading.innerHTML = 'Terjadi kesalahan saat memuat data pesanan.';
+    }
+  }
+
+  searchInput.addEventListener('input', () => {
+    currentPage = 1;
+    applyFilters();
+  });
+
+  statusFilter.addEventListener('change', () => {
+    currentPage = 1;
+    applyFilters();
+  });
 
   fetchOrders();
 </script>
