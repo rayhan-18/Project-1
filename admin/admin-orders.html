@@ -161,6 +161,7 @@
 
       let html = `<a href="admin-order-detail.html?id=${orderId}" class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1 rounded inline-block">Lihat</a>`;
       if (status === 'pending') html += btn('Konfirmasi', 'bg-blue-500', 'Confirmed');
+      if (status === 'confirmed') html += btn('Proses', 'bg-yellow-500', 'Processing');
       if (status === 'confirmed' || status === 'processing') html += btn('Kirim', 'bg-green-500', 'Shipped');
       if (status === 'shipped') html += btn('Selesai', 'bg-emerald-600', 'Completed');
       if (!['completed', 'cancelled'].includes(status)) html += btn('Batalkan', 'bg-red-500', 'Cancelled');
