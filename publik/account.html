@@ -11,7 +11,8 @@
       theme: {
         extend: {
           colors: {
-            primary: '#2563eb',
+            primary: '#4a7c59',
+            'primary-dark': '#3b6448',
             dark: '#1e293b',
           },
           fontFamily: {
@@ -31,7 +32,7 @@
   <!-- Header -->
   <header class="bg-white shadow-md sticky top-0 z-50">
     <div class="container mx-auto px-4 py-4 flex justify-between items-center">
-      <div class="text-2xl font-semibold text-primary">Toko<span class="text-dark">Rayhan</span></div>
+      <div class="text-2xl font-semibold text-dark">Toko<span class="text-primary">Rayhan</span></div>
       <nav class="hidden md:flex gap-6 text-sm font-medium">
         <a href="index.html" class="hover:text-primary">Home</a>
         <a href="products.html" class="hover:text-primary">Products</a>
@@ -75,21 +76,23 @@
           <textarea id="input-address" rows="3" class="w-full border px-3 py-2 rounded"></textarea>
         </div>
         <div class="md:col-span-2 text-right">
-          <button type="submit" class="bg-primary text-white px-6 py-2 rounded hover:bg-blue-700 transition">Simpan Perubahan</button>
+          <button type="submit" class="bg-primary hover:bg-primary-dark text-white px-6 py-2 rounded transition">
+            Simpan Perubahan
+          </button>
         </div>
       </form>
     </section>
 
     <section class="bg-white rounded-xl shadow-md p-6">
       <h2 class="text-xl font-semibold mb-2">Riwayat Pemesanan</h2>
-      <a href="orders.html" class="inline-block bg-primary text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+      <a href="orders.html" class="inline-block bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded transition">
         Lihat Riwayat Pemesanan
       </a>
     </section>
   </main>
 
   <!-- Footer -->
-  <footer class="bg-dark text-white mt-16">
+  <footer class="bg-[#333] text-white mt-16">
     <div class="container mx-auto px-4 py-10 grid grid-cols-1 md:grid-cols-4 gap-8 text-sm">
       <div><h3 class="font-semibold text-lg mb-2">Toko Rayhan</h3><p>Premium furniture for modern living.</p></div>
       <div>
@@ -116,7 +119,7 @@
         </ul>
       </div>
     </div>
-    <div class="text-center py-4 bg-gray-900 text-xs">
+    <div class="text-center py-4 bg-[#222] text-xs">
       &copy; 2025 Toko Rayhan. All rights reserved.
     </div>
   </footer>
@@ -136,39 +139,26 @@
     }
 
     function populateProfile() {
-      const userData = localStorage.getItem("user");
-      if (!userData) return;
-
       try {
-        const user = JSON.parse(userData);
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) return;
 
-        // Menampilkan informasi akun
-        const accountInfo = document.getElementById("account-info");
-        const lastLoginInfo = document.getElementById("last-login-info");
-
-        accountInfo.innerHTML = `
+        document.getElementById("account-info").innerHTML = `
           Selamat datang, <strong>${user.name || "Pengguna"}</strong><br>
           Email: ${user.email || "-"}
         `;
 
-        lastLoginInfo.textContent = user.last_login
+        document.getElementById("last-login-info").textContent = user.last_login
           ? `Login terakhir: ${new Date(user.last_login).toLocaleString("id-ID")}`
           : "";
 
-        // Mengisi input form
         document.getElementById("name").value = user.name || "";
         document.getElementById("email").value = user.email || "";
         document.getElementById("input-phone").value = user.phone || "";
         document.getElementById("input-address").value = user.address || "";
 
-        // Menampilkan foto profil
         const profileImg = document.getElementById("profile-photo-preview");
-        if (user.photo && user.photo !== "") {
-          profileImg.src = `http://localhost:3000${user.photo}`;
-        } else {
-          profileImg.src = "https://dummyimage.com/100x100/ccc/000&text=Foto";
-        }
-
+        profileImg.src = user.photo ? `http://localhost:3000${user.photo}` : "https://dummyimage.com/100x100/ccc/000&text=Foto";
       } catch (err) {
         console.error("Gagal memuat data profil:", err);
       }
@@ -200,32 +190,31 @@
       }
     });
 
-   document.getElementById("photo").addEventListener("change", async function () {
-    const file = this.files[0];
-    if (!file) return;
+    document.getElementById("photo").addEventListener("change", async function () {
+      const file = this.files[0];
+      if (!file) return;
 
-    const formData = new FormData();
-    formData.append("photo", file);
+      const formData = new FormData();
+      formData.append("photo", file);
 
-    try {
-      const res = await fetch(`${apiUrl}/users/${user.id}/photo`, {
-        method: "POST",
-        body: formData,
-      });
-
-      const result = await res.json();
-      if (res.ok) {
-        user.photo = result.photo; // Simpan path ke user
-        localStorage.setItem("user", JSON.stringify(user));
-        document.getElementById("profile-photo-preview").src = `http://localhost:3000${result.photo}`;
-        Swal.fire("Berhasil", "Foto profil diperbarui", "success");
-      } else {
-        Swal.fire("Gagal", result.message || "Upload gagal", "error");
+      try {
+        const res = await fetch(`${apiUrl}/users/${user.id}/photo`, {
+          method: "POST",
+          body: formData,
+        });
+        const result = await res.json();
+        if (res.ok) {
+          user.photo = result.photo;
+          localStorage.setItem("user", JSON.stringify(user));
+          document.getElementById("profile-photo-preview").src = `http://localhost:3000${result.photo}`;
+          Swal.fire("Berhasil", "Foto profil diperbarui", "success");
+        } else {
+          Swal.fire("Gagal", result.message || "Upload gagal", "error");
+        }
+      } catch (err) {
+        Swal.fire("Error", "Tidak dapat mengunggah foto", "error");
       }
-    } catch (err) {
-      Swal.fire("Error", "Tidak dapat mengunggah foto", "error");
-    }
-  });
+    });
 
     document.addEventListener("DOMContentLoaded", populateProfile);
   </script>
