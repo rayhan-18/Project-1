@@ -214,73 +214,73 @@
     }
 
     function renderOrderDetail(order) {
-  console.log('Order data:', order); // Debugging
+    console.log('Order data:', order); // Debugging
 
-  const orderInfoDiv = document.getElementById('orderInfo');
-  const statusClass = getStatusClass(order.status);
+    const orderInfoDiv = document.getElementById('orderInfo');
+    const statusClass = getStatusClass(order.status);
 
-  let paymentDetailsHtml = '';
-  const method = (order.payment_method || '').toLowerCase();
+    let paymentDetailsHtml = '';
+    const method = (order.payment_method || '').toLowerCase();
 
-  if (method === 'transfer') {
-    paymentDetailsHtml = `
-      <p><strong>Bank:</strong> ${order.payment_details?.bank_name || '-'}</p>
-      <p><strong>No. Virtual Account:</strong> ${order.payment_details?.virtual_account || '-'}</p>
-      <p><strong>Jumlah Pembayaran:</strong> ${formatRupiah(order.total || 0)}</p>
-    `;
-  } else if (method === 'ewallet') {
-    paymentDetailsHtml = `
-    <p><strong>E-Wallet:</strong> ${order.payment_details?.wallet_name || '-'}</p>
-    <p><strong>No. HP Tujuan:</strong> ${order.payment_details?.phone_number || '-'}</p>
-      <p><strong>Jumlah Pembayaran:</strong> ${formatRupiah(order.total || 0)}</p>
-    `;
-  } else if (method === 'cod') {
-    paymentDetailsHtml = `<p><strong>Metode Pembayaran:</strong> Cash on Delivery (COD)</p>`;
-  }
-
-  // Render info pesanan
-  orderInfoDiv.innerHTML = `
-    <p><strong>Nama Pelanggan:</strong> ${order.customer_name || '-'}</p>
-    <p><strong>Telepon:</strong> ${order.customer_phone || '-'}</p>
-    <p><strong>Alamat:</strong> ${order.customer_address || '-'}</p>
-    <p><strong>Metode Pengiriman:</strong> ${order.shipping_method || '-'} (${formatRupiah(order.shipping_cost || 0)})</p>
-    <p><strong>Metode Pembayaran:</strong> ${order.payment_method || '-'}</p>
-    ${paymentDetailsHtml}
-    <p><strong>Status Pesanan:</strong> <span class="status ${statusClass}">${order.status || '-'}</span></p>
-  `;
-
-    // Tabel item pesanan
-    const tbody = document.querySelector('#itemsTable tbody');
-    tbody.innerHTML = '';
-
-    const items = order.items || [];
-    if (items.length === 0) {
-      const emptyRow = document.createElement('tr');
-      emptyRow.innerHTML = `<td colspan="4" style="text-align: center;">Tidak ada item dalam pesanan.</td>`;
-      tbody.appendChild(emptyRow);
-    } else {
-      items.forEach(item => {
-        const subtotal = (item.price || 0) * (item.quantity || 0);
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${item.product_name || '-'}</td>
-          <td>${item.quantity || 0}</td>
-          <td>${formatRupiah(item.price)}</td>
-          <td>${formatRupiah(subtotal)}</td>
-        `;
-        tbody.appendChild(tr);
-      });
+    if (method === 'transfer') {
+      paymentDetailsHtml = `
+        <p><strong>Bank:</strong> ${order.payment_details?.bank_name || '-'}</p>
+        <p><strong>No. Virtual Account:</strong> ${order.payment_details?.virtual_account || '-'}</p>
+        <p><strong>Jumlah Pembayaran:</strong> ${formatRupiah(order.total || 0)}</p>
+      `;
+    } else if (method === 'ewallet') {
+      paymentDetailsHtml = `
+      <p><strong>E-Wallet:</strong> ${order.payment_details?.wallet_name || '-'}</p>
+      <p><strong>No. HP Tujuan:</strong> ${order.payment_details?.phone_number || '-'}</p>
+        <p><strong>Jumlah Pembayaran:</strong> ${formatRupiah(order.total || 0)}</p>
+      `;
+    } else if (method === 'cod') {
+      paymentDetailsHtml = `<p><strong>Metode Pembayaran:</strong> Cash on Delivery (COD)</p>`;
     }
 
-    // Ringkasan
-    const summaryDiv = document.getElementById('summary');
-    summaryDiv.innerHTML = `
-      <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal || 0)}</p>
-      <p><strong>Pajak (10%):</strong> ${formatRupiah(order.tax || 0)}</p>
-      <p><strong>Biaya Pengiriman:</strong> ${formatRupiah(order.shipping_cost || 0)}</p>
-      <p><strong>Total:</strong> ${formatRupiah(order.total || 0)}</p>
+    // Render info pesanan
+    orderInfoDiv.innerHTML = `
+      <p><strong>Nama Pelanggan:</strong> ${order.customer_name || '-'}</p>
+      <p><strong>Telepon:</strong> ${order.customer_phone || '-'}</p>
+      <p><strong>Alamat:</strong> ${order.customer_address || '-'}</p>
+      <p><strong>Metode Pengiriman:</strong> ${order.shipping_method || '-'} (${formatRupiah(order.shipping_cost || 0)})</p>
+      <p><strong>Metode Pembayaran:</strong> ${order.payment_method || '-'}</p>
+      ${paymentDetailsHtml}
+      <p><strong>Status Pesanan:</strong> <span class="status ${statusClass}">${order.status || '-'}</span></p>
     `;
-  }
+
+      // Tabel item pesanan
+      const tbody = document.querySelector('#itemsTable tbody');
+      tbody.innerHTML = '';
+
+      const items = order.items || [];
+      if (items.length === 0) {
+        const emptyRow = document.createElement('tr');
+        emptyRow.innerHTML = `<td colspan="4" style="text-align: center;">Tidak ada item dalam pesanan.</td>`;
+        tbody.appendChild(emptyRow);
+      } else {
+        items.forEach(item => {
+          const subtotal = (item.price || 0) * (item.quantity || 0);
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>${item.product_name || '-'}</td>
+            <td>${item.quantity || 0}</td>
+            <td>${formatRupiah(item.price)}</td>
+            <td>${formatRupiah(subtotal)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
+      }
+
+      // Ringkasan
+      const summaryDiv = document.getElementById('summary');
+      summaryDiv.innerHTML = `
+        <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal || 0)}</p>
+        <p><strong>Pajak (10%):</strong> ${formatRupiah(order.tax || 0)}</p>
+        <p><strong>Biaya Pengiriman:</strong> ${formatRupiah(order.shipping_cost || 0)}</p>
+        <p><strong>Total:</strong> ${formatRupiah(order.total || 0)}</p>
+      `;
+    }
 
     function getStatusClass(status) {
       const lower = (status || '').toLowerCase();

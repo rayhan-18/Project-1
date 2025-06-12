@@ -34,7 +34,7 @@ app.use('/assets', express.static(path.join(__dirname, 'assets')));
 // ============================
 
 // Import routes modular
-const authRoutes     = require('./routes/authroutes');     // 🔐 Login, Register, OTP
+const authRoutes = require('./routes/authroutes');  // 🔐 Login, Register, OTP
 const cartRoutes     = require('./routes/cartroutes');     // 🛒 Keranjang
 const wishlistRoutes = require('./routes/wishlistroutes'); // ❤️ Wishlist
 const productRoutes  = require('./routes/productroutes');  // 📦 Produk
@@ -79,4 +79,4 @@ const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`🚀 Server aktif di http://localhost:${PORT}`);
-});
+}); 

@@ -2,13 +2,23 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authcontroller');
 
-// Route untuk registrasi user biasa
+// ==============================
+// 🔐 Autentikasi & User Routes
+// ==============================
+
+// 📌 Registrasi user biasa
 router.post('/register', authController.register);
 
-// Route untuk login user biasa
+// 📌 Login user biasa
 router.post('/login', authController.login);
 
-// Route khusus untuk login admin saja
+// 📌 Login khusus admin
 router.post('/admin/login', authController.adminLogin);
+
+// 📌 Update profil user
+router.put('/users/:id', authController.updateProfile);
+
+// (Opsional) 📸 Upload foto profil user
+// router.post('/users/:id/photo', upload.single('photo'), authController.uploadPhoto);
 
 module.exports = router;
