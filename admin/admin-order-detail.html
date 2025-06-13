@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Detail Pesanan - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans">
 
@@ -107,10 +108,15 @@
       try {
         const res = await fetch(`${apiBaseUrl}/${orderId}`);
         if (!res.ok) throw new Error('Gagal mengambil data order');
-        const order = await res.json();
-        renderOrderDetail(order);
+        return await res.json();
       } catch (error) {
-        document.body.innerHTML = `<div class="text-red-500 p-6 text-center">Error: ${error.message}</div>`;
+        console.error('Error fetching order:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error.message || 'Gagal mengambil data order'
+        });
+        throw error;
       }
     }
 
@@ -134,6 +140,7 @@
       }
 
       document.getElementById('orderInfo').innerHTML = `
+        <p><strong>ID Pesanan:</strong> #${order.id}</p>
         <p><strong>Nama Pelanggan:</strong> ${order.customer_name}</p>
         <p><strong>Telepon:</strong> ${order.customer_phone}</p>
         <p><strong>Alamat:</strong> ${order.customer_address}</p>
@@ -141,6 +148,7 @@
         <p><strong>Metode Pembayaran:</strong> ${order.payment_method}</p>
         ${paymentDetails}
         <p><strong>Status Pesanan:</strong> ${getStatusBadge(order.status)}</p>
+        <p><strong>Tanggal Pesanan:</strong> ${new Date(order.created_at).toLocaleString('id-ID')}</p>
       `;
 
       const tbody = document.getElementById('itemsTable');
@@ -161,7 +169,7 @@
       const total = order.subtotal + tax + order.shipping_cost;
       document.getElementById('summary').innerHTML = `
         <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal)}</p>
-        <p><strong>Tax (10%):</strong> ${formatRupiah(tax)}</p>
+        <p><strong>Pajak (10%):</strong> ${formatRupiah(tax)}</p>
         <p><strong>Biaya Pengiriman:</strong> ${formatRupiah(order.shipping_cost)}</p>
         <p><strong>Total:</strong> <span class="font-bold text-green-400">${formatRupiah(total)}</span></p>
       `;
@@ -171,22 +179,61 @@
 
     async function updateStatus() {
       const newStatus = document.getElementById('statusSelect').value;
+      
       try {
+        const { value: confirmed } = await Swal.fire({
+          title: 'Konfirmasi',
+          text: `Anda yakin ingin mengubah status pesanan menjadi "${newStatus}"?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonText: 'Ya, Ubah',
+          cancelButtonText: 'Batal'
+        });
+        
+        if (!confirmed) return;
+
         const res = await fetch(`${apiBaseUrl}/${orderId}/status`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: newStatus }),
+          body: JSON.stringify({ status: newStatus })
         });
-        if (!res.ok) throw new Error(await res.text());
-        alert('Status berhasil diperbarui!');
-        fetchOrderDetail();
-      } catch (err) {
-        alert('Gagal memperbarui status: ' + err.message);
+
+        if (!res.ok) {
+          const error = await res.json();
+          throw new Error(error.message || 'Gagal memperbarui status');
+        }
+
+        const result = await res.json();
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Berhasil!',
+          text: result.message || 'Status berhasil diperbarui'
+        }).then(() => {
+          // Refresh order details
+          fetchOrderDetail().then(renderOrderDetail);
+        });
+
+      } catch (error) {
+        console.error('Error updating status:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Gagal',
+          text: error.message || 'Terjadi kesalahan saat memperbarui status'
+        });
       }
     }
 
-    document.getElementById('updateStatusBtn').addEventListener('click', updateStatus);
-    fetchOrderDetail();
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        document.getElementById('updateStatusBtn').addEventListener('click', updateStatus);
+        const order = await fetchOrderDetail();
+        renderOrderDetail(order);
+      } catch (error) {
+        console.error('Initialization error:', error);
+      }
+    });
   </script>
 
 </body>

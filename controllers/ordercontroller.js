@@ -134,7 +134,7 @@ const placeOrder = async (req, res) => {
   }
 };
 
-// Update status order
+// Di dalam fungsi updateOrderStatus di ordercontroller.js
 const updateOrderStatus = async (req, res) => {
   try {
     const { id } = req.params;
@@ -151,12 +151,54 @@ const updateOrderStatus = async (req, res) => {
       return res.status(400).json({ message: 'Status tidak valid' });
     }
 
-    const updated = await updateOrderStatusById(id, status);
-    if (updated === 0) {
+    // Dapatkan detail order untuk mendapatkan items
+    const order = await getOrderById(id);
+    if (!order) {
       return res.status(404).json({ message: 'Order tidak ditemukan' });
     }
 
-    res.json({ message: 'Status order berhasil diupdate', status });
+    // Jika status diubah menjadi cancelled, kembalikan stok produk
+    if (status === 'cancelled') {
+      const conn = await db.getConnection();
+      try {
+        await conn.beginTransaction();
+
+        // Kembalikan stok untuk setiap item
+        for (const item of order.items) {
+          await conn.query(
+            'UPDATE products SET stock = stock + ? WHERE id = ?',
+            [item.quantity, item.product_id]
+          );
+        }
+
+        // Update status order
+        const [result] = await conn.query(
+          'UPDATE orders SET status = ? WHERE id = ?',
+          [status, id]
+        );
+
+        await conn.commit();
+        
+        if (result.affectedRows === 0) {
+          return res.status(404).json({ message: 'Order tidak ditemukan' });
+        }
+
+        return res.json({ message: 'Status order berhasil diupdate', status });
+      } catch (error) {
+        await conn.rollback();
+        throw error;
+      } finally {
+        conn.release();
+      }
+    } else {
+      // Jika bukan cancelled, lakukan update biasa
+      const updated = await updateOrderStatusById(id, status);
+      if (updated === 0) {
+        return res.status(404).json({ message: 'Order tidak ditemukan' });
+      }
+
+      res.json({ message: 'Status order berhasil diupdate', status });
+    }
   } catch (error) {
     console.error('Error di updateOrderStatus:', error);
     res.status(500).json({ message: 'Gagal update status order', error: error.message });
