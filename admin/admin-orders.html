@@ -6,10 +6,12 @@
   <title>Admin - Daftar Pesanan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
 <body class="bg-gray-900 text-gray-100 font-sans">
 
-  <!-- Spinner Overlay -->
+  <!-- Spinner -->
   <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999] hidden">
     <div class="flex flex-col items-center">
       <svg class="w-10 h-10 animate-spin text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -20,6 +22,7 @@
     </div>
   </div>
 
+  <!-- Header -->
   <header class="bg-gray-800 p-4 flex justify-between items-center sticky top-0 z-50 shadow">
     <h1 class="text-xl font-bold">Admin Toko Rayhan</h1>
     <nav class="space-x-4 text-sm">
@@ -31,15 +34,16 @@
     </nav>
   </header>
 
+  <!-- Main Content -->
   <main class="max-w-7xl mx-auto mt-8 px-4 mb-16">
     <h2 class="text-3xl font-bold mb-6">Daftar Pesanan</h2>
 
     <!-- Filters -->
     <section class="bg-gray-800 p-6 rounded-xl shadow mb-6 flex flex-wrap gap-4 items-center">
-      <input id="searchInput" type="text" placeholder="Cari ID/Nama User" oninput="applyFilter()" class="bg-gray-700 border rounded px-3 py-2 text-sm focus:outline-none">
-      <input id="startDate" type="date" class="bg-gray-700 border rounded px-3 py-2 text-sm focus:outline-none">
-      <input id="endDate" type="date" class="bg-gray-700 border rounded px-3 py-2 text-sm focus:outline-none">
-      <select id="statusFilter" class="bg-gray-700 border rounded px-3 py-2 text-sm focus:outline-none">
+      <input id="searchInput" type="text" placeholder="Cari ID/Nama User" class="bg-gray-700 border rounded px-3 py-2 text-sm">
+      <input id="startDate" type="date" class="bg-gray-700 border rounded px-3 py-2 text-sm">
+      <input id="endDate" type="date" class="bg-gray-700 border rounded px-3 py-2 text-sm">
+      <select id="statusFilter" class="bg-gray-700 border rounded px-3 py-2 text-sm">
         <option value="">Semua</option>
         <option value="Pending">Pending</option>
         <option value="Confirmed">Confirmed</option>
@@ -50,16 +54,17 @@
       </select>
       <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm">Terapkan</button>
       <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm">Export Excel</button>
+      <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm">Export PDF</button>
     </section>
 
     <!-- Table -->
-    <section class="bg-gray-800 rounded-xl shadow overflow-x-auto relative">
+    <section class="bg-gray-800 rounded-xl shadow overflow-x-auto">
       <table id="ordersTable" class="min-w-full text-sm table-auto">
         <thead class="bg-gray-700 text-gray-100">
           <tr>
             <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('id')">ID</th>
             <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('user_name')">User</th>
-            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('recipient_name')">Nama</th>
+            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('customer_name')">Nama</th>
             <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('created_at')">Tanggal</th>
             <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('total')">Total</th>
             <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('status')">Status</th>
@@ -74,6 +79,7 @@
     <div id="pagination" class="mt-6 flex justify-center flex-wrap gap-2"></div>
   </main>
 
+  <!-- Scripts -->
   <script>
     const statusColors = {
       pending: 'bg-orange-500',
@@ -89,9 +95,19 @@
     let sortBy = '';
     let sortDir = 'asc';
 
+    document.addEventListener('DOMContentLoaded', () => {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      if (!user.is_admin) return window.location.href = '/publik/index.html';
+      loadOrders();
+    });
+
     function logoutAdmin() {
       localStorage.clear();
-      window.location.href = '/publik/index.html';
+      location.href = '/publik/index.html';
+    }
+
+    function applyFilter() {
+      loadOrders(1);
     }
 
     function getQueryParams() {
@@ -100,16 +116,14 @@
       const end = document.getElementById('endDate').value;
       const status = document.getElementById('statusFilter').value;
       const params = [];
+
       if (search) params.push(`search=${encodeURIComponent(search)}`);
       if (start) params.push(`start=${start}`);
       if (end) params.push(`end=${end}`);
       if (status) params.push(`status=${status}`);
       if (sortBy) params.push(`sort=${sortBy}&dir=${sortDir}`);
-      return params.join('&');
-    }
 
-    function applyFilter() {
-      loadOrders(1);
+      return params.join('&');
     }
 
     function sortTable(field) {
@@ -121,10 +135,12 @@
     async function loadOrders(page = 1) {
       currentPage = page;
       document.getElementById('spinnerOverlay').classList.remove('hidden');
+
       try {
         const query = getQueryParams();
         const res = await fetch(`http://localhost:3000/api/orders?page=${page}&limit=${limitPerPage}&${query}`);
         const { orders = [], total = 0 } = await res.json();
+
         const tbody = document.getElementById('ordersBody');
         tbody.innerHTML = '';
 
@@ -133,17 +149,17 @@
           const badge = statusColors[statusKey] || 'bg-gray-500';
           const userName = order.user_name || `User #${order.user_id}`;
           const actions = generateActions(order.id, statusKey);
-
-          tbody.innerHTML += `
+          const rowHTML = `
             <tr class="hover:bg-gray-700">
               <td class="border px-4 py-3">${order.id}</td>
               <td class="border px-4 py-3">${userName}</td>
               <td class="border px-4 py-3">${order.customer_name || '-'}</td>
               <td class="border px-4 py-3">${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
-              <td class="border px-4 py-3">Rp ${order.total.toLocaleString()}</td>
+              <td class="border px-4 py-3">Rp ${order.total.toLocaleString('id-ID')}</td>
               <td class="border px-4 py-3"><span class="px-2 py-1 text-xs rounded ${badge} text-white">${order.status}</span></td>
               <td class="border px-4 py-3 space-x-1">${actions}</td>
             </tr>`;
+          tbody.insertAdjacentHTML('beforeend', rowHTML);
         }
 
         renderPagination(total);
@@ -162,7 +178,7 @@
       let html = `<a href="admin-order-detail.html?id=${orderId}" class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1 rounded inline-block">Lihat</a>`;
       if (status === 'pending') html += btn('Konfirmasi', 'bg-blue-500', 'Confirmed');
       if (status === 'confirmed') html += btn('Proses', 'bg-yellow-500', 'Processing');
-      if (status === 'confirmed' || status === 'processing') html += btn('Kirim', 'bg-green-500', 'Shipped');
+      if (['confirmed', 'processing'].includes(status)) html += btn('Kirim', 'bg-green-500', 'Shipped');
       if (status === 'shipped') html += btn('Selesai', 'bg-emerald-600', 'Completed');
       if (!['completed', 'cancelled'].includes(status)) html += btn('Batalkan', 'bg-red-500', 'Cancelled');
       return html;
@@ -200,29 +216,75 @@
 
     function exportToExcel() {
       const table = document.getElementById("ordersTable");
-      const rows = [["ID", "User", "Nama", "Tanggal", "Total", "Status"]];
+      const rows = [
+        ["Toko Rayhan"],
+        ["Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan"],
+        [],
+        ["ID", "User", "Nama", "Tanggal", "Total", "Status"]
+      ];
+
       table.querySelectorAll("tbody tr").forEach(row => {
         const cells = row.querySelectorAll("td");
-        rows.push([
-          cells[0].textContent.trim(),
-          cells[1].textContent.trim(),
-          cells[2].textContent.trim(),
-          cells[3].textContent.trim(),
-          cells[4].textContent.trim(),
-          cells[5].textContent.trim()
-        ]);
+        rows.push([...cells].slice(0, 6).map(cell => cell.textContent.trim()));
       });
+
       const ws = XLSX.utils.aoa_to_sheet(rows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Orders");
       XLSX.writeFile(wb, "orders-export.xlsx");
     }
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-      if (!user.is_admin) return window.location.href = '/publik/index.html';
-      loadOrders();
-    });
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const rows = [];
+
+      // Ambil data user dari localStorage
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const adminName = user?.name || "Admin";
+
+      // Ambil data dari tabel
+      document.querySelectorAll("#ordersTable tbody tr").forEach(row => {
+        const cells = row.querySelectorAll("td");
+        const rowData = [...cells].slice(0, 6).map(cell => cell.textContent.trim());
+        rows.push(rowData);
+      });
+
+      // Informasi header toko
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text("Toko Rayhan", 14, 18);
+
+      doc.setFontSize(11);
+      doc.setFont("helvetica", "normal");
+      doc.text("Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan", 14, 25);
+
+      // Info admin dan tanggal
+      const now = new Date();
+      const tanggalCetak = now.toLocaleDateString("id-ID", {
+        day: "2-digit", month: "long", year: "numeric"
+      });
+
+      doc.setFontSize(10);
+      doc.text(`Dicetak oleh: ${adminName}`, 14, 32);
+      doc.text(`Tanggal cetak: ${tanggalCetak}`, 14, 37);
+
+      // Tabel pesanan
+      doc.autoTable({
+        startY: 42,
+        head: [["ID", "User", "Nama", "Tanggal", "Total", "Status"]],
+        body: rows,
+        styles: { fontSize: 10 },
+        headStyles: {
+          fillColor: [30, 41, 59], textColor: 255, fontStyle: "bold"
+        },
+        alternateRowStyles: { fillColor: [245, 245, 245] },
+        margin: { left: 14, right: 14 }
+      });
+
+      // Simpan file PDF
+      doc.save("orders-export.pdf");
+    }
   </script>
 </body>
 </html>
