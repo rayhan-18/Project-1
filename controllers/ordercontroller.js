@@ -14,8 +14,9 @@ const getTotalIncomeToday = async () => {
   const [rows] = await db.query(`
     SELECT SUM(total) AS totalIncome
     FROM orders
-    WHERE DATE(created_at) = CURDATE()`  // Hapus CONVERT_TZ
-  );
+    WHERE DATE(created_at) = CURDATE()
+      AND status != 'cancelled'
+  `);
   return rows[0].totalIncome || 0;
 };
 

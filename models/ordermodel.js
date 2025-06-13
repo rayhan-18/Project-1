@@ -209,7 +209,8 @@ const getTotalOrdersToday = async () => {
     const [rows] = await conn.query(
       `SELECT COUNT(*) AS total_today 
        FROM orders 
-       WHERE DATE(created_at) = CURDATE()`  // Hapus CONVERT_TZ
+       WHERE DATE(created_at) = CURDATE()
+       AND status NOT IN ('batal', 'cancelled')`
     );
     return rows[0].total_today || 0;
   } finally {
@@ -223,6 +224,7 @@ const getLatestOrders = async (limit = 5) => {
     const [orders] = await conn.query(
       `SELECT id, user_id, customer_name, total, status, created_at 
        FROM orders 
+       WHERE status NOT IN ('batal', 'cancelled')
        ORDER BY created_at DESC 
        LIMIT ?`,
       [limit]
@@ -234,13 +236,13 @@ const getLatestOrders = async (limit = 5) => {
 };
 
 // Tambahan untuk dashboard
-
 const getTotalIncomeToday = async () => {
   const conn = await db.getConnection();
   try {
     const [rows] = await conn.query(
       `SELECT SUM(total) AS total_income FROM orders 
-      WHERE DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = CURDATE()`
+       WHERE DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = CURDATE()
+       AND status NOT IN ('batal', 'cancelled')`
     );
     return rows[0].total_income || 0;
   } finally {
@@ -265,10 +267,11 @@ const getWeeklyOrderStats = async () => {
   try {
     const [rows] = await conn.query(
       `SELECT DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) AS date, COUNT(*) AS count
-      FROM orders
-      WHERE CONVERT_TZ(created_at, '+00:00', '+07:00') >= CURDATE() - INTERVAL 6 DAY
-      GROUP BY DATE(CONVERT_TZ(created_at, '+00:00', '+07:00'))
-      ORDER BY date`
+       FROM orders
+       WHERE CONVERT_TZ(created_at, '+00:00', '+07:00') >= CURDATE() - INTERVAL 6 DAY
+       AND status NOT IN ('batal', 'cancelled')
+       GROUP BY DATE(CONVERT_TZ(created_at, '+00:00', '+07:00'))
+       ORDER BY date`
     );
     return rows;
   } finally {
