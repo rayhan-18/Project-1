@@ -48,15 +48,17 @@
 
   <div class="max-w-4xl mx-auto">
     <div class="text-center mb-6">
-      <h1 class="text-3xl font-bold text-primary">Detail Pesanan</h1>
+      <!-- Judul utama -->
+      <h1 class="text-3xl font-bold text-primary">Toko Rayhan</h1>
+      <p class="text-sm mt-1">Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan</p>
 
-      <!-- Bagian Cetak -->
-      <h2 class="hidden print:block print:text-center print:text-lg font-semibold">INVOICE PESANAN</h2>
-      <div class="hidden print:block mt-1 text-sm text-center">
-        <p class="font-semibold">Toko Rayhan</p>
-        <p>Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan</p>
-      </div>
-      <hr class="hidden print:block my-2 border-t border-gray-400" />
+      <!-- Subjudul "Detail Pesanan" -->
+      <h2 class="mt-4 text-xl font-semibold print:hidden">Detail Pesanan</h2>
+
+      <!-- Versi cetak: Judul Invoice -->
+      <h2 class="hidden print:block print:text-center print:text-lg font-semibold mt-2">INVOICE PESANAN</h2>
+
+      <!-- Meta Invoice (nomor & tanggal) -->
       <div id="invoiceMeta" class="text-sm text-gray-700 mt-2 hidden print:block"></div>
     </div>
 

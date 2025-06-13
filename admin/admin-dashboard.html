@@ -6,93 +6,99 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-gray-900 text-white font-sans min-h-screen">
+<body class="bg-gradient-to-br from-gray-100 via-white to-gray-200 text-gray-800 font-sans min-h-screen">
+
   <!-- Spinner Overlay -->
-  <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+  <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 hidden transition-opacity duration-300">
     <div class="flex flex-col items-center">
-      <svg class="w-10 h-10 animate-spin text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <svg class="w-10 h-10 animate-spin text-blue-600 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor"
           d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8z" />
       </svg>
-      <p class="text-white text-sm">Memuat data...</p>
+      <p class="text-sm text-gray-700">Memuat data...</p>
     </div>
   </div>
 
-  <!-- Header -->
-  <header class="bg-gray-800 p-4 flex flex-col md:flex-row md:justify-between items-center gap-4 shadow">
-    <h1 class="text-2xl font-bold">Admin Toko Rayhan</h1>
-    <nav class="space-x-4 text-sm">
-      <a href="admin-orders.html" class="hover:text-blue-400">Pesanan</a>
-      <a href="admin-products.html" class="hover:text-blue-400">Produk</a>
-      <a href="admin-contacts.html" class="hover:text-blue-400">Pesan Kontak</a>
-      <a href="#" onclick="logoutAdmin()" class="hover:text-red-400">Logout</a>
-    </nav>
-  </header>
-
-  <!-- Main Content -->
-  <main class="p-6 space-y-6">
-    <!-- Greeting -->
-    <section>
-      <h2 id="greeting" class="text-2xl font-semibold mb-1"></h2>
-      <p class="text-gray-400 text-sm">Tanggal: <span id="todayDate"></span></p>
-    </section>
-
-    <!-- Summary Cards -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <div class="bg-gray-800 rounded-lg p-5 shadow">
-        <p class="text-gray-400">Total Pesanan Hari Ini</p>
-        <h3 id="totalToday" class="text-3xl font-bold text-green-400">0</h3>
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gradient-to-b from-blue-50 via-white to-blue-100 shadow-md border-r border-blue-100">
+      <div class="p-4 border-b border-blue-200">
+        <h1 class="text-2xl font-bold text-blue-600">Toko Rayhan</h1>
+        <p class="text-sm text-gray-500">Dashboard Admin</p>
       </div>
-      <div class="bg-gray-800 rounded-lg p-5 shadow">
-        <p class="text-gray-400">Total Omset Hari Ini</p>
-        <h3 id="totalIncome" class="text-3xl font-bold text-blue-400">Rp 0</h3>
-      </div>
-      <div class="bg-gray-800 rounded-lg p-5 shadow">
-        <p class="text-gray-400">Jumlah Produk Aktif</p>
-        <h3 id="productCount" class="text-3xl font-bold text-yellow-400">0</h3>
-      </div>
-    </section>
+      <nav class="p-4 space-y-2">
+        <a href="admin-orders.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">📦 Pesanan</a>
+        <a href="admin-products.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">🛒 Produk</a>
+        <a href="admin-contacts.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">✉️ Message</a>
+        <button onclick="logoutAdmin()" class="block w-full text-left py-2 px-4 text-red-600 hover:bg-red-100 rounded transition">🚪 Logout</button>
+      </nav>
+    </aside>
 
-    <!-- Chart -->
-    <section class="bg-gray-800 rounded-lg p-6 shadow">
-      <h3 class="text-lg font-semibold mb-4">Grafik Pesanan Mingguan</h3>
-      <canvas id="ordersChart" height="120"></canvas>
-    </section>
+    <!-- Main Content -->
+    <main class="flex-1 p-6 space-y-6">
+      <!-- Greeting -->
+      <section>
+        <h2 id="greeting" class="text-2xl font-semibold mb-1"></h2>
+        <p class="text-sm text-gray-500">Tanggal: <span id="todayDate"></span></p>
+      </section>
 
-    <!-- Filters & Table -->
-    <section class="bg-gray-800 rounded-lg p-6 shadow">
-      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
-        <div>
-          <label class="text-sm text-gray-300 mr-2">Filter Tanggal:</label>
-          <input type="date" id="startDate" class="bg-gray-700 text-white p-2 rounded" />
-          <input type="date" id="endDate" class="bg-gray-700 text-white p-2 rounded ml-2" />
+      <!-- Summary Cards -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-xl p-5 shadow-md border border-green-100 hover:shadow-lg transition">
+          <p class="text-gray-500">Total Pesanan Hari Ini</p>
+          <h3 id="totalToday" class="text-3xl font-bold text-green-600">0</h3>
         </div>
-        <div class="flex gap-2">
-          <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded">Terapkan</button>
-          <button onclick="exportPDF()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded">PDF</button>
-          <button onclick="exportExcel()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded">Excel</button>
+        <div class="bg-white rounded-xl p-5 shadow-md border border-blue-100 hover:shadow-lg transition">
+          <p class="text-gray-500">Total Omset Hari Ini</p>
+          <h3 id="totalIncome" class="text-3xl font-bold text-blue-600">Rp 0</h3>
         </div>
-      </div>
+        <div class="bg-white rounded-xl p-5 shadow-md border border-yellow-100 hover:shadow-lg transition">
+          <p class="text-gray-500">Jumlah Produk Aktif</p>
+          <h3 id="productCount" class="text-3xl font-bold text-yellow-600">0</h3>
+        </div>
+      </section>
 
-      <!-- Table -->
-      <table class="w-full text-sm table-auto">
-        <thead>
-          <tr class="border-b border-gray-700 text-left text-gray-300">
-            <th class="py-2">ID</th>
-            <th>User</th>
-            <th>Total</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="ordersBody">
-          <tr><td colspan="4" class="text-center py-4 text-gray-400">Memuat data...</td></tr>
-        </tbody>
-      </table>
-    </section>
-  </main>
+      <!-- Weekly Orders Chart -->
+      <section class="bg-white rounded-xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition">
+        <h3 class="text-lg font-semibold mb-4">📊 Grafik Pesanan Mingguan</h3>
+        <canvas id="ordersChart" height="120"></canvas>
+      </section>
 
-  <!-- Scripts -->
+      <!-- Filter & Data Table -->
+      <section class="bg-white rounded-xl p-6 shadow-md border border-gray-200 hover:shadow-lg transition">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
+          <div>
+            <label class="text-sm text-gray-600 mr-2">Filter Tanggal:</label>
+            <input type="date" id="startDate" class="bg-gray-100 border p-2 rounded" />
+            <input type="date" id="endDate" class="bg-gray-100 border p-2 rounded ml-2" />
+          </div>
+          <div class="flex gap-2">
+            <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition">Terapkan</button>
+            <button onclick="exportPDF()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded transition">PDF</button>
+            <button onclick="exportExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition">Excel</button>
+          </div>
+        </div>
+
+        <!-- Data Table -->
+        <table class="w-full text-sm table-auto border-t">
+          <thead>
+            <tr class="border-b text-left text-gray-600">
+              <th class="py-2">ID</th>
+              <th>User</th>
+              <th>Total</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody">
+            <tr><td colspan="4" class="text-center py-4 text-gray-400">Memuat data...</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <!-- JavaScript -->
   <script>
     function logoutAdmin() {
       localStorage.removeItem('user');
@@ -118,20 +124,101 @@
     function getFilterQuery() {
       const start = document.getElementById('startDate').value;
       const end = document.getElementById('endDate').value;
-      const query = [];
-      if (start) query.push(`start=${start}`);
-      if (end) query.push(`end=${end}`);
-      return query.length ? `?${query.join('&')}` : '';
+      const params = [];
+      if (start) params.push(`start=${start}`);
+      if (end) params.push(`end=${end}`);
+      return params.length ? `?${params.join('&')}` : '';
     }
+
+    function applyFilter() {
+      const start = new Date(document.getElementById('startDate').value);
+      const end = new Date(document.getElementById('endDate').value);
+      if (start && end && start > end) {
+        alert('Tanggal akhir tidak boleh lebih awal dari tanggal mulai.');
+        return;
+      }
+      loadSummary();
+    }
+
+    async function exportFile(format) {
+      const overlay = document.getElementById('spinnerOverlay');
+      overlay.classList.remove('hidden');
+      try {
+        const endpoint = format === 'pdf' ? '/api/export/pdf' : '/api/export/excel';
+        const response = await fetch(`http://localhost:3000${endpoint}${getFilterQuery()}`);
+        if (!response.ok) throw new Error(`Gagal mengunduh file ${format.toUpperCase()}`);
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `laporan_toko_rayhan.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+      } catch (err) {
+        alert(err.message);
+        console.error(err);
+      } finally {
+        overlay.classList.add('hidden');
+      }
+    }
+
+    const exportPDF = () => exportFile('pdf');
+    const exportExcel = () => exportFile('xlsx');
+
+    function drawChart(data) {
+  const ctx = document.getElementById('ordersChart').getContext('2d');
+  if (window.orderChart) window.orderChart.destroy();
+
+  const colors = [
+    '#60a5fa', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#f472b6', '#38bdf8', '#fb923c'
+  ];
+  const backgroundColors = data.map((_, i) => colors[i % colors.length]);
+
+  window.orderChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d => d.date),
+      datasets: [{
+        label: 'Jumlah Pesanan',
+        data: data.map(d => d.count),
+        backgroundColor: backgroundColors,
+        borderRadius: 8,
+        barThickness: 40
+      }]
+    },
+    options: {
+      plugins: {
+        tooltip: {
+          callbacks: {
+            title: context => `Tanggal: ${context[0].label}`,
+            label: context => ` Jumlah Pesanan: ${context.raw}`
+          }
+        },
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#374151' },
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#374151' },
+          grid: { color: '#e5e7eb' }
+        }
+      }
+    }
+  });
+}
 
     async function loadSummary() {
       const overlay = document.getElementById('spinnerOverlay');
       overlay.classList.remove('hidden');
-
       try {
         const res = await fetch(`http://localhost:3000/api/orders/summary${getFilterQuery()}`);
         const data = await res.json();
-
         document.getElementById('totalToday').textContent = data.totalToday?.toLocaleString('id-ID') || '0';
         document.getElementById('totalIncome').textContent = formatRupiah(data.totalIncome || 0);
         document.getElementById('productCount').textContent = data.totalProducts || 0;
@@ -149,9 +236,8 @@
               selesai: 'bg-green-500',
               batal: 'bg-red-500'
             }[o.status?.toLowerCase()] || 'bg-gray-500';
-
             const row = `
-              <tr class="border-b border-gray-700">
+              <tr class="border-b border-gray-200">
                 <td class="py-2">${o.id}</td>
                 <td>${o.user_name || 'User #' + o.user_id}</td>
                 <td>${formatRupiah(o.total)}</td>
@@ -161,105 +247,13 @@
           });
         }
 
-        if (data.weeklyStats) {
-          drawChart(data.weeklyStats);
-        }
+        if (data.weeklyStats) drawChart(data.weeklyStats);
       } catch (e) {
         console.error(e);
         document.getElementById('ordersBody').innerHTML = `<tr><td colspan="4" class="text-center text-red-400 py-4">Gagal memuat data</td></tr>`;
       } finally {
         overlay.classList.add('hidden');
       }
-    }
-
-    function applyFilter() {
-      const start = new Date(document.getElementById('startDate').value);
-      const end = new Date(document.getElementById('endDate').value);
-      if (start && end && start > end) {
-        alert('Tanggal akhir tidak boleh lebih awal dari tanggal mulai.');
-        return;
-      }
-      loadSummary();
-    }
-
-    async function exportPDF() {
-      const overlay = document.getElementById('spinnerOverlay');
-      overlay.classList.remove('hidden');
-
-      try {
-        const response = await fetch(`http://localhost:3000/api/export/pdf${getFilterQuery()}`);
-        if (!response.ok) throw new Error('Gagal mengunduh PDF');
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `laporan_toko_rayhan.pdf`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
-        window.URL.revokeObjectURL(url);
-      } catch (err) {
-        alert('Gagal mengunduh file PDF');
-        console.error(err);
-      } finally {
-        overlay.classList.add('hidden');
-      }
-    }
-
-    async function exportExcel() {
-      const overlay = document.getElementById('spinnerOverlay');
-      overlay.classList.remove('hidden');
-
-      try {
-        const response = await fetch(`http://localhost:3000/api/export/excel${getFilterQuery()}`);
-        if (!response.ok) throw new Error('Gagal mengunduh Excel');
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `laporan_toko_rayhan.xlsx`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-
-        window.URL.revokeObjectURL(url);
-      } catch (err) {
-        alert('Gagal mengunduh file Excel');
-        console.error(err);
-      } finally {
-        overlay.classList.add('hidden');
-      }
-    }
-
-    function drawChart(data) {
-      const ctx = document.getElementById('ordersChart').getContext('2d');
-      if (window.orderChart) window.orderChart.destroy();
-      window.orderChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: data.map(d => d.date),
-          datasets: [{
-            label: 'Jumlah Pesanan',
-            data: data.map(d => d.count),
-            fill: true,
-            borderColor: 'rgb(59, 130, 246)',
-            backgroundColor: 'rgba(59, 130, 246, 0.2)',
-            tension: 0.3,
-          }]
-        },
-        options: {
-          plugins: {
-            legend: { labels: { color: '#fff' } }
-          },
-          scales: {
-            x: { ticks: { color: '#ccc' } },
-            y: { ticks: { color: '#ccc' } }
-          }
-        }
-      });
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -271,7 +265,6 @@
         location.href = '/publik/index.html';
         return;
       }
-
       tampilkanSalam(user.name || 'Admin');
       document.getElementById('todayDate').textContent = new Date().toLocaleDateString('id-ID');
       loadSummary();
