@@ -49,7 +49,14 @@
   <div class="max-w-4xl mx-auto">
     <div class="text-center mb-6">
       <h1 class="text-3xl font-bold text-primary">Detail Pesanan</h1>
+
+      <!-- Bagian Cetak -->
       <h2 class="hidden print:block print:text-center print:text-lg font-semibold">INVOICE PESANAN</h2>
+      <div class="hidden print:block mt-1 text-sm text-center">
+        <p class="font-semibold">Toko Rayhan</p>
+        <p>Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan</p>
+      </div>
+      <hr class="hidden print:block my-2 border-t border-gray-400" />
       <div id="invoiceMeta" class="text-sm text-gray-700 mt-2 hidden print:block"></div>
     </div>
 
@@ -133,7 +140,7 @@
         const tanggal = new Date(order.created_at || Date.now()).toLocaleDateString('id-ID', {
           year: 'numeric', month: 'long', day: 'numeric'
         });
-        invoiceMeta.innerHTML = `No. Invoice: INV-${order.id || id} | Tanggal: ${tanggal}`;
+        invoiceMeta.innerHTML = `No. Invoice: INV-${String(order.id).padStart(6, '0')} | Tanggal: ${tanggal}`;
         invoiceMeta.classList.remove('hidden');
 
       } catch (err) {
