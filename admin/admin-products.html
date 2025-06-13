@@ -2,123 +2,127 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Produk - Toko Rayhan</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-900 text-gray-100 p-6 font-sans">
+<body class="bg-gray-100 text-gray-800 font-sans">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white shadow-md hidden md:block">
+      <div class="p-6 text-xl font-bold border-b">Toko Rayhan</div>
+      <nav class="p-4 space-y-2">
+        <a href="admin-dashboard.html" class="block px-4 py-2 rounded hover:bg-gray-200">📊 Dashboard</a>
+        <a href="admin-orders.html" class="block px-4 py-2 rounded hover:bg-gray-200">📦 Pesanan</a>
+        <a href="admin-product.html" class="block px-4 py-2 rounded bg-gray-200 font-semibold">🛒 Produk</a>
+        <a href="admin-contacts.html" class="block px-4 py-2 rounded hover:bg-gray-200">✉️ Message</a>
+        <button onclick="logoutAdmin()" class="w-full text-left px-4 py-2 rounded hover:bg-red-100 text-red-600">🚪 Logout</button>
+      </nav>
+    </aside>
 
-  <!-- Spinner Global -->
-  <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-    <div class="text-white text-sm text-center">
-      <svg class="w-8 h-8 animate-spin text-green-400 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8z" />
-      </svg>
-      Memuat data...
-    </div>
+    <!-- Main Content -->
+    <main class="flex-1 px-6 pb-6">
+      <!-- Spinner -->
+      <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50 hidden">
+        <div class="text-sm text-center">
+          <svg class="w-8 h-8 animate-spin text-green-500 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8z" />
+          </svg>
+          Memuat data...
+        </div>
+      </div>
+
+      <!-- Konten Form + Tabel -->
+      <section class="bg-white p-6 rounded-lg shadow mb-6 w-full max-w-6xl mx-auto">
+        <!-- Form Produk -->
+        <div class="mb-10">
+          <h2 class="text-2xl font-semibold mb-6">Tambah / Edit Produk</h2>
+          <form id="productForm" class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6" novalidate>
+            <input type="hidden" id="productId" />
+
+            <div class="md:col-span-2">
+              <label for="productName" class="block font-medium mb-1">Nama Produk</label>
+              <input type="text" id="productName" required minlength="3" class="w-full border rounded px-3 py-2" />
+            </div>
+
+            <div>
+              <label for="productCategory" class="block font-medium mb-1">Kategori</label>
+              <select id="productCategory" required class="w-full border rounded px-3 py-2">
+                <option value="" disabled selected>Pilih kategori</option>
+                <option value="Dapur">Dapur</option>
+                <option value="Kamar Mandi">Kamar Mandi</option>
+                <option value="Kamar Tidur">Kamar Tidur</option>
+                <option value="Ruang Tamu">Ruang Tamu</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="productStock" class="block font-medium mb-1">Stok</label>
+              <input type="number" id="productStock" min="0" required class="w-full border rounded px-3 py-2" />
+            </div>
+
+            <div>
+              <label for="productPrice" class="block font-medium mb-1">Harga (Rp)</label>
+              <input type="number" id="productPrice" min="0" step="100" required class="w-full border rounded px-3 py-2" />
+            </div>
+
+            <div class="md:col-span-2">
+              <label for="productImage" class="block font-medium mb-1">URL Gambar</label>
+              <input type="url" id="productImage" required placeholder="https://example.com/gambar.jpg" class="w-full border rounded px-3 py-2" />
+            </div>
+
+            <div class="md:col-span-2 flex gap-3">
+              <button type="submit" id="saveBtn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded">Simpan Produk</button>
+              <button type="button" id="cancelEditBtn" class="hidden bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded">Batal Edit</button>
+            </div>
+
+            <div id="formMessage" class="md:col-span-2 text-sm mt-1 font-medium"></div>
+          </form>
+        </div>
+
+        <!-- Daftar Produk -->
+        <div>
+          <h2 class="text-2xl font-semibold mb-4">Daftar Produk</h2>
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
+            <div class="flex gap-2 w-full md:w-auto">
+              <input type="text" id="searchInput" placeholder="Cari produk..." class="border rounded px-3 py-2 w-full md:w-60" />
+              <select id="filterCategory" class="border rounded px-3 py-2">
+                <option value="">Semua Kategori</option>
+                <option value="Dapur">Dapur</option>
+                <option value="Kamar Mandi">Kamar Mandi</option>
+                <option value="Kamar Tidur">Kamar Tidur</option>
+                <option value="Ruang Tamu">Ruang Tamu</option>
+              </select>
+              <button onclick="loadProducts()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Terapkan</button>
+            </div>
+            <div class="w-full md:w-auto">
+              <button onclick="exportProductsExcel()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 w-full">Export Excel</button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table id="productsTable" class="min-w-full table-auto border">
+              <thead class="bg-gray-100">
+                <tr>
+                  <th class="p-3 border text-center">ID</th>
+                  <th class="p-3 border">Nama Produk</th>
+                  <th class="p-3 border">Kategori</th>
+                  <th class="p-3 border text-center">Stok</th>
+                  <th class="p-3 border text-center">Harga</th>
+                  <th class="p-3 border text-center">Gambar</th>
+                  <th class="p-3 border text-center">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="text-gray-700 text-sm">
+                <tr><td colspan="7" class="text-center p-4">Memuat data...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
   </div>
-
-  <!-- Header -->
-  <header class="flex items-center justify-between bg-gray-800 text-white px-6 py-4 rounded-lg mb-6 shadow">
-    <h1 class="text-xl font-bold">Admin Produk - Toko Rayhan</h1>
-    <nav class="space-x-4">
-      <a href="admin-dashboard.html" class="hover:underline">Dashboard</a>
-      <a href="admin-orders.html" class="hover:underline">Pesanan</a>
-      <a href="admin-contacts.html" class="hover:underline">Pesan Kontak</a>
-      <a href="#" onclick="logoutAdmin()" class="hover:underline">Logout</a>
-    </nav>
-  </header>
-
-  <!-- Main -->
-  <main class="bg-gray-800 p-6 rounded-lg shadow">
-    <!-- Form Produk -->
-    <section class="mb-8">
-      <h2 class="text-2xl font-semibold mb-4">Tambah / Edit Produk</h2>
-      <form id="productForm" class="space-y-4" novalidate>
-        <input type="hidden" id="productId" />
-
-        <div>
-          <label for="productName" class="block font-medium mb-1">Nama Produk</label>
-          <input type="text" id="productName" required minlength="3" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" />
-        </div>
-
-        <div>
-          <label for="productCategory" class="block font-medium mb-1">Kategori</label>
-          <select id="productCategory" required class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white">
-            <option value="" disabled selected>Pilih kategori</option>
-            <option value="Dapur">Dapur</option>
-            <option value="Kamar Mandi">Kamar Mandi</option>
-            <option value="Kamar Tidur">Kamar Tidur</option>
-            <option value="Ruang Tamu">Ruang Tamu</option>
-          </select>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label for="productStock" class="block font-medium mb-1">Stok</label>
-            <input type="number" id="productStock" min="0" required class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" />
-          </div>
-          <div>
-            <label for="productPrice" class="block font-medium mb-1">Harga (Rp)</label>
-            <input type="number" id="productPrice" min="0" step="100" required class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" />
-          </div>
-        </div>
-
-        <div>
-          <label for="productImage" class="block font-medium mb-1">URL Gambar</label>
-          <input type="url" id="productImage" required placeholder="https://example.com/gambar.jpg" class="w-full bg-gray-700 border border-gray-600 rounded px-3 py-2 text-white" />
-        </div>
-
-        <div class="flex gap-3 mt-4">
-          <button type="submit" id="saveBtn" class="bg-green-600 hover:bg-green-700 text-white py-2 px-6 rounded">Simpan Produk</button>
-          <button type="button" id="cancelEditBtn" class="hidden bg-red-600 hover:bg-red-700 text-white py-2 px-6 rounded">Batal Edit</button>
-        </div>
-
-        <div id="formMessage" class="text-sm mt-2 font-medium"></div>
-      </form>
-    </section>
-
-    <!-- Filter & Table Produk -->
-    <section>
-      <h2 class="text-2xl font-semibold mb-4">Daftar Produk</h2>
-      <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-4">
-        <div class="flex gap-2">
-          <input type="text" id="searchInput" placeholder="Cari produk..." class="bg-gray-700 text-white border border-gray-600 rounded px-3 py-2 w-60" />
-          <select id="filterCategory" class="bg-gray-700 text-white border border-gray-600 rounded px-3 py-2">
-            <option value="">Semua Kategori</option>
-            <option value="Dapur">Dapur</option>
-            <option value="Kamar Mandi">Kamar Mandi</option>
-            <option value="Kamar Tidur">Kamar Tidur</option>
-            <option value="Ruang Tamu">Ruang Tamu</option>
-          </select>
-          <button onclick="loadProducts()" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Terapkan</button>
-        </div>
-        <div>
-          <button onclick="exportProductsExcel()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">Export Excel</button>
-        </div>
-      </div>
-
-      <div class="overflow-x-auto">
-        <table id="productsTable" class="min-w-full table-auto border border-gray-600">
-          <thead class="bg-gray-700 text-white">
-            <tr>
-              <th class="p-3 border border-gray-600 text-center">ID</th>
-              <th class="p-3 border border-gray-600">Nama Produk</th>
-              <th class="p-3 border border-gray-600">Kategori</th>
-              <th class="p-3 border border-gray-600">Stok</th>
-              <th class="p-3 border border-gray-600">Harga</th>
-              <th class="p-3 border border-gray-600">Gambar</th>
-              <th class="p-3 border border-gray-600">Aksi</th>
-            </tr>
-          </thead>
-          <tbody class="text-gray-100">
-            <tr><td colspan="7" class="text-center p-4">Memuat data...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  </main>
 
   <script>
     const apiBase = 'http://localhost:3000/api/products';

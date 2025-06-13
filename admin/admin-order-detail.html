@@ -7,71 +7,77 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
-<body class="bg-gray-900 text-gray-100 font-sans">
+<body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 text-gray-800 font-sans min-h-screen">
 
-  <!-- Header Admin -->
-  <header class="bg-gray-800 p-4 flex justify-between items-center sticky top-0 z-50 shadow">
-    <h1 class="text-xl font-bold">Admin Toko Rayhan</h1>
-    <nav class="space-x-4 text-sm">
-      <a href="admin-dashboard.html" class="hover:underline">Dashboard</a>
-      <a href="admin-orders.html" class="underline font-semibold">Pesanan</a>
-      <a href="admin-products.html" class="hover:underline">Produk</a>
-      <a href="admin-contacts.html" class="hover:underline">Pesan Kontak</a>
-      <a href="#" onclick="logoutAdmin()" class="hover:underline text-red-400">Logout</a>
-    </nav>
-  </header>
-
-  <div class="max-w-5xl mx-auto p-6 mt-6">
-    <!-- Breadcrumb + Back Button -->
-    <div class="flex justify-between items-center text-sm text-gray-300 mb-4">
-      <nav class="space-x-1">
-        <a href="admin-dashboard.html" class="hover:underline text-gray-400">Dashboard</a> &gt;
-        <a href="admin-orders.html" class="hover:underline text-gray-400">Pesanan</a> &gt;
-        <span class="text-white">Detail</span>
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="w-64 bg-gradient-to-b from-blue-50 via-white to-blue-100 shadow-md border-r border-blue-100">
+      <div class="p-4 border-b border-blue-200">
+        <h1 class="text-2xl font-bold text-blue-600">Toko Rayhan</h1>
+        <p class="text-sm text-gray-500">Dashboard Admin</p>
+      </div>
+      <nav class="p-4 space-y-2">
+        <a href="admin-dashboard.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">🏠 Dashboard</a>
+        <a href="admin-orders.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">📦 Pesanan</a>
+        <a href="admin-products.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">🛒 Produk</a>
+        <a href="admin-contacts.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">✉️ Pesan</a>
+        <button onclick="logoutAdmin()" class="block w-full text-left py-2 px-4 text-red-600 hover:bg-red-100 rounded transition">🚪 Logout</button>
       </nav>
-      <button onclick="history.back()" class="bg-gray-700 hover:bg-gray-600 text-sm px-4 py-1 rounded text-white">
-        ← Kembali
-      </button>
-    </div>
+    </aside>
 
-    <h2 class="text-3xl font-bold mb-6 text-center text-white">Detail Pesanan</h2>
+    <!-- Main Content -->
+    <main class="flex-1 p-6">
+      <!-- Breadcrumb -->
+      <div class="text-sm text-gray-600 mb-4 flex justify-between items-center">
+        <div>
+          <a href="admin-dashboard.html" class="hover:underline text-blue-600">Dashboard</a> &gt;
+          <a href="admin-orders.html" class="hover:underline text-blue-600">Pesanan</a> &gt;
+          <span class="text-gray-800 font-semibold">Detail</span>
+        </div>
+        <button onclick="history.back()" class="bg-gray-200 hover:bg-gray-300 text-sm px-4 py-1 rounded text-gray-700">
+          ← Kembali
+        </button>
+      </div>
 
-    <!-- Order Info -->
-    <div id="orderInfo" class="bg-gray-800 rounded-xl shadow p-6 mb-6 space-y-2 text-sm sm:text-base"></div>
+      <h2 class="text-3xl font-bold mb-6 text-center text-blue-700">Detail Pesanan</h2>
 
-    <!-- Items Table -->
-    <div class="bg-gray-800 rounded-xl shadow overflow-auto mb-6">
-      <table class="min-w-full divide-y divide-gray-700 text-sm">
-        <thead class="bg-gray-700 text-gray-100">
-          <tr>
-            <th class="px-4 py-2 text-left font-medium">Nama Produk</th>
-            <th class="px-4 py-2 text-left font-medium">Jumlah</th>
-            <th class="px-4 py-2 text-left font-medium">Harga</th>
-            <th class="px-4 py-2 text-left font-medium">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody id="itemsTable" class="divide-y divide-gray-700"></tbody>
-      </table>
-    </div>
+      <!-- Order Info -->
+      <div id="orderInfo" class="bg-white rounded-xl shadow p-6 mb-6 space-y-2 text-sm sm:text-base border border-gray-200"></div>
 
-    <!-- Summary -->
-    <div id="summary" class="bg-gray-800 rounded-xl shadow p-6 mb-6 space-y-1 text-sm sm:text-base"></div>
+      <!-- Items Table -->
+      <div class="bg-white rounded-xl shadow overflow-auto mb-6 border border-gray-200">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+          <thead class="bg-blue-100 text-gray-700">
+            <tr>
+              <th class="px-4 py-2 text-left font-medium">Nama Produk</th>
+              <th class="px-4 py-2 text-left font-medium">Jumlah</th>
+              <th class="px-4 py-2 text-left font-medium">Harga</th>
+              <th class="px-4 py-2 text-left font-medium">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="itemsTable" class="divide-y divide-gray-100"></tbody>
+        </table>
+      </div>
 
-    <!-- Status Update -->
-    <div class="bg-gray-800 rounded-xl shadow p-6 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
-      <label for="statusSelect" class="font-medium">Ubah Status:</label>
-      <select id="statusSelect" class="bg-gray-700 border border-gray-600 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 text-white">
-        <option value="pending">Pending</option>
-        <option value="confirmed">Confirmed</option>
-        <option value="processing">Processing</option>
-        <option value="shipped">Shipped</option>
-        <option value="completed">Completed</option>
-        <option value="cancelled">Cancelled</option>
-      </select>
-      <button id="updateStatusBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
-        Update Status
-      </button>
-    </div>
+      <!-- Summary -->
+      <div id="summary" class="bg-white rounded-xl shadow p-6 mb-6 text-sm sm:text-base border border-gray-200"></div>
+
+      <!-- Status Update -->
+      <div class="bg-white rounded-xl shadow p-6 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 border border-gray-200">
+        <label for="statusSelect" class="font-medium">Ubah Status:</label>
+        <select id="statusSelect" class="bg-gray-100 border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="processing">Processing</option>
+          <option value="shipped">Shipped</option>
+          <option value="completed">Completed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button id="updateStatusBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
+          Update Status
+        </button>
+      </div>
+    </main>
   </div>
 
   <script>
@@ -79,7 +85,7 @@
     const orderId = new URLSearchParams(window.location.search).get('id');
 
     if (!orderId) {
-      document.body.innerHTML = '<div class="text-center p-10 text-red-400 font-bold">Order ID tidak ditemukan.</div>';
+      document.body.innerHTML = '<div class="text-center p-10 text-red-500 font-bold">Order ID tidak ditemukan.</div>';
       throw new Error('Order ID tidak ditemukan');
     }
 
@@ -93,15 +99,16 @@
     }
 
     function getStatusBadge(status) {
-      const s = (status || '').toLowerCase();
-      const base = "px-2 py-1 text-xs rounded font-semibold";
-      if (s === 'pending') return `<span class="${base} bg-orange-500 text-white">Pending</span>`;
-      if (s === 'confirmed') return `<span class="${base} bg-blue-500 text-white">Confirmed</span>`;
-      if (s === 'processing') return `<span class="${base} bg-yellow-500 text-white">Processing</span>`;
-      if (s === 'shipped') return `<span class="${base} bg-green-500 text-white">Shipped</span>`;
-      if (s === 'completed') return `<span class="${base} bg-emerald-600 text-white">Completed</span>`;
-      if (s === 'cancelled') return `<span class="${base} bg-red-500 text-white">Cancelled</span>`;
-      return `<span class="${base} bg-gray-500 text-white">${status || '-'}</span>`;
+      const base = "px-2 py-1 text-xs rounded font-semibold text-white";
+      const map = {
+        pending: "bg-yellow-500",
+        confirmed: "bg-blue-500",
+        processing: "bg-orange-500",
+        shipped: "bg-green-500",
+        completed: "bg-emerald-600",
+        cancelled: "bg-red-500"
+      };
+      return `<span class="${base} ${map[status?.toLowerCase()] || 'bg-gray-500'}">${status}</span>`;
     }
 
     async function fetchOrderDetail() {
@@ -109,14 +116,9 @@
         const res = await fetch(`${apiBaseUrl}/${orderId}`);
         if (!res.ok) throw new Error('Gagal mengambil data order');
         return await res.json();
-      } catch (error) {
-        console.error('Error fetching order:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: error.message || 'Gagal mengambil data order'
-        });
-        throw error;
+      } catch (err) {
+        console.error(err);
+        Swal.fire({ icon: 'error', title: 'Error', text: err.message });
       }
     }
 
@@ -126,17 +128,15 @@
       if (method === 'transfer') {
         paymentDetails = `
           <p><strong>Bank:</strong> ${order.payment_details?.bank_name || '-'}</p>
-          <p><strong>No. Virtual Account:</strong> ${order.payment_details?.virtual_account || '-'}</p>
-          <p><strong>Jumlah Bayar:</strong> ${formatRupiah(order.total)}</p>
-        `;
+          <p><strong>Virtual Account:</strong> ${order.payment_details?.virtual_account || '-'}</p>
+          <p><strong>Jumlah Bayar:</strong> ${formatRupiah(order.total)}</p>`;
       } else if (method === 'ewallet') {
         paymentDetails = `
           <p><strong>E-Wallet:</strong> ${order.payment_details?.wallet_name || '-'}</p>
-          <p><strong>No. HP Tujuan:</strong> ${order.payment_details?.phone_number || '-'}</p>
-          <p><strong>Jumlah Bayar:</strong> ${formatRupiah(order.total)}</p>
-        `;
+          <p><strong>No. HP:</strong> ${order.payment_details?.phone_number || '-'}</p>
+          <p><strong>Jumlah Bayar:</strong> ${formatRupiah(order.total)}</p>`;
       } else if (method === 'cod') {
-        paymentDetails = `<p><strong>Metode Pembayaran:</strong> Cash on Delivery (COD)</p>`;
+        paymentDetails = `<p><strong>Metode Pembayaran:</strong> COD</p>`;
       }
 
       document.getElementById('orderInfo').innerHTML = `
@@ -144,12 +144,11 @@
         <p><strong>Nama Pelanggan:</strong> ${order.customer_name}</p>
         <p><strong>Telepon:</strong> ${order.customer_phone}</p>
         <p><strong>Alamat:</strong> ${order.customer_address}</p>
-        <p><strong>Metode Pengiriman:</strong> ${order.shipping_method || '-'} (${formatRupiah(order.shipping_cost)})</p>
+        <p><strong>Pengiriman:</strong> ${order.shipping_method} (${formatRupiah(order.shipping_cost)})</p>
         <p><strong>Metode Pembayaran:</strong> ${order.payment_method}</p>
         ${paymentDetails}
-        <p><strong>Status Pesanan:</strong> ${getStatusBadge(order.status)}</p>
-        <p><strong>Tanggal Pesanan:</strong> ${new Date(order.created_at).toLocaleString('id-ID')}</p>
-      `;
+        <p><strong>Status:</strong> ${getStatusBadge(order.status)}</p>
+        <p><strong>Tanggal:</strong> ${new Date(order.created_at).toLocaleString('id-ID')}</p>`;
 
       const tbody = document.getElementById('itemsTable');
       tbody.innerHTML = '';
@@ -161,8 +160,7 @@
             <td class="px-4 py-2">${item.quantity}</td>
             <td class="px-4 py-2">${formatRupiah(item.price)}</td>
             <td class="px-4 py-2">${formatRupiah(subtotal)}</td>
-          </tr>
-        `;
+          </tr>`;
       });
 
       const tax = order.subtotal * 0.10;
@@ -170,71 +168,47 @@
       document.getElementById('summary').innerHTML = `
         <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal)}</p>
         <p><strong>Pajak (10%):</strong> ${formatRupiah(tax)}</p>
-        <p><strong>Biaya Pengiriman:</strong> ${formatRupiah(order.shipping_cost)}</p>
-        <p><strong>Total:</strong> <span class="font-bold text-green-400">${formatRupiah(total)}</span></p>
-      `;
+        <p><strong>Pengiriman:</strong> ${formatRupiah(order.shipping_cost)}</p>
+        <p><strong>Total:</strong> <span class="font-bold text-green-600">${formatRupiah(total)}</span></p>`;
 
       document.getElementById('statusSelect').value = order.status;
     }
 
     async function updateStatus() {
       const newStatus = document.getElementById('statusSelect').value;
-      
-      try {
-        const { value: confirmed } = await Swal.fire({
-          title: 'Konfirmasi',
-          text: `Anda yakin ingin mengubah status pesanan menjadi "${newStatus}"?`,
-          icon: 'question',
-          showCancelButton: true,
-          confirmButtonText: 'Ya, Ubah',
-          cancelButtonText: 'Batal'
-        });
-        
-        if (!confirmed) return;
+      const { value: confirmed } = await Swal.fire({
+        title: 'Ubah Status',
+        text: `Yakin ubah status menjadi "${newStatus}"?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Ya',
+        cancelButtonText: 'Batal'
+      });
 
+      if (!confirmed) return;
+
+      try {
         const res = await fetch(`${apiBaseUrl}/${orderId}/status`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: newStatus })
         });
 
-        if (!res.ok) {
-          const error = await res.json();
-          throw new Error(error.message || 'Gagal memperbarui status');
-        }
+        if (!res.ok) throw new Error('Gagal memperbarui status');
+        await Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Status diperbarui' });
 
-        const result = await res.json();
-        
-        Swal.fire({
-          icon: 'success',
-          title: 'Berhasil!',
-          text: result.message || 'Status berhasil diperbarui'
-        }).then(() => {
-          // Refresh order details
-          fetchOrderDetail().then(renderOrderDetail);
-        });
-
-      } catch (error) {
-        console.error('Error updating status:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Gagal',
-          text: error.message || 'Terjadi kesalahan saat memperbarui status'
-        });
+        const order = await fetchOrderDetail();
+        renderOrderDetail(order);
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Gagal', text: err.message });
       }
     }
 
-    // Initialize page
     document.addEventListener('DOMContentLoaded', async () => {
-      try {
-        document.getElementById('updateStatusBtn').addEventListener('click', updateStatus);
-        const order = await fetchOrderDetail();
-        renderOrderDetail(order);
-      } catch (error) {
-        console.error('Initialization error:', error);
-      }
+      document.getElementById('updateStatusBtn').addEventListener('click', updateStatus);
+      const order = await fetchOrderDetail();
+      renderOrderDetail(order);
     });
   </script>
-
 </body>
 </html>
