@@ -2,85 +2,110 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Daftar Pesanan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Pesanan</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.29/jspdf.plugin.autotable.min.js"></script>
 </head>
-<body class="bg-gray-900 text-gray-100 font-sans">
+<body class="bg-white text-gray-900 font-sans">
+  <!-- Sidebar / Navbar -->
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="hidden md:flex md:flex-col w-64 bg-white border-r shadow-sm">
+      <div class="px-6 py-4 text-lg font-bold border-b">Admin Toko Rayhan</div>
+      <nav class="flex-1 p-4 space-y-2 text-sm">
+        <a href="admin-dashboard.html" class="block px-4 py-2 rounded hover:bg-gray-100">Dashboard</a>
+        <a href="admin-orders.html" class="block px-4 py-2 rounded bg-blue-100 text-blue-700 font-semibold">Pesanan</a>
+        <a href="admin-products.html" class="block px-4 py-2 rounded hover:bg-gray-100">Produk</a>
+        <a href="admin-contacts.html" class="block px-4 py-2 rounded hover:bg-gray-100">Pesan Kontak</a>
+        <button onclick="logoutAdmin()" class="block w-full text-left px-4 py-2 rounded hover:bg-red-100 text-red-600">Logout</button>
+      </nav>
+    </aside>
 
-  <!-- Spinner -->
-  <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[999] hidden">
-    <div class="flex flex-col items-center">
-      <svg class="w-10 h-10 animate-spin text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8z" />
-      </svg>
-      <p class="text-white text-sm">Memuat data...</p>
+    <!-- Mobile Navbar -->
+    <div class="md:hidden w-full">
+      <div class="flex justify-between items-center px-4 py-3 border-b bg-white shadow-md">
+        <span class="font-bold text-lg">Admin Toko Rayhan</span>
+        <button onclick="toggleMobileNav()" class="focus:outline-none">
+          <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+      <nav id="mobileNav" class="hidden flex-col bg-white border-b shadow px-4 py-2 space-y-2 text-sm">
+        <a href="admin-dashboard.html" class="block px-2 py-1 rounded hover:bg-gray-100">Dashboard</a>
+        <a href="admin-orders.html" class="block px-2 py-1 rounded bg-blue-100 text-blue-700 font-semibold">Pesanan</a>
+        <a href="admin-products.html" class="block px-2 py-1 rounded hover:bg-gray-100">Produk</a>
+        <a href="admin-contacts.html" class="block px-2 py-1 rounded hover:bg-gray-100">Pesan Kontak</a>
+        <button onclick="logoutAdmin()" class="block w-full text-left px-2 py-1 rounded hover:bg-red-100 text-red-600">Logout</button>
+      </nav>
     </div>
+
+    <!-- Content -->
+    <main class="flex-1 px-4 md:px-8 py-6">
+      <h2 class="text-2xl font-bold mb-6">Daftar Pesanan</h2>
+
+      <!-- Filter -->
+      <div class="bg-gray-50 border rounded-lg p-4 mb-6 flex flex-wrap gap-3">
+        <input id="searchInput" type="text" placeholder="Cari ID/Nama User" class="border rounded px-3 py-2 text-sm w-full sm:w-auto">
+        <input id="startDate" type="date" class="border rounded px-3 py-2 text-sm w-full sm:w-auto">
+        <input id="endDate" type="date" class="border rounded px-3 py-2 text-sm w-full sm:w-auto">
+        <select id="statusFilter" class="border rounded px-3 py-2 text-sm w-full sm:w-auto">
+          <option value="">Semua</option>
+          <option value="Pending">Pending</option>
+          <option value="Confirmed">Confirmed</option>
+          <option value="Processing">Processing</option>
+          <option value="Shipped">Shipped</option>
+          <option value="Completed">Completed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+        <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 text-sm rounded">Terapkan</button>
+        <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 text-sm rounded">Export Excel</button>
+        <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 text-sm rounded">Export PDF</button>
+      </div>
+
+      <!-- Spinner -->
+      <div id="spinnerOverlay" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="text-center text-white">
+          <svg class="w-8 h-8 animate-spin mx-auto text-blue-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3.5-3.5L12 0v4a8 8 0 018 8z" />
+          </svg>
+          <p class="text-sm">Memuat data...</p>
+        </div>
+      </div>
+
+      <!-- Tabel -->
+      <div class="overflow-auto bg-white border rounded-lg">
+        <table id="ordersTable" class="min-w-full text-sm">
+          <thead class="bg-gray-100">
+            <tr>
+              <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('id')">ID</th>
+              <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('user_name')">User</th>
+              <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('customer_name')">Nama</th>
+              <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('created_at')">Tanggal</th>
+              <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('total')">Total</th>
+              <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('status')">Status</th>
+              <th class="px-4 py-3 border">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody" class="divide-y"></tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" class="mt-6 flex justify-center gap-2 flex-wrap"></div>
+    </main>
   </div>
 
-  <!-- Header -->
-  <header class="bg-gray-800 p-4 flex justify-between items-center sticky top-0 z-50 shadow">
-    <h1 class="text-xl font-bold">Admin Toko Rayhan</h1>
-    <nav class="space-x-4 text-sm">
-      <a href="admin-dashboard.html" class="hover:underline">Dashboard</a>
-      <a href="admin-orders.html" class="underline font-semibold">Pesanan</a>
-      <a href="admin-products.html" class="hover:underline">Produk</a>
-      <a href="admin-contacts.html" class="hover:underline">Pesan Kontak</a>
-      <a href="#" onclick="logoutAdmin()" class="hover:underline text-red-400">Logout</a>
-    </nav>
-  </header>
-
-  <!-- Main Content -->
-  <main class="max-w-7xl mx-auto mt-8 px-4 mb-16">
-    <h2 class="text-3xl font-bold mb-6">Daftar Pesanan</h2>
-
-    <!-- Filters -->
-    <section class="bg-gray-800 p-6 rounded-xl shadow mb-6 flex flex-wrap gap-4 items-center">
-      <input id="searchInput" type="text" placeholder="Cari ID/Nama User" class="bg-gray-700 border rounded px-3 py-2 text-sm">
-      <input id="startDate" type="date" class="bg-gray-700 border rounded px-3 py-2 text-sm">
-      <input id="endDate" type="date" class="bg-gray-700 border rounded px-3 py-2 text-sm">
-      <select id="statusFilter" class="bg-gray-700 border rounded px-3 py-2 text-sm">
-        <option value="">Semua</option>
-        <option value="Pending">Pending</option>
-        <option value="Confirmed">Confirmed</option>
-        <option value="Processing">Processing</option>
-        <option value="Shipped">Shipped</option>
-        <option value="Completed">Completed</option>
-        <option value="Cancelled">Cancelled</option>
-      </select>
-      <button onclick="applyFilter()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded text-sm">Terapkan</button>
-      <button onclick="exportToExcel()" class="bg-green-600 hover:bg-green-700 px-4 py-2 rounded text-sm">Export Excel</button>
-      <button onclick="exportToPDF()" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-sm">Export PDF</button>
-    </section>
-
-    <!-- Table -->
-    <section class="bg-gray-800 rounded-xl shadow overflow-x-auto">
-      <table id="ordersTable" class="min-w-full text-sm table-auto">
-        <thead class="bg-gray-700 text-gray-100">
-          <tr>
-            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('id')">ID</th>
-            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('user_name')">User</th>
-            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('customer_name')">Nama</th>
-            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('created_at')">Tanggal</th>
-            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('total')">Total</th>
-            <th class="px-4 py-3 border cursor-pointer" onclick="sortTable('status')">Status</th>
-            <th class="px-4 py-3 border">Aksi</th>
-          </tr>
-        </thead>
-        <tbody id="ordersBody" class="divide-y divide-gray-700"></tbody>
-      </table>
-    </section>
-
-    <!-- Pagination -->
-    <div id="pagination" class="mt-6 flex justify-center flex-wrap gap-2"></div>
-  </main>
-
-  <!-- Scripts -->
   <script>
+    function toggleMobileNav() {
+      const nav = document.getElementById("mobileNav");
+      nav.classList.toggle("hidden");
+    }
+
     const statusColors = {
       pending: 'bg-orange-500',
       confirmed: 'bg-blue-500',
@@ -146,36 +171,34 @@
 
         for (const order of orders) {
           const statusKey = (order.status || '').toLowerCase();
-          const badge = statusColors[statusKey] || 'bg-gray-500';
+          const badge = statusColors[statusKey] || 'bg-gray-400';
           const userName = order.user_name || `User #${order.user_id}`;
           const actions = generateActions(order.id, statusKey);
-          const rowHTML = `
-            <tr class="hover:bg-gray-700">
-              <td class="border px-4 py-3">${order.id}</td>
-              <td class="border px-4 py-3">${userName}</td>
-              <td class="border px-4 py-3">${order.customer_name || '-'}</td>
-              <td class="border px-4 py-3">${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
-              <td class="border px-4 py-3">Rp ${order.total.toLocaleString('id-ID')}</td>
-              <td class="border px-4 py-3"><span class="px-2 py-1 text-xs rounded ${badge} text-white">${order.status}</span></td>
-              <td class="border px-4 py-3 space-x-1">${actions}</td>
+          tbody.innerHTML += `
+            <tr class="hover:bg-gray-50">
+              <td class="border px-4 py-2">${order.id}</td>
+              <td class="border px-4 py-2">${userName}</td>
+              <td class="border px-4 py-2">${order.customer_name || '-'}</td>
+              <td class="border px-4 py-2">${new Date(order.created_at).toLocaleDateString('id-ID')}</td>
+              <td class="border px-4 py-2">Rp ${order.total.toLocaleString('id-ID')}</td>
+              <td class="border px-4 py-2"><span class="text-white px-2 py-1 text-xs rounded ${badge}">${order.status}</span></td>
+              <td class="border px-4 py-2 space-x-1">${actions}</td>
             </tr>`;
-          tbody.insertAdjacentHTML('beforeend', rowHTML);
         }
 
         renderPagination(total);
       } catch (err) {
         console.error(err);
-        document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="text-center py-6 text-red-400">Gagal memuat data</td></tr>';
+        document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="text-center py-6 text-red-600">Gagal memuat data</td></tr>';
       } finally {
         document.getElementById('spinnerOverlay').classList.add('hidden');
       }
     }
 
-    function generateActions(orderId, status) {
-      const btn = (label, color, nextStatus) =>
-        `<button onclick="updateStatus(${orderId}, '${nextStatus}')" class="${color} hover:opacity-90 text-xs px-3 py-1 rounded text-white">${label}</button>`;
-
-      let html = `<a href="admin-order-detail.html?id=${orderId}" class="bg-gray-600 hover:bg-gray-500 text-xs px-3 py-1 rounded inline-block">Lihat</a>`;
+    function generateActions(id, status) {
+      const btn = (label, color, next) =>
+        `<button onclick="updateStatus(${id}, '${next}')" class="${color} text-white text-xs px-2 py-1 rounded">${label}</button>`;
+      let html = `<a href="admin-order-detail.html?id=${id}" class="bg-gray-600 text-white px-2 py-1 rounded text-xs">Lihat</a>`;
       if (status === 'pending') html += btn('Konfirmasi', 'bg-blue-500', 'Confirmed');
       if (status === 'confirmed') html += btn('Proses', 'bg-yellow-500', 'Processing');
       if (['confirmed', 'processing'].includes(status)) html += btn('Kirim', 'bg-green-500', 'Shipped');
@@ -200,34 +223,26 @@
       }
     }
 
-    function renderPagination(totalItems) {
-      const totalPages = Math.ceil(totalItems / limitPerPage);
-      const pagination = document.getElementById('pagination');
-      pagination.innerHTML = '';
-
+    function renderPagination(total) {
+      const totalPages = Math.ceil(total / limitPerPage);
+      const container = document.getElementById("pagination");
+      container.innerHTML = '';
       for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
+        const btn = document.createElement("button");
         btn.textContent = i;
-        btn.className = `px-3 py-1 text-sm rounded border ${i === currentPage ? 'bg-gray-700 text-white' : 'bg-gray-800 text-gray-300 hover:bg-gray-700'}`;
+        btn.className = `px-3 py-1 rounded border ${i === currentPage ? 'bg-blue-600 text-white' : 'hover:bg-gray-100'}`;
         btn.onclick = () => loadOrders(i);
-        pagination.appendChild(btn);
+        container.appendChild(btn);
       }
     }
 
     function exportToExcel() {
       const table = document.getElementById("ordersTable");
-      const rows = [
-        ["Toko Rayhan"],
-        ["Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan"],
-        [],
-        ["ID", "User", "Nama", "Tanggal", "Total", "Status"]
-      ];
-
+      const rows = [["Toko Rayhan"], ["Alamat"], [], ["ID", "User", "Nama", "Tanggal", "Total", "Status"]];
       table.querySelectorAll("tbody tr").forEach(row => {
         const cells = row.querySelectorAll("td");
         rows.push([...cells].slice(0, 6).map(cell => cell.textContent.trim()));
       });
-
       const ws = XLSX.utils.aoa_to_sheet(rows);
       const wb = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(wb, ws, "Orders");
@@ -238,51 +253,29 @@
       const { jsPDF } = window.jspdf;
       const doc = new jsPDF();
       const rows = [];
-
-      // Ambil data user dari localStorage
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const adminName = user?.name || "Admin";
-
-      // Ambil data dari tabel
       document.querySelectorAll("#ordersTable tbody tr").forEach(row => {
         const cells = row.querySelectorAll("td");
-        const rowData = [...cells].slice(0, 6).map(cell => cell.textContent.trim());
-        rows.push(rowData);
+        rows.push([...cells].slice(0, 6).map(cell => cell.textContent.trim()));
       });
-
-      // Informasi header toko
       doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
       doc.text("Toko Rayhan", 14, 18);
-
       doc.setFontSize(11);
-      doc.setFont("helvetica", "normal");
-      doc.text("Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan", 14, 25);
-
-      // Info admin dan tanggal
-      const now = new Date();
-      const tanggalCetak = now.toLocaleDateString("id-ID", {
-        day: "2-digit", month: "long", year: "numeric"
-      });
-
+      doc.text("Alamat Toko", 14, 25);
       doc.setFontSize(10);
+      const now = new Date();
       doc.text(`Dicetak oleh: ${adminName}`, 14, 32);
-      doc.text(`Tanggal cetak: ${tanggalCetak}`, 14, 37);
-
-      // Tabel pesanan
+      doc.text(`Tanggal cetak: ${now.toLocaleDateString('id-ID')}`, 14, 37);
       doc.autoTable({
         startY: 42,
         head: [["ID", "User", "Nama", "Tanggal", "Total", "Status"]],
         body: rows,
         styles: { fontSize: 10 },
-        headStyles: {
-          fillColor: [30, 41, 59], textColor: 255, fontStyle: "bold"
-        },
+        headStyles: { fillColor: [30, 64, 175], textColor: 255 },
         alternateRowStyles: { fillColor: [245, 245, 245] },
         margin: { left: 14, right: 14 }
       });
-
-      // Simpan file PDF
       doc.save("orders-export.pdf");
     }
   </script>
