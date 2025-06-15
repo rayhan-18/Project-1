@@ -1,59 +1,53 @@
+// ordermodel.js (refaktor siap pakai, dukung kolom cancelled_by)
 const db = require('../config/db');
 
-// Buat order baru dengan transaksi
 const createOrder = async (orderData) => {
   const conn = await db.getConnection();
   try {
     await conn.beginTransaction();
 
-    const [orderResult] = await conn.query(
-      `INSERT INTO orders 
+    const [orderResult] = await conn.query(`
+      INSERT INTO orders 
       (user_id, customer_name, customer_phone, customer_address, shipping_method, shipping_cost, payment_method, subtotal, tax, total, status, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())`,
-      [
-        orderData.user_id,
-        orderData.customer_name,
-        orderData.customer_phone,
-        orderData.customer_address,
-        orderData.shipping_method,
-        orderData.shipping_cost,
-        orderData.payment_method,
-        orderData.subtotal,
-        orderData.tax,
-        orderData.total
-      ]
-    );
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())`, [
+      orderData.user_id,
+      orderData.customer_name,
+      orderData.customer_phone,
+      orderData.customer_address,
+      orderData.shipping_method,
+      orderData.shipping_cost,
+      orderData.payment_method,
+      orderData.subtotal,
+      orderData.tax,
+      orderData.total
+    ]);
 
     const orderId = orderResult.insertId;
 
-    // Insert order items
     for (const item of orderData.items) {
       await conn.query(
         `INSERT INTO order_items (order_id, product_id, product_name, quantity, price)
-        VALUES (?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?)`,
         [orderId, item.product_id, item.product_name, item.quantity, item.price]
       );
     }
 
     const pd = orderData.payment_details || {};
-    let expiry_time = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 jam ke depan
+    const expiry_time = new Date(Date.now() + 86400000); // 24 jam
 
-    // Insert payment details
-    await conn.query(
-      `INSERT INTO payment_details 
+    await conn.query(`
+      INSERT INTO payment_details 
       (order_id, payment_method, bank_name, virtual_account, wallet_name, phone_number, amount, expiry_time, created_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [
-        orderId,
-        orderData.payment_method,
-        orderData.payment_method === 'transfer' ? pd.bank_name : null,
-        orderData.payment_method === 'transfer' ? pd.virtual_account : null,
-        orderData.payment_method === 'ewallet' ? pd.wallet_name : null,
-        orderData.payment_method === 'ewallet' ? pd.phone_number : null,
-        pd.amount || orderData.total,
-        expiry_time
-      ]
-    );
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())`, [
+      orderId,
+      orderData.payment_method,
+      orderData.payment_method === 'transfer' ? pd.bank_name : null,
+      orderData.payment_method === 'transfer' ? pd.virtual_account : null,
+      orderData.payment_method === 'ewallet' ? pd.wallet_name : null,
+      orderData.payment_method === 'ewallet' ? pd.phone_number : null,
+      pd.amount || orderData.total,
+      expiry_time
+    ]);
 
     await conn.commit();
     return orderId;
@@ -81,63 +75,40 @@ const updateOrderStatusById = async (orderId, newStatus) => {
 const getOrderById = async (orderId) => {
   const conn = await db.getConnection();
   try {
-    const [orders] = await conn.query(
-      `SELECT 
-          o.*, 
-          pd.bank_name, 
-          pd.virtual_account, 
-          pd.wallet_name, 
-          pd.phone_number 
-       FROM orders o
-       LEFT JOIN payment_details pd ON o.id = pd.order_id
-       WHERE o.id = ?`,
-      [orderId]
-    );
+    const [orders] = await conn.query(`
+      SELECT o.*, pd.bank_name, pd.virtual_account, pd.wallet_name, pd.phone_number
+      FROM orders o
+      LEFT JOIN payment_details pd ON o.id = pd.order_id
+      WHERE o.id = ?`, [orderId]);
 
-    if (orders.length === 0) return null;
+    if (!orders.length) return null;
 
     const order = orders[0];
-
     const [items] = await conn.query(
       `SELECT product_id, product_name, quantity, price FROM order_items WHERE order_id = ?`,
       [orderId]
     );
 
-    const {
-      bank_name,
-      virtual_account,
-      wallet_name,
-      phone_number,
-      ...rest
-    } = order;
-
+    const { bank_name, virtual_account, wallet_name, phone_number, ...rest } = order;
     return {
       ...rest,
       items,
-      payment_details: {
-        bank_name,
-        virtual_account,
-        wallet_name,
-        phone_number
-      }
+      payment_details: { bank_name, virtual_account, wallet_name, phone_number }
     };
   } finally {
     conn.release();
   }
 };
 
-
 const getAllOrders = async (limit = 10, offset = 0, status = null) => {
   const conn = await db.getConnection();
   try {
     let query = `SELECT * FROM orders`;
     const values = [];
-
     if (status) {
       query += ` WHERE status = ?`;
       values.push(status);
     }
-
     query += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
     values.push(limit, offset);
 
@@ -153,12 +124,10 @@ const countAllOrders = async (status = null) => {
   try {
     let query = `SELECT COUNT(*) AS total FROM orders`;
     const values = [];
-
     if (status) {
       query += ` WHERE status = ?`;
       values.push(status);
     }
-
     const [rows] = await conn.query(query, values);
     return rows[0].total;
   } finally {
@@ -169,35 +138,20 @@ const countAllOrders = async (status = null) => {
 const getOrdersByUserId = async (userId) => {
   const conn = await db.getConnection();
   try {
-    const [orders] = await conn.query(
-      `SELECT 
-          o.*, 
-          pd.bank_name, 
-          pd.virtual_account, 
-          pd.wallet_name, 
-          pd.phone_number 
-       FROM orders o
-       LEFT JOIN payment_details pd ON o.id = pd.order_id
-       WHERE o.user_id = ? 
-       ORDER BY o.created_at DESC`,
-      [userId]
-    );
+    const [orders] = await conn.query(`
+      SELECT o.*, pd.bank_name, pd.virtual_account, pd.wallet_name, pd.phone_number
+      FROM orders o
+      LEFT JOIN payment_details pd ON o.id = pd.order_id
+      WHERE o.user_id = ?
+      ORDER BY o.created_at DESC`, [userId]);
 
-    // Mapping hasil query supaya payment_details jadi object tersendiri
-    const parsedOrders = orders.map(order => {
-      const { bank_name, virtual_account, wallet_name, phone_number, ...rest } = order;
+    return orders.map(o => {
+      const { bank_name, virtual_account, wallet_name, phone_number, ...rest } = o;
       return {
         ...rest,
-        payment_details: {
-          bank_name,
-          virtual_account,
-          wallet_name,
-          phone_number
-        }
+        payment_details: { bank_name, virtual_account, wallet_name, phone_number }
       };
     });
-
-    return parsedOrders;
   } finally {
     conn.release();
   }
@@ -206,12 +160,11 @@ const getOrdersByUserId = async (userId) => {
 const getTotalOrdersToday = async () => {
   const conn = await db.getConnection();
   try {
-    const [rows] = await conn.query(
-      `SELECT COUNT(*) AS total_today 
-       FROM orders 
-       WHERE DATE(created_at) = CURDATE()
-       AND status NOT IN ('batal', 'cancelled')`
-    );
+    const [rows] = await conn.query(`
+      SELECT COUNT(*) AS total_today 
+      FROM orders 
+      WHERE DATE(created_at) = CURDATE()
+      AND status NOT IN ('batal', 'cancelled')`);
     return rows[0].total_today || 0;
   } finally {
     conn.release();
@@ -221,29 +174,25 @@ const getTotalOrdersToday = async () => {
 const getLatestOrders = async (limit = 5) => {
   const conn = await db.getConnection();
   try {
-    const [orders] = await conn.query(
-      `SELECT id, user_id, customer_name, total, status, created_at 
-       FROM orders 
-       WHERE status NOT IN ('batal', 'cancelled')
-       ORDER BY created_at DESC 
-       LIMIT ?`,
-      [limit]
-    );
+    const [orders] = await conn.query(`
+      SELECT id, user_id, customer_name, total, status, created_at 
+      FROM orders 
+      WHERE status NOT IN ('batal', 'cancelled')
+      ORDER BY created_at DESC 
+      LIMIT ?`, [limit]);
     return orders;
   } finally {
     conn.release();
   }
 };
 
-// Tambahan untuk dashboard
 const getTotalIncomeToday = async () => {
   const conn = await db.getConnection();
   try {
-    const [rows] = await conn.query(
-      `SELECT SUM(total) AS total_income FROM orders 
-       WHERE DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = CURDATE()
-       AND status NOT IN ('batal', 'cancelled')`
-    );
+    const [rows] = await conn.query(`
+      SELECT SUM(total) AS total_income FROM orders 
+      WHERE DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) = CURDATE()
+      AND status NOT IN ('batal', 'cancelled')`);
     return rows[0].total_income || 0;
   } finally {
     conn.release();
@@ -253,9 +202,7 @@ const getTotalIncomeToday = async () => {
 const getProductCount = async () => {
   const conn = await db.getConnection();
   try {
-    const [rows] = await conn.query(
-      `SELECT COUNT(*) AS product_count FROM products WHERE is_active = 1`
-    );
+    const [rows] = await conn.query(`SELECT COUNT(*) AS product_count FROM products WHERE is_active = 1`);
     return rows[0].product_count || 0;
   } finally {
     conn.release();
@@ -265,14 +212,13 @@ const getProductCount = async () => {
 const getWeeklyOrderStats = async () => {
   const conn = await db.getConnection();
   try {
-    const [rows] = await conn.query(
-      `SELECT DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) AS date, COUNT(*) AS count
-       FROM orders
-       WHERE CONVERT_TZ(created_at, '+00:00', '+07:00') >= CURDATE() - INTERVAL 6 DAY
-       AND status NOT IN ('batal', 'cancelled')
-       GROUP BY DATE(CONVERT_TZ(created_at, '+00:00', '+07:00'))
-       ORDER BY date`
-    );
+    const [rows] = await conn.query(`
+      SELECT DATE(CONVERT_TZ(created_at, '+00:00', '+07:00')) AS date, COUNT(*) AS count
+      FROM orders
+      WHERE CONVERT_TZ(created_at, '+00:00', '+07:00') >= CURDATE() - INTERVAL 6 DAY
+      AND status NOT IN ('batal', 'cancelled')
+      GROUP BY DATE(CONVERT_TZ(created_at, '+00:00', '+07:00'))
+      ORDER BY date`);
     return rows;
   } finally {
     conn.release();

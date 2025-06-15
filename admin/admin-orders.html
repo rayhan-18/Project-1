@@ -195,32 +195,8 @@
       }
     }
 
-    function generateActions(id, status) {
-      const btn = (label, color, next) =>
-        `<button onclick="updateStatus(${id}, '${next}')" class="${color} text-white text-xs px-2 py-1 rounded">${label}</button>`;
-      let html = `<a href="admin-order-detail.html?id=${id}" class="bg-gray-600 text-white px-2 py-1 rounded text-xs">Lihat</a>`;
-      if (status === 'pending') html += btn('Konfirmasi', 'bg-blue-500', 'Confirmed');
-      if (status === 'confirmed') html += btn('Proses', 'bg-yellow-500', 'Processing');
-      if (['confirmed', 'processing'].includes(status)) html += btn('Kirim', 'bg-green-500', 'Shipped');
-      if (status === 'shipped') html += btn('Selesai', 'bg-emerald-600', 'Completed');
-      if (!['completed', 'cancelled'].includes(status)) html += btn('Batalkan', 'bg-red-500', 'Cancelled');
-      return html;
-    }
-
-    async function updateStatus(id, status) {
-      if (!confirm(`Yakin ubah status ke "${status}"?`)) return;
-      try {
-        const res = await fetch(`http://localhost:3000/api/orders/${id}/status`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status })
-        });
-        if (!res.ok) throw new Error();
-        alert('Status berhasil diperbarui.');
-        loadOrders(currentPage);
-      } catch {
-        alert('Gagal memperbarui status.');
-      }
+    function generateActions(id) {
+      return `<a href="admin-order-detail.html?id=${id}" class="bg-blue-600 text-white px-2 py-1 rounded text-xs hover:bg-blue-700">Lihat</a>`;
     }
 
     function renderPagination(total) {

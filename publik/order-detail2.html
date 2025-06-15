@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Detail Pesanan</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -48,17 +49,11 @@
 
   <div class="max-w-4xl mx-auto">
     <div class="text-center mb-6">
-      <!-- Judul utama -->
       <h1 class="text-3xl font-bold text-primary">Toko Rayhan</h1>
       <p class="text-sm mt-1">Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan</p>
 
-      <!-- Subjudul "Detail Pesanan" -->
       <h2 class="mt-4 text-xl font-semibold print:hidden">Detail Pesanan</h2>
-
-      <!-- Versi cetak: Judul Invoice -->
       <h2 class="hidden print:block print:text-center print:text-lg font-semibold mt-2">INVOICE PESANAN</h2>
-
-      <!-- Meta Invoice (nomor & tanggal) -->
       <div id="invoiceMeta" class="text-sm text-gray-700 mt-2 hidden print:block"></div>
     </div>
 
@@ -82,15 +77,13 @@
 
     <div id="summary" class="bg-white shadow-md rounded-lg p-6 mb-6"></div>
 
-    <div class="text-center mt-4 print:hidden">
-      <button onclick="window.print()" class="bg-white border border-primary text-primary hover:bg-primary hover:text-white font-semibold px-5 py-2 rounded-full transition">
-        🧾 Cetak Invoice
-      </button>
-    </div>
-
-    <div class="text-center mt-4 space-x-4 print:hidden">
-      <a href="orders.html" class="inline-block bg-white border border-primary text-primary hover:bg-primary hover:text-white font-semibold px-5 py-2 rounded-full transition">← Kembali ke Pesanan</a>
-      <a href="index.html" class="inline-block bg-primary text-white hover:bg-primary-dark font-semibold px-5 py-2 rounded-full transition">🏠 Kembali ke Beranda</a>
+    <div class="text-center mt-4 space-y-3 print:hidden">
+      <button onclick="window.print()" class="bg-white border border-primary text-primary hover:bg-primary hover:text-white font-semibold px-5 py-2 rounded-full transition">🧾 Cetak Invoice</button>
+      <button id="cancelOrderBtn" class="bg-red-600 text-white px-5 py-2 rounded-full font-semibold hover:bg-red-700 hidden">❌ Batalkan Pesanan</button>
+      <div class="space-x-4">
+        <a href="orders.html" class="inline-block bg-white border border-primary text-primary hover:bg-primary hover:text-white font-semibold px-5 py-2 rounded-full transition">← Kembali ke Pesanan</a>
+        <a href="index.html" class="inline-block bg-primary text-white hover:bg-primary-dark font-semibold px-5 py-2 rounded-full transition">🏠 Kembali ke Beranda</a>
+      </div>
     </div>
   </div>
 
@@ -121,7 +114,7 @@
       let color = 'bg-yellow-100 text-yellow-800';
       if (s.includes('selesai')) color = 'bg-green-100 text-green-800';
       if (s.includes('batal')) color = 'bg-red-100 text-red-800';
-      return `<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${color}">${status}</span>`;
+      return `<span class="inline-block px-3 py-1 rounded-full text-xs font-semibold ${color} capitalize">${status}</span>`;
     }
 
     async function fetchOrderDetail(id) {
@@ -145,6 +138,10 @@
         invoiceMeta.innerHTML = `No. Invoice: INV-${String(order.id).padStart(6, '0')} | Tanggal: ${tanggal}`;
         invoiceMeta.classList.remove('hidden');
 
+        if (['pending', 'confirmed'].includes(order.status)) {
+          document.getElementById('cancelOrderBtn').classList.remove('hidden');
+          document.getElementById('cancelOrderBtn').onclick = () => cancelOrder(order.id);
+        }
       } catch (err) {
         loading.classList.add('hidden');
         document.body.innerHTML = `<div class='text-center text-red-600 font-semibold mt-10'>${err.message}</div>`;
@@ -210,10 +207,34 @@
           <p><strong>No. HP:</strong> ${details.phone_number || '-'}</p>
         `;
       }
-      if (details.proof_image) {
-        html += `<div class="mt-2"><img src="http://localhost:3000${details.proof_image}" alt="Bukti Pembayaran" class="max-w-xs border rounded"></div>`;
-      }
       return html;
+    }
+
+    async function cancelOrder(id) {
+      const confirmed = await Swal.fire({
+        title: 'Batalkan Pesanan',
+        text: 'Yakin ingin membatalkan pesanan ini?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Ya, batalkan',
+        cancelButtonText: 'Tidak'
+      });
+
+      if (!confirmed.isConfirmed) return;
+
+      try {
+        const res = await fetch(`${apiBaseUrl}/cancel/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        if (!res.ok) throw new Error('Gagal membatalkan pesanan');
+
+        await Swal.fire({ icon: 'success', title: 'Dibatalkan', text: 'Pesanan berhasil dibatalkan' });
+        location.reload();
+      } catch (err) {
+        console.error(err);
+        Swal.fire({ icon: 'error', title: 'Error', text: err.message });
+      }
     }
   </script>
 </body>
