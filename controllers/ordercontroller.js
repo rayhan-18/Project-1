@@ -37,16 +37,16 @@ const getWeeklyOrderStats = async () => {
     SELECT DATE(created_at) AS date, COUNT(*) AS count
     FROM orders
     WHERE created_at >= CURDATE() - INTERVAL 6 DAY
+      AND status NOT IN ('cancelled', 'batal')
     GROUP BY DATE(created_at)
     ORDER BY date
   `);
-  
-  // Format hasil ke DD-MM-YYYY jika diperlukan
+
   const formattedRows = rows.map(row => ({
     ...row,
-    date: new Date(row.date).toLocaleDateString('id-ID') // Format Indonesia: DD/MM/YYYY
+    date: new Date(row.date).toLocaleDateString('id-ID')
   }));
-  
+
   return formattedRows;
 };
 
