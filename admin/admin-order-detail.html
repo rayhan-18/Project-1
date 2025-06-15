@@ -6,58 +6,73 @@
   <title>Detail Pesanan - Admin</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    @media print {
+      body {
+        background: white !important;
+        margin: 0;
+        padding: 0;
+      }
+      .print\:hidden { display: none !important; }
+      .print\:block { display: block !important; }
+      .print\:text-center { text-align: center !important; }
+      .print\:text-lg { font-size: 1.125rem !important; }
+    }
+  </style>
 </head>
-<body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 text-gray-800 font-sans min-h-screen">
-  <div class="flex min-h-screen">
-    <!-- Sidebar -->
-    <aside class="w-64 bg-gradient-to-b from-blue-50 via-white to-blue-100 shadow-md border-r border-blue-100">
-      <div class="p-4 border-b border-blue-200">
+<body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 text-gray-800 font-sans min-h-screen print:bg-white">
+  <div class="flex min-h-screen print:block">
+    <aside class="w-64 bg-white shadow-md border-r border-gray-200 print:hidden">
+      <div class="p-4 border-b">
         <h1 class="text-2xl font-bold text-blue-600">Toko Rayhan</h1>
         <p class="text-sm text-gray-500">Dashboard Admin</p>
       </div>
       <nav class="p-4 space-y-2">
-        <a href="admin-dashboard.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">🏠 Dashboard</a>
-        <a href="admin-orders.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">📦 Pesanan</a>
-        <a href="admin-products.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">🛒 Produk</a>
-        <a href="admin-contacts.html" class="block py-2 px-4 rounded hover:bg-blue-100 transition">✉️ Pesan</a>
-        <button onclick="logoutAdmin()" class="block w-full text-left py-2 px-4 text-red-600 hover:bg-red-100 rounded transition">🚪 Logout</button>
+        <a href="admin-dashboard.html" class="block py-2 px-4 hover:bg-blue-100 rounded">🏠 Dashboard</a>
+        <a href="admin-orders.html" class="block py-2 px-4 hover:bg-blue-100 rounded">📦 Pesanan</a>
+        <a href="admin-products.html" class="block py-2 px-4 hover:bg-blue-100 rounded">🛒 Produk</a>
+        <a href="admin-contacts.html" class="block py-2 px-4 hover:bg-blue-100 rounded">✉️ Pesan</a>
+        <button onclick="logoutAdmin()" class="w-full text-left py-2 px-4 text-red-600 hover:bg-red-100 rounded">🚪 Logout</button>
       </nav>
     </aside>
 
-    <!-- Main Content -->
     <main class="flex-1 p-6">
-      <div class="text-sm text-gray-600 mb-4 flex justify-between items-center">
+      <div class="print:hidden text-sm text-gray-600 mb-4 flex justify-between items-center">
         <div>
-          <a href="admin-dashboard.html" class="hover:underline text-blue-600">Dashboard</a> &gt;
-          <a href="admin-orders.html" class="hover:underline text-blue-600">Pesanan</a> &gt;
-          <span class="text-gray-800 font-semibold">Detail</span>
+          <a href="admin-dashboard.html" class="text-blue-600 hover:underline">Dashboard</a> &gt;
+          <a href="admin-orders.html" class="text-blue-600 hover:underline">Pesanan</a> &gt;
+          <span class="font-semibold">Detail</span>
         </div>
-        <button onclick="history.back()" class="bg-gray-200 hover:bg-gray-300 text-sm px-4 py-1 rounded text-gray-700">← Kembali</button>
+        <button onclick="history.back()" class="bg-gray-200 hover:bg-gray-300 px-4 py-1 rounded">← Kembali</button>
       </div>
 
-      <h2 class="text-3xl font-bold mb-6 text-center text-blue-700">Detail Pesanan</h2>
+      <div class="text-center mb-6">
+        <h2 class="text-3xl font-bold text-blue-700 print:hidden">Detail Pesanan</h2>
+        <h2 class="text-xl font-bold print:block hidden print:text-center">INVOICE PESANAN</h2>
+        <div id="invoiceMeta" class="text-sm text-gray-700 mt-2 hidden print:block text-center"></div>
+      </div>
 
-      <div id="orderInfo" class="bg-white rounded-xl shadow p-6 mb-6 space-y-2 text-sm sm:text-base border border-gray-200"></div>
+      <div id="orderInfo" class="bg-white rounded-xl shadow p-6 mb-6 border"></div>
 
-      <div class="bg-white rounded-xl shadow overflow-auto mb-6 border border-gray-200">
+      <div class="bg-white rounded-xl shadow overflow-auto mb-6 border">
         <table class="min-w-full divide-y divide-gray-200 text-sm">
           <thead class="bg-blue-100 text-gray-700">
             <tr>
               <th class="px-4 py-2 text-left font-medium">Nama Produk</th>
-              <th class="px-4 py-2 text-left font-medium">Jumlah</th>
-              <th class="px-4 py-2 text-left font-medium">Harga</th>
-              <th class="px-4 py-2 text-left font-medium">Subtotal</th>
+              <th class="px-4 py-2 text-center font-medium">Jumlah</th>
+              <th class="px-4 py-2 text-center font-medium">Harga</th>
+              <th class="px-4 py-2 text-center font-medium">Subtotal</th>
             </tr>
           </thead>
           <tbody id="itemsTable" class="divide-y divide-gray-100"></tbody>
         </table>
       </div>
 
-      <div id="summary" class="bg-white rounded-xl shadow p-6 mb-6 text-sm sm:text-base border border-gray-200"></div>
+      <div id="summary" class="bg-white rounded-xl shadow p-6 mb-6 border"></div>
 
-      <div class="bg-white rounded-xl shadow p-6 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 border border-gray-200">
+      <div class="print:hidden bg-white rounded-xl shadow p-6 flex flex-col sm:flex-row items-start sm:items-center space-y-3 sm:space-y-0 sm:space-x-4 border">
         <label for="statusSelect" class="font-medium">Ubah Status:</label>
-        <select id="statusSelect" class="bg-gray-100 border border-gray-300 rounded px-3 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+        <select id="statusSelect" class="bg-gray-100 border border-gray-300 rounded px-3 py-1 text-sm">
           <option value="pending">Pending</option>
           <option value="confirmed">Confirmed</option>
           <option value="processing">Processing</option>
@@ -68,6 +83,10 @@
         <button id="updateStatusBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium">
           Update Status
         </button>
+      </div>
+
+      <div class="text-center mt-6 space-x-4 print:hidden">
+        <button onclick="window.print()" class="bg-white border border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white font-semibold px-5 py-2 rounded-full transition">🧾 Cetak Invoice</button>
       </div>
     </main>
   </div>
@@ -119,29 +138,33 @@
       let paymentDetails = '';
       if (method === 'transfer') {
         paymentDetails = `<p><strong>Bank:</strong> ${order.payment_details?.bank_name || '-'}</p>
-          <p><strong>Virtual Account:</strong> ${order.payment_details?.virtual_account || '-'}</p>`;
+          <p><strong>VA:</strong> ${order.payment_details?.virtual_account || '-'}</p>`;
       } else if (method === 'ewallet') {
         paymentDetails = `<p><strong>E-Wallet:</strong> ${order.payment_details?.wallet_name || '-'}</p>
           <p><strong>No. HP:</strong> ${order.payment_details?.phone_number || '-'}</p>`;
-      } else if (method === 'cod') {
-        paymentDetails = `<p><strong>Metode Pembayaran:</strong> COD</p>`;
       }
 
-      const dibatalkanOleh = order.status === 'cancelled'
-        ? (order.cancelled_by === 'admin' ? 'admin' : 'user')
-        : null;
+      const invoiceNo = `INV-${String(order.id).padStart(6, '0')}`;
+      const tanggal = new Date(order.created_at).toLocaleDateString('id-ID', {
+        year: 'numeric', month: 'long', day: 'numeric'
+      });
+      document.getElementById('invoiceMeta').innerText = `No. Invoice: ${invoiceNo} | Tanggal: ${tanggal}`;
 
       document.getElementById('orderInfo').innerHTML = `
-        <p><strong>ID Pesanan:</strong> #${order.id}</p>
-        <p><strong>Nama Pelanggan:</strong> ${order.customer_name}</p>
-        <p><strong>Telepon:</strong> ${order.customer_phone}</p>
-        <p><strong>Alamat:</strong> ${order.customer_address}</p>
-        <p><strong>Pengiriman:</strong> ${order.shipping_method} (${formatRupiah(order.shipping_cost)})</p>
-        <p><strong>Metode Pembayaran:</strong> ${order.payment_method}</p>
-        ${paymentDetails}
-        <p><strong>Status:</strong> ${getStatusBadge(order.status)}</p>
-        <p><strong>Tanggal:</strong> ${new Date(order.created_at).toLocaleString('id-ID')}</p>
-        ${dibatalkanOleh ? `<p class="text-red-600 text-sm italic">Pesanan ini telah dibatalkan oleh ${dibatalkanOleh}. Tidak dapat diubah kembali.</p>` : ''}`;
+        <div class="grid md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <p><strong>Nama Pelanggan:</strong> ${order.customer_name}</p>
+            <p><strong>Telepon:</strong> ${order.customer_phone}</p>
+            <p><strong>Alamat:</strong> ${order.customer_address}</p>
+            <p><strong>Pengiriman:</strong> ${order.shipping_method} (${formatRupiah(order.shipping_cost)})</p>
+          </div>
+          <div>
+            <p><strong>Metode Pembayaran:</strong> ${order.payment_method}</p>
+            ${paymentDetails}
+            <p><strong>Status:</strong> ${getStatusBadge(order.status)}</p>
+            <p><strong>Tanggal:</strong> ${new Date(order.created_at).toLocaleString('id-ID')}</p>
+          </div>
+        </div>`;
 
       const tbody = document.getElementById('itemsTable');
       tbody.innerHTML = '';
@@ -150,9 +173,9 @@
         tbody.innerHTML += `
           <tr>
             <td class="px-4 py-2">${item.product_name}</td>
-            <td class="px-4 py-2">${item.quantity}</td>
-            <td class="px-4 py-2">${formatRupiah(item.price)}</td>
-            <td class="px-4 py-2">${formatRupiah(subtotal)}</td>
+            <td class="px-4 py-2 text-center">${item.quantity}</td>
+            <td class="px-4 py-2 text-center">${formatRupiah(item.price)}</td>
+            <td class="px-4 py-2 text-center">${formatRupiah(subtotal)}</td>
           </tr>`;
       });
 
@@ -162,14 +185,12 @@
         <p><strong>Subtotal:</strong> ${formatRupiah(order.subtotal)}</p>
         <p><strong>Pajak (10%):</strong> ${formatRupiah(tax)}</p>
         <p><strong>Pengiriman:</strong> ${formatRupiah(order.shipping_cost)}</p>
-        <p><strong>Total:</strong> <span class="font-bold text-green-600">${formatRupiah(total)}</span></p>`;
+        <p class="font-bold text-lg text-green-600"><strong>Total:</strong> ${formatRupiah(total)}</p>`;
 
       document.getElementById('statusSelect').value = order.status;
-
       if (order.status === 'cancelled') {
         document.getElementById('statusSelect').disabled = true;
         document.getElementById('updateStatusBtn').disabled = true;
-        document.getElementById('updateStatusBtn').classList.add('opacity-50', 'cursor-not-allowed');
       }
     }
 
@@ -191,12 +212,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: newStatus })
         });
-
-        if (!res.ok) {
-          const errMsg = await res.json();
-          throw new Error(errMsg.message || 'Gagal memperbarui status');
-        }
-
+        if (!res.ok) throw new Error('Gagal memperbarui status');
         await Swal.fire({ icon: 'success', title: 'Berhasil', text: 'Status diperbarui' });
         const order = await fetchOrderDetail();
         renderOrderDetail(order);

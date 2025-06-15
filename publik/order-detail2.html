@@ -25,36 +25,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <style>
     @media print {
-      body {
-        background: white !important;
-        padding: 0;
-        margin: 0;
-      }
-      .print\:hidden {
-        display: none !important;
-      }
-      .print\:block {
-        display: block !important;
-      }
-      .print\:text-center {
-        text-align: center !important;
-      }
-      .print\:text-lg {
-        font-size: 1.125rem !important;
-      }
+      body { background: white !important; padding: 0; margin: 0; }
+      .print\:hidden { display: none !important; }
+      .print\:block { display: block !important; }
+      .print\:text-center { text-align: center !important; }
+      .print\:text-lg { font-size: 1.125rem !important; }
     }
   </style>
 </head>
 <body class="bg-graybg font-poppins text-gray-800 py-6 px-4 md:px-8">
-
   <div class="max-w-4xl mx-auto">
     <div class="text-center mb-6">
       <h1 class="text-3xl font-bold text-primary">Toko Rayhan</h1>
       <p class="text-sm mt-1">Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan</p>
-
       <h2 class="mt-4 text-xl font-semibold print:hidden">Detail Pesanan</h2>
       <h2 class="hidden print:block print:text-center print:text-lg font-semibold mt-2">INVOICE PESANAN</h2>
-      <div id="invoiceMeta" class="text-sm text-gray-700 mt-2 hidden print:block"></div>
+      <div id="invoiceMeta" class="text-sm text-gray-700 mt-2 hidden print:block text-center"></div>
     </div>
 
     <div id="loading" class="text-center italic text-gray-600 mb-6 hidden">Memuat data pesanan...</div>
@@ -138,7 +124,7 @@
         invoiceMeta.innerHTML = `No. Invoice: INV-${String(order.id).padStart(6, '0')} | Tanggal: ${tanggal}`;
         invoiceMeta.classList.remove('hidden');
 
-        if (['pending', 'confirmed'].includes(order.status)) {
+        if (["pending", "confirmed"].includes(order.status)) {
           document.getElementById('cancelOrderBtn').classList.remove('hidden');
           document.getElementById('cancelOrderBtn').onclick = () => cancelOrder(order.id);
         }
