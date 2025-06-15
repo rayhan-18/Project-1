@@ -238,15 +238,103 @@
 
     function exportToExcel() {
       const table = document.getElementById("ordersTable");
-      const rows = [["Toko Rayhan"], ["Alamat"], [], ["ID", "User", "Nama", "Tanggal", "Total", "Status"]];
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      const adminName = user?.name || "Admin";
+      const now = new Date();
+
+      // Header & Metadata
+      const rows = [
+        ["LAPORAN PESANAN"],
+        ["Toko Rayhan"],
+        ["Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan"],
+        [""],
+        ["ID", "User", "Nama", "Tanggal", "Total", "Status"]
+      ];
+
+      // Ambil data dari tabel HTML
       table.querySelectorAll("tbody tr").forEach(row => {
         const cells = row.querySelectorAll("td");
-        rows.push([...cells].slice(0, 6).map(cell => cell.textContent.trim()));
+        const data = [...cells].slice(0, 6).map(cell => cell.textContent.trim());
+        rows.push(data);
       });
+
+      // Tambahkan footer
+      rows.push([""]);
+      rows.push(["Dicetak oleh", adminName]);
+      rows.push(["Tanggal cetak", now.toLocaleDateString('id-ID')]);
+
       const ws = XLSX.utils.aoa_to_sheet(rows);
+
+      // Lebar kolom
+      ws['!cols'] = [
+        { wch: 10 },  // ID
+        { wch: 20 },  // User
+        { wch: 25 },  // Nama
+        { wch: 15 },  // Tanggal
+        { wch: 20 },  // Total
+        { wch: 15 }   // Status
+      ];
+
+      const borderStyle = {
+        top: { style: "thin" },
+        bottom: { style: "thin" },
+        left: { style: "thin" },
+        right: { style: "thin" }
+      };
+
+      const totalStartRow = 6;
+      const totalEndRow = rows.length - 4; // sebelum footer info
+
+      // Format seluruh sel: border + align tengah
+      for (let R = 5; R <= totalEndRow; R++) {
+        for (let C = 0; C < 6; C++) {
+          const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+          if (!ws[cellAddress]) continue;
+
+          const value = ws[cellAddress].v;
+
+          // Format kolom E (Total) jadi Rp
+          if (C === 4) {
+            const raw = typeof value === 'string' ? value.replace(/[^\d]/g, '') : value;
+            ws[cellAddress].t = "n";
+            ws[cellAddress].v = parseInt(raw || "0", 10);
+            ws[cellAddress].z = '"Rp"#,##0';
+          }
+
+          ws[cellAddress].s = {
+            border: borderStyle,
+            alignment: { horizontal: "center", vertical: "center" }
+          };
+        }
+      }
+
+      // Style untuk judul dan subjudul
+      const setStyle = (cell, bold, size = 12) => {
+        ws[cell].s = {
+          font: { bold: bold, sz: size },
+          alignment: { horizontal: "center", vertical: "center" }
+        };
+      };
+
+      setStyle("A1", true, 16);
+      setStyle("A2", true, 12);
+      setStyle("A3", false, 11);
+
+      // Style untuk header kolom (baris ke-5)
+      const headerCells = ["A5", "B5", "C5", "D5", "E5", "F5"];
+      headerCells.forEach(cell => {
+        ws[cell].s = {
+          font: { bold: true },
+          fill: { fgColor: { rgb: "DDEEFF" } },
+          border: borderStyle,
+          alignment: { horizontal: "center", vertical: "center" }
+        };
+      });
+
+      // Simpan ke file
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "Orders");
-      XLSX.writeFile(wb, "orders-export.xlsx");
+      XLSX.utils.book_append_sheet(wb, ws, "Laporan Pesanan");
+      XLSX.writeFile(wb, "laporan-pesanan.xlsx");
     }
 
     function exportToPDF() {
@@ -255,28 +343,45 @@
       const rows = [];
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       const adminName = user?.name || "Admin";
+      const now = new Date();
+
+      // Ambil isi tabel
       document.querySelectorAll("#ordersTable tbody tr").forEach(row => {
         const cells = row.querySelectorAll("td");
         rows.push([...cells].slice(0, 6).map(cell => cell.textContent.trim()));
       });
+
+      // Header
       doc.setFontSize(16);
-      doc.text("Toko Rayhan", 14, 18);
-      doc.setFontSize(11);
-      doc.text("Alamat Toko", 14, 25);
+      doc.setFont("helvetica", "bold");
+      doc.text("LAPORAN PESANAN", 105, 15, null, null, "center");
+
+      doc.setFontSize(12);
+      doc.setFont("helvetica", "normal");
+      doc.text("Toko Rayhan", 105, 22, null, null, "center");
       doc.setFontSize(10);
-      const now = new Date();
-      doc.text(`Dicetak oleh: ${adminName}`, 14, 32);
-      doc.text(`Tanggal cetak: ${now.toLocaleDateString('id-ID')}`, 14, 37);
+      doc.text("Jl Mawar Raya No 01 C RT.3/RW.13, Bintaro, Kec. Pesanggrahan", 105, 28, null, null, "center");
+
+      doc.setLineWidth(0.5);
+      doc.line(14, 32, 196, 32);
+
+      // Informasi admin & tanggal
+      doc.setFontSize(9);
+      doc.text(`Dicetak oleh: ${adminName}`, 14, 36);
+      doc.text(`Tanggal: ${now.toLocaleDateString('id-ID')}`, 14, 41);
+
+      // Tabel
       doc.autoTable({
-        startY: 42,
+        startY: 45,
         head: [["ID", "User", "Nama", "Tanggal", "Total", "Status"]],
         body: rows,
-        styles: { fontSize: 10 },
-        headStyles: { fillColor: [30, 64, 175], textColor: 255 },
+        styles: { fontSize: 9, cellPadding: 2 },
+        headStyles: { fillColor: [59, 130, 246], textColor: 255, halign: "center" },
         alternateRowStyles: { fillColor: [245, 245, 245] },
-        margin: { left: 14, right: 14 }
+        margin: { left: 14, right: 14 },
       });
-      doc.save("orders-export.pdf");
+
+      doc.save("laporan-pesanan.pdf");
     }
   </script>
 </body>
