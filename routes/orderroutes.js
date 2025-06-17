@@ -29,17 +29,37 @@ router.get('/export', exportOrdersToCSV);
 
 // Batalkan order (user)
 router.put('/cancel/:id', async (req, res) => {
+  const conn = await db.getConnection();
   try {
     const { id } = req.params;
-    const [check] = await db.query('SELECT status FROM orders WHERE id = ?', [id]);
-    if (!check.length) return res.status(404).json({ message: 'Order tidak ditemukan' });
-    if (check[0].status === 'cancelled') return res.status(400).json({ message: 'Pesanan sudah dibatalkan' });
 
-    await db.query('UPDATE orders SET status = ?, cancelled_by = ? WHERE id = ?', ['cancelled', 'user', id]);
-    res.json({ message: 'Pesanan berhasil dibatalkan oleh user' });
+    // Cek order
+    const [orderRows] = await conn.query('SELECT status FROM orders WHERE id = ?', [id]);
+    if (!orderRows.length) return res.status(404).json({ message: 'Order tidak ditemukan' });
+    if (orderRows[0].status === 'cancelled') return res.status(400).json({ message: 'Pesanan sudah dibatalkan' });
+
+    // Ambil item pesanan
+    const [items] = await conn.query('SELECT product_id, quantity FROM order_items WHERE order_id = ?', [id]);
+
+    await conn.beginTransaction();
+
+    // Kembalikan stok produk
+    for (const item of items) {
+      await conn.query('UPDATE products SET stock = stock + ? WHERE id = ?', [item.quantity, item.product_id]);
+    }
+
+    // Update status order
+    await conn.query('UPDATE orders SET status = ?, cancelled_by = ? WHERE id = ?', ['cancelled', 'user', id]);
+
+    await conn.commit();
+    res.json({ message: 'Pesanan berhasil dibatalkan oleh user dan stok dikembalikan' });
+
   } catch (err) {
+    await conn.rollback();
     console.error('Error di cancel route:', err);
     res.status(500).json({ message: 'Gagal membatalkan pesanan', error: err.message });
+  } finally {
+    conn.release();
   }
 });
 
