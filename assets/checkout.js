@@ -131,7 +131,7 @@ async function renderCheckoutItems() {
   const user = JSON.parse(userStr);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const res = await fetch(`/api/cart/${user.id}`);
     if (!res.ok) throw new Error('Gagal memuat keranjang');
 
     const cart = await res.json();
@@ -174,7 +174,7 @@ async function renderProductSummary() {
   const user = JSON.parse(userStr);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const res = await fetch(`/api/cart/${user.id}`);
     if (!res.ok) throw new Error('Gagal memuat keranjang');
     const cart = await res.json();
 
@@ -217,7 +217,7 @@ async function renderSummary() {
   const user = JSON.parse(userStr);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const res = await fetch(`/api/cart/${user.id}`);
     if (!res.ok) throw new Error('Gagal fetch cart');
     const cart = await res.json();
     if (cart.length === 0) {
@@ -450,7 +450,7 @@ async function placeOrder() {
     }
 
     // Get cart from server
-    const resCart = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const resCart = await fetch(`/api/cart/${user.id}`);
     if (!resCart.ok) throw new Error('Gagal mengambil data keranjang');
     const cart = await resCart.json();
 
@@ -501,7 +501,7 @@ async function placeOrder() {
     };
 
     // Submit order
-    const resOrder = await fetch('http://localhost:3000/api/orders', {
+    const resOrder = await fetch('/api/orders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -519,7 +519,7 @@ async function placeOrder() {
 
     // Clear cart from server after successful order
     try {
-      const deleteCartRes = await fetch(`http://localhost:3000/api/cart/${user.id}`, {
+      const deleteCartRes = await fetch(`/api/cart/${user.id}`, {
         method: 'DELETE',
       });
 

@@ -99,176 +99,183 @@
   </div>
 
   <!-- JavaScript -->
-  <script>
-    function logoutAdmin() {
-      localStorage.removeItem('user');
-      localStorage.removeItem('cart');
-      localStorage.removeItem('wishlist');
-      location.href = '/';
+<script>
+  const BASE_URL = "tokorayhan.up.railway.app"; // Ganti sesuai URL Railway kamu
+
+  function logoutAdmin() {
+    localStorage.removeItem('user');
+    localStorage.removeItem('cart');
+    localStorage.removeItem('wishlist');
+    location.href = '/';
+  }
+
+  function tampilkanSalam(namaAdmin) {
+    const jam = new Date().getHours();
+    let salam = 'Selamat Datang';
+    if (jam >= 5 && jam < 11) salam = 'Selamat Pagi';
+    else if (jam >= 11 && jam < 15) salam = 'Selamat Siang';
+    else if (jam >= 15 && jam < 18) salam = 'Selamat Sore';
+    else salam = 'Selamat Malam';
+    document.getElementById('greeting').textContent = `${salam}, ${namaAdmin}!`;
+  }
+
+  function formatRupiah(num) {
+    return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
+  }
+
+  function getFilterQuery() {
+    const start = document.getElementById('startDate').value;
+    const end = document.getElementById('endDate').value;
+    const params = [];
+    if (start) params.push(`start=${start}`);
+    if (end) params.push(`end=${end}`);
+    return params.length ? `?${params.join('&')}` : '';
+  }
+
+  function applyFilter() {
+    const start = new Date(document.getElementById('startDate').value);
+    const end = new Date(document.getElementById('endDate').value);
+    if (start && end && start > end) {
+      alert('Tanggal akhir tidak boleh lebih awal dari tanggal mulai.');
+      return;
     }
+    loadSummary();
+  }
 
-    function tampilkanSalam(namaAdmin) {
-      const jam = new Date().getHours();
-      let salam = 'Selamat Datang';
-      if (jam >= 5 && jam < 11) salam = 'Selamat Pagi';
-      else if (jam >= 11 && jam < 15) salam = 'Selamat Siang';
-      else if (jam >= 15 && jam < 18) salam = 'Selamat Sore';
-      else salam = 'Selamat Malam';
-      document.getElementById('greeting').textContent = `${salam}, ${namaAdmin}!`;
+  async function exportFile(format) {
+    const overlay = document.getElementById('spinnerOverlay');
+    overlay.classList.remove('hidden');
+    try {
+      const endpoint = format === 'pdf' ? '/api/export/pdf' : '/api/export/excel';
+      const response = await fetch(`${BASE_URL}${endpoint}${getFilterQuery()}`);
+      if (!response.ok) throw new Error(`Gagal mengunduh file ${format.toUpperCase()}`);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `laporan_toko_rayhan.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      alert(err.message);
+      console.error(err);
+    } finally {
+      overlay.classList.add('hidden');
     }
+  }
 
-    function formatRupiah(num) {
-      return 'Rp ' + Number(num || 0).toLocaleString('id-ID');
-    }
+  const exportPDF = () => exportFile('pdf');
+  const exportExcel = () => exportFile('xlsx');
 
-    function getFilterQuery() {
-      const start = document.getElementById('startDate').value;
-      const end = document.getElementById('endDate').value;
-      const params = [];
-      if (start) params.push(`start=${start}`);
-      if (end) params.push(`end=${end}`);
-      return params.length ? `?${params.join('&')}` : '';
-    }
+  function drawChart(data) {
+    const ctx = document.getElementById('ordersChart').getContext('2d');
+    if (window.orderChart) window.orderChart.destroy();
 
-    function applyFilter() {
-      const start = new Date(document.getElementById('startDate').value);
-      const end = new Date(document.getElementById('endDate').value);
-      if (start && end && start > end) {
-        alert('Tanggal akhir tidak boleh lebih awal dari tanggal mulai.');
-        return;
-      }
-      loadSummary();
-    }
+    const colors = [
+      '#60a5fa', '#34d399', '#fbbf24', '#f87171',
+      '#a78bfa', '#f472b6', '#38bdf8', '#fb923c'
+    ];
+    const backgroundColors = data.map((_, i) => colors[i % colors.length]);
 
-    async function exportFile(format) {
-      const overlay = document.getElementById('spinnerOverlay');
-      overlay.classList.remove('hidden');
-      try {
-        const endpoint = format === 'pdf' ? '/api/export/pdf' : '/api/export/excel';
-        const response = await fetch(`http://localhost:3000${endpoint}${getFilterQuery()}`);
-        if (!response.ok) throw new Error(`Gagal mengunduh file ${format.toUpperCase()}`);
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `laporan_toko_rayhan.${format}`;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
-      } catch (err) {
-        alert(err.message);
-        console.error(err);
-      } finally {
-        overlay.classList.add('hidden');
-      }
-    }
-
-    const exportPDF = () => exportFile('pdf');
-    const exportExcel = () => exportFile('xlsx');
-
-    function drawChart(data) {
-  const ctx = document.getElementById('ordersChart').getContext('2d');
-  if (window.orderChart) window.orderChart.destroy();
-
-  const colors = [
-    '#60a5fa', '#34d399', '#fbbf24', '#f87171', '#a78bfa', '#f472b6', '#38bdf8', '#fb923c'
-  ];
-  const backgroundColors = data.map((_, i) => colors[i % colors.length]);
-
-  window.orderChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: data.map(d => d.date),
-      datasets: [{
-        label: 'Jumlah Pesanan',
-        data: data.map(d => d.count),
-        backgroundColor: backgroundColors,
-        borderRadius: 8,
-        barThickness: 40
-      }]
-    },
-    options: {
-      plugins: {
-        tooltip: {
-          callbacks: {
-            title: context => `Tanggal: ${context[0].label}`,
-            label: context => ` Jumlah Pesanan: ${context.raw}`
-          }
-        },
-        legend: { display: false }
+    window.orderChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.date),
+        datasets: [{
+          label: 'Jumlah Pesanan',
+          data: data.map(d => d.count),
+          backgroundColor: backgroundColors,
+          borderRadius: 8,
+          barThickness: 40
+        }]
       },
-      scales: {
-        x: {
-          ticks: { color: '#374151' },
-          grid: { display: false }
+      options: {
+        plugins: {
+          tooltip: {
+            callbacks: {
+              title: context => `Tanggal: ${context[0].label}`,
+              label: context => ` Jumlah Pesanan: ${context.raw}`
+            }
+          },
+          legend: { display: false }
         },
-        y: {
-          beginAtZero: true,
-          ticks: { color: '#374151' },
-          grid: { color: '#e5e7eb' }
+        scales: {
+          x: {
+            ticks: { color: '#374151' },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { color: '#374151' },
+            grid: { color: '#e5e7eb' }
+          }
         }
       }
-    }
-  });
-}
-
-    async function loadSummary() {
-      const overlay = document.getElementById('spinnerOverlay');
-      overlay.classList.remove('hidden');
-      try {
-        const res = await fetch(`http://localhost:3000/api/orders/summary${getFilterQuery()}`);
-        const data = await res.json();
-        document.getElementById('totalToday').textContent = data.totalToday?.toLocaleString('id-ID') || '0';
-        document.getElementById('totalIncome').textContent = formatRupiah(data.totalIncome || 0);
-        document.getElementById('productCount').textContent = data.totalProducts || 0;
-
-        const tbody = document.getElementById('ordersBody');
-        tbody.innerHTML = '';
-
-        if (!data.latestOrders?.length) {
-          tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-400 py-4">Tidak ada pesanan</td></tr>`;
-        } else {
-          data.latestOrders.forEach(o => {
-            const statusColor = {
-              pending: 'bg-yellow-500',
-              confirmed: 'bg-blue-500',
-              selesai: 'bg-green-500',
-              batal: 'bg-red-500'
-            }[o.status?.toLowerCase()] || 'bg-gray-500';
-            const row = `
-              <tr class="border-b border-gray-200">
-                <td class="py-2">${o.id}</td>
-                <td>${o.user_name || 'User #' + o.user_id}</td>
-                <td>${formatRupiah(o.total)}</td>
-                <td><span class="px-2 py-1 text-xs rounded ${statusColor} text-white">${o.status}</span></td>
-              </tr>`;
-            tbody.insertAdjacentHTML('beforeend', row);
-          });
-        }
-
-        if (data.weeklyStats) drawChart(data.weeklyStats);
-      } catch (e) {
-        console.error(e);
-        document.getElementById('ordersBody').innerHTML = `<tr><td colspan="4" class="text-center text-red-400 py-4">Gagal memuat data</td></tr>`;
-      } finally {
-        overlay.classList.add('hidden');
-      }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      const userStr = localStorage.getItem('user');
-      if (!userStr) return location.href = '/publik/index.html';
-      const user = JSON.parse(userStr);
-      if (!user.is_admin) {
-        alert('Halaman ini hanya untuk admin.');
-        location.href = '/publik/index.html';
-        return;
-      }
-      tampilkanSalam(user.name || 'Admin');
-      document.getElementById('todayDate').textContent = new Date().toLocaleDateString('id-ID');
-      loadSummary();
     });
-  </script>
+  }
+
+  async function loadSummary() {
+    const overlay = document.getElementById('spinnerOverlay');
+    overlay.classList.remove('hidden');
+    try {
+      const res = await fetch(`${BASE_URL}/api/orders/summary${getFilterQuery()}`);
+      const data = await res.json();
+
+      document.getElementById('totalToday').textContent = data.totalToday?.toLocaleString('id-ID') || '0';
+      document.getElementById('totalIncome').textContent = formatRupiah(data.totalIncome || 0);
+      document.getElementById('productCount').textContent = data.totalProducts || 0;
+
+      const tbody = document.getElementById('ordersBody');
+      tbody.innerHTML = '';
+
+      if (!data.latestOrders?.length) {
+        tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-400 py-4">Tidak ada pesanan</td></tr>`;
+      } else {
+        data.latestOrders.forEach(o => {
+          const statusColor = {
+            pending: 'bg-yellow-500',
+            confirmed: 'bg-blue-500',
+            selesai: 'bg-green-500',
+            batal: 'bg-red-500'
+          }[o.status?.toLowerCase()] || 'bg-gray-500';
+
+          const row = `
+            <tr class="border-b border-gray-200">
+              <td class="py-2">${o.id}</td>
+              <td>${o.user_name || 'User #' + o.user_id}</td>
+              <td>${formatRupiah(o.total)}</td>
+              <td><span class="px-2 py-1 text-xs rounded ${statusColor} text-white">${o.status}</span></td>
+            </tr>`;
+          tbody.insertAdjacentHTML('beforeend', row);
+        });
+      }
+
+      if (data.weeklyStats) drawChart(data.weeklyStats);
+    } catch (e) {
+      console.error(e);
+      document.getElementById('ordersBody').innerHTML = `<tr><td colspan="4" class="text-center text-red-400 py-4">Gagal memuat data</td></tr>`;
+    } finally {
+      overlay.classList.add('hidden');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const userStr = localStorage.getItem('user');
+    if (!userStr) return location.href = '/publik/index.html';
+
+    const user = JSON.parse(userStr);
+    if (!user.is_admin) {
+      alert('Halaman ini hanya untuk admin.');
+      location.href = '/publik/index.html';
+      return;
+    }
+
+    tampilkanSalam(user.name || 'Admin');
+    document.getElementById('todayDate').textContent = new Date().toLocaleDateString('id-ID');
+    loadSummary();
+  });
+</script>
 </body>
 </html>

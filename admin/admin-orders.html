@@ -163,7 +163,7 @@
 
       try {
         const query = getQueryParams();
-        const res = await fetch(`http://localhost:3000/api/orders?page=${page}&limit=${limitPerPage}&${query}`);
+        const res = await fetch(`/api/orders?page=${page}&limit=${limitPerPage}&${query}`);
         const { orders = [], total = 0 } = await res.json();
 
         const tbody = document.getElementById('ordersBody');

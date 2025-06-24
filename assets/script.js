@@ -76,8 +76,8 @@ function updateWishlistCount() {
 async function fetchAndStoreUserData(userId) {
   try {
     const [cartRes, wishlistRes] = await Promise.all([
-      fetch(`http://localhost:3000/api/cart/${userId}`),
-      fetch(`http://localhost:3000/api/wishlist/${userId}`)
+      fetch(`/api/cart/${userId}`),
+      fetch(`/api/wishlist/${userId}`)
     ]);
 
     if (!cartRes.ok || !wishlistRes.ok) throw new Error('Gagal fetch cart/wishlist');
@@ -134,7 +134,7 @@ function addToCart(product) {
     updateCartCount();
 
     // Kirim data ke backend tanpa blocking UI
-    fetch('http://localhost:3000/api/cart', {
+    fetch('/api/cart', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...productToAdd, user_id: user.id })
@@ -195,7 +195,7 @@ function addToWishlist(product) {
     updateWishlistCount();
 
     // Kirim data ke backend tanpa blocking UI
-    fetch('http://localhost:3000/api/wishlist', {
+    fetch('/api/wishlist', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ...productToAdd, user_id: user.id })
@@ -237,7 +237,7 @@ async function openCartModal() {
 
   try {
     const user = JSON.parse(userStr);
-    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const res = await fetch(`/api/cart/${user.id}`);
     if (!res.ok) throw new Error('Gagal fetch cart');
 
     const cart = await res.json();
@@ -298,7 +298,7 @@ async function openWishlistModal() {
 
   try {
     const user = JSON.parse(userStr);
-    const res = await fetch(`http://localhost:3000/api/wishlist/${user.id}`);
+    const res = await fetch(`/api/wishlist/${user.id}`);
     if (!res.ok) throw new Error('Gagal fetch wishlist');
 
     const wishlist = await res.json();
@@ -335,7 +335,7 @@ async function openWishlistModal() {
 // Fungsi untuk update stok produk di UI berdasarkan productId dan quantity yang diambil dari cart
 async function updateProductStockUI(productId) {
   try {
-    const res = await fetch(`http://localhost:3000/api/products/${productId}`);
+    const res = await fetch(`/api/products/${productId}`);
     if (!res.ok) throw new Error('Gagal fetch produk stok');
     const product = await res.json();
 
@@ -367,7 +367,7 @@ async function updateQuantity(productId, quantityChange) {
   const user = JSON.parse(userStr);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/cart/updateQuantity`, {
+    const res = await fetch(`/api/cart/updateQuantity`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -404,7 +404,7 @@ async function removeFromCart(productId) {
   updateCartCount();
 
   try {
-    await fetch(`http://localhost:3000/api/cart/${user.id}/${productId}`, {
+    await fetch(`/api/cart/${user.id}/${productId}`, {
       method: 'DELETE'
     });
 
@@ -434,7 +434,7 @@ async function removeFromWishlist(productId, productName) {
   const user = JSON.parse(userStr);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/wishlist/${user.id}/${productId}`, {
+    const res = await fetch(`/api/wishlist/${user.id}/${productId}`, {
       method: 'DELETE'
     });
 
@@ -481,7 +481,7 @@ document.getElementById('loginForm')?.addEventListener('submit', async function 
   const password = document.getElementById('loginPassword').value;
 
   try {
-    const res = await fetch('http://localhost:3000/api/auth/login', {
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
@@ -527,7 +527,7 @@ document.getElementById('registerForm')?.addEventListener('submit', async functi
   const address = document.getElementById('registerAddress').value.trim();
 
   try {
-    const res = await fetch('http://localhost:3000/api/auth/register', {
+    const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password, phone, address })
@@ -620,7 +620,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   for (const el of stockElements) {
     const productId = el.dataset.productId;
     try {
-      const res = await fetch(`http://localhost:3000/api/products/${productId}`);
+      const res = await fetch(`/api/products/${productId}`);
       const product = await res.json();
 
       if (!res.ok) {
@@ -680,7 +680,7 @@ async function renderCheckoutItems() {
   const user = JSON.parse(userStr);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const res = await fetch(`/api/cart/${user.id}`);
     if (!res.ok) throw new Error('Gagal memuat keranjang');
 
     const cart = await res.json();
@@ -726,7 +726,7 @@ async function renderProductSummary() {
   const user = JSON.parse(userStr);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const res = await fetch(`/api/cart/${user.id}`);
     if (!res.ok) throw new Error('Gagal memuat keranjang');
     const cart = await res.json();
 
@@ -774,7 +774,7 @@ async function renderSummary() {
   const user = JSON.parse(userStr);
 
   try {
-    const res = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const res = await fetch(`/api/cart/${user.id}`);
     if (!res.ok) throw new Error('Gagal fetch cart');
     const cart = await res.json();
     if (cart.length === 0) {
@@ -949,7 +949,7 @@ async function placeOrder() {
 
   try {
     // Ambil keranjang dari server
-    const resCart = await fetch(`http://localhost:3000/api/cart/${user.id}`);
+    const resCart = await fetch(`/api/cart/${user.id}`);
     if (!resCart.ok) throw new Error('Gagal mengambil data keranjang');
     const cart = await resCart.json();
 
@@ -986,7 +986,7 @@ async function placeOrder() {
     };
 
     console.log('ORDER DATA:', orderData);
-    const resOrder = await fetch('http://localhost:3000/api/orders', {
+    const resOrder = await fetch('/api/orders', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

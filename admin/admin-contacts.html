@@ -92,7 +92,7 @@
       const q = searchInput.value.trim();
       const start = startDateInput.value;
       const end = endDateInput.value;
-      let url = `http://localhost:3000/api/contacts?page=${page}&limit=${limit}`;
+      let url = `/api/contacts?page=${page}&limit=${limit}`;
       if (q) url += `&search=${encodeURIComponent(q)}`;
       if (start) url += `&start=${start}`;
       if (end) url += `&end=${end}`;
@@ -158,7 +158,7 @@
 
     async function markAsRead(id) {
       try {
-        await fetch(`http://localhost:3000/api/contacts/${id}/read`, { method: 'PATCH' });
+        await fetch(`/api/contacts/${id}/read`, { method: 'PATCH' });
         await fetchContacts(currentPage);
         Swal.fire('Sukses', 'Pesan ditandai sebagai dibaca', 'success');
       } catch (err) {
@@ -177,7 +177,7 @@
       });
       if (confirm.isConfirmed) {
         try {
-          await fetch(`http://localhost:3000/api/contacts/${id}`, { method: 'DELETE' });
+          await fetch(`/api/contacts/${id}`, { method: 'DELETE' });
           await fetchContacts(currentPage);
           Swal.fire('Berhasil', 'Pesan dihapus.', 'success');
         } catch (err) {
