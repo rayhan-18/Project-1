@@ -1033,7 +1033,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const res = await fetch('http://mysql-ncyw.railway.internal:8080/api/products');
+    const res = await fetch('/api/products');
     const products = await res.json();
     if (!Array.isArray(products)) throw new Error("Data produk tidak valid");
 
