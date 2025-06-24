@@ -26,10 +26,21 @@ app.use(express.json());
 // Folder publik untuk HTML dan favicon
 app.use(express.static(path.join(__dirname, "publik")));
 
+// Tambahkan ini di bawah baris static publik:
+app.use("/publik", express.static(path.join(__dirname, "publik")));
+
 // Folder aset frontend (JS, CSS, Gambar)
 app.use("/assets", express.static(path.join(__dirname, "assets")));
 
+app.use("/images", express.static(path.join(__dirname, "images")));
+
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+
+// ✅ Folder untuk gambar produk
+app.use("/product", express.static(path.join(__dirname, "product")));
+
+// ✅ Folder halaman admin
+app.use("/admin", express.static(path.join(__dirname, "admin")));
 
 // ============================
 // 🔗 API ROUTES (Modular)
