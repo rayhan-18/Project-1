@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Ganti dengan password yang ingin di-hash
 const password = 'admin123';
